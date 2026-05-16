@@ -8,6 +8,11 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 
 ## Recent Changes
 
+### 2026-05-16
+- Added `homepage-demo.php`, a standalone static Livelatch landing page prototype with branded hero, Creator profile/LatchDeck mockups, feature sections, and responsive dark neon styling.
+- Added demo-only Create LatchID and Log in modal flows using social OAuth provider buttons, fake loading feedback, dashboard handoff copy, Escape/click-outside close behavior, and no backend or Supabase wiring.
+- Validation: ran `php -l homepage-demo.php`; git status could not be checked because the sandbox user is not marked as a safe Git owner for this checkout.
+
 ### 2026-05-14
 - Added an `AGENTS.md` convention for owner-authored notes in `summary.md`; future reports should preserve those notes and treat them as additional context/justification.
 - Updated `AGENTS.md` to require future `summary.md` entries to preserve the current format, date heading style, fork-only scope, and separation between recent changes and fork history.
