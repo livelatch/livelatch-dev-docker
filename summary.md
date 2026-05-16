@@ -9,6 +9,10 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 ## Recent Changes
 
 ### 2026-05-16
+- Rebuilt `homepage-demo.php` as a polished standalone Livelatch homepage concept using exported `/logos` PNG assets for Livelatch, LatchDeck, LatchID, and Latchalytics instead of CSS-recreated branding.
+- Added complete static sections for the hero, creator link-page preview, product suite, LatchDeck cards, LatchID social-only onboarding, Latchalytics dashboard mockup, alpha positioning, and footer compliance note.
+- Kept auth demo-only with Create LatchID and Log in modal tabs, fake provider loading states, keyboard/click-outside close behavior, no email/password fields, no Supabase calls, and dashboard handoff to `https://dev.livelatch.com/dashboard`.
+- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with a local PHP startup warning about the configured timezone value `+8`.
 - Refined `homepage-demo.php` with more premium gamer/streamer visual energy, including subtle animated neon glows, broadcast rings, chat overlays, live/waveform indicators, floating cards, and richer interactive polish without adding dependencies.
 - Added `homepage-demo.php`, a standalone static Livelatch landing page prototype with branded hero, Creator profile/LatchDeck mockups, feature sections, and responsive dark neon styling.
 - Added demo-only Create LatchID and Log in modal flows using social OAuth provider buttons, fake loading feedback, dashboard handoff copy, Escape/click-outside close behavior, and no backend or Supabase wiring.
