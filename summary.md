@@ -9,6 +9,9 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 ## Recent Changes
 
 ### 2026-05-16
+- Corrected `homepage-demo.php` logo usage so `_light` assets are used on light backgrounds and `_dark` assets are used on dark backgrounds, with explicit logo context metadata for mixed-background sections.
+- Added a light/dark mode switcher to the standalone homepage demo, including theme-aware CSS variables, persisted local preference, and dynamic swapping for theme-sensitive logo assets.
+- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with the existing local PHP startup warning about timezone value `+8`.
 - Rebuilt `homepage-demo.php` as a polished standalone Livelatch homepage concept using exported `/logos` PNG assets for Livelatch, LatchDeck, LatchID, and Latchalytics instead of CSS-recreated branding.
 - Added complete static sections for the hero, creator link-page preview, product suite, LatchDeck cards, LatchID social-only onboarding, Latchalytics dashboard mockup, alpha positioning, and footer compliance note.
 - Kept auth demo-only with Create LatchID and Log in modal tabs, fake provider loading states, keyboard/click-outside close behavior, no email/password fields, no Supabase calls, and dashboard handoff to `https://dev.livelatch.com/dashboard`.

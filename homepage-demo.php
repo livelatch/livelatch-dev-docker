@@ -38,6 +38,18 @@
             color-scheme: dark;
         }
 
+        body[data-theme="light"] {
+            --ll-panel: rgba(255, 255, 255, 0.76);
+            --ll-panel-strong: rgba(255, 255, 255, 0.92);
+            --ll-glass: rgba(8, 17, 31, 0.06);
+            --ll-line: rgba(8, 17, 31, 0.14);
+            --ll-line-soft: rgba(8, 17, 31, 0.09);
+            --ll-text: #071126;
+            --ll-muted: #52677f;
+            --ll-shadow: 0 28px 90px rgba(31, 77, 132, 0.18);
+            color-scheme: light;
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -57,6 +69,14 @@
                 linear-gradient(145deg, #050814 0%, #071126 44%, #0b1730 100%);
             line-height: 1.5;
             overflow-x: hidden;
+            transition: background 220ms ease, color 220ms ease;
+        }
+
+        body[data-theme="light"] {
+            background:
+                radial-gradient(circle at 15% 6%, rgba(24, 213, 255, 0.18), transparent 27rem),
+                radial-gradient(circle at 88% 7%, rgba(140, 85, 255, 0.14), transparent 31rem),
+                linear-gradient(145deg, #f6fbff 0%, #edf6ff 46%, #f8fbff 100%);
         }
 
         body::before {
@@ -70,6 +90,12 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
             background-size: 78px 78px;
             mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent 82%);
+        }
+
+        body[data-theme="light"]::before {
+            background-image:
+                linear-gradient(rgba(8, 17, 31, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(8, 17, 31, 0.045) 1px, transparent 1px);
         }
 
         body.ll-modal-open {
@@ -138,6 +164,11 @@
             backdrop-filter: blur(22px);
         }
 
+        body[data-theme="light"] .ll-nav {
+            background: rgba(246, 251, 255, 0.78);
+            border-bottom-color: rgba(8, 17, 31, 0.1);
+        }
+
         .ll-nav-inner {
             display: flex;
             align-items: center;
@@ -183,6 +214,11 @@
             cursor: pointer;
         }
 
+        body[data-theme="light"] .ll-menu-button {
+            border-color: rgba(8, 17, 31, 0.14);
+            background: rgba(8, 17, 31, 0.06);
+        }
+
         .ll-menu-button span,
         .ll-menu-button::before,
         .ll-menu-button::after {
@@ -217,6 +253,68 @@
             text-decoration: none;
             border-radius: 999px;
             transition: color 180ms ease, background 180ms ease;
+        }
+
+        body[data-theme="light"] .ll-nav-links a:hover,
+        body[data-theme="light"] .ll-nav-links a:focus-visible {
+            background: rgba(8, 17, 31, 0.07);
+        }
+
+        .ll-theme-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            color: var(--ll-text);
+            background: rgba(255, 255, 255, 0.07);
+            cursor: pointer;
+        }
+
+        body[data-theme="light"] .ll-theme-toggle {
+            border-color: rgba(8, 17, 31, 0.14);
+            background: rgba(8, 17, 31, 0.06);
+        }
+
+        .ll-theme-toggle span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 36px;
+            border-radius: 999px;
+            color: var(--ll-muted);
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+
+        .ll-theme-toggle::before {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 42px;
+            height: 36px;
+            border-radius: 999px;
+            content: "";
+            background: linear-gradient(135deg, var(--ll-cyan), var(--ll-blue));
+            transition: transform 180ms ease;
+        }
+
+        body[data-theme="light"] .ll-theme-toggle::before {
+            transform: translateX(42px);
+            background: linear-gradient(135deg, var(--ll-gold), #fff4b8);
+        }
+
+        .ll-theme-toggle span {
+            position: relative;
+            z-index: 1;
+        }
+
+        body[data-theme="dark"] .ll-theme-dark,
+        body[data-theme="light"] .ll-theme-light {
+            color: #06111f;
         }
 
         .ll-nav-links a:hover,
@@ -266,6 +364,11 @@
             border: 1px solid rgba(255, 255, 255, 0.16);
             background: rgba(255, 255, 255, 0.07);
             font-weight: 750;
+        }
+
+        body[data-theme="light"] .ll-button-ghost {
+            border-color: rgba(8, 17, 31, 0.14);
+            background: rgba(8, 17, 31, 0.055);
         }
 
         .ll-button-dark {
@@ -347,6 +450,12 @@
             color: transparent;
         }
 
+        body[data-theme="light"] .ll-gradient-text {
+            background: linear-gradient(135deg, #06111f 0%, #0b5fc8 38%, #12a9cf 62%, #7d43df 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
         .ll-hero-copy {
             max-width: 650px;
             margin-bottom: 28px;
@@ -374,6 +483,12 @@
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: var(--ll-radius-md);
             background: rgba(255, 255, 255, 0.06);
+        }
+
+        body[data-theme="light"] .ll-proof {
+            border-color: rgba(8, 17, 31, 0.1);
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 18px 48px rgba(31, 77, 132, 0.11);
         }
 
         .ll-proof strong {
@@ -427,6 +542,8 @@
             background:
                 radial-gradient(circle at 50% 0%, rgba(45, 140, 255, 0.3), transparent 35%),
                 linear-gradient(180deg, rgba(8, 17, 35, 0.98), rgba(8, 12, 25, 0.98));
+            color: #f7fbff;
+            --ll-muted: #b6c4da;
         }
 
         .ll-avatar {
@@ -524,6 +641,8 @@
             background: rgba(10, 19, 42, 0.74);
             box-shadow: var(--ll-shadow);
             backdrop-filter: blur(22px);
+            color: #f7fbff;
+            --ll-muted: #b6c4da;
         }
 
         .ll-hero-deck {
@@ -747,6 +866,16 @@
             transition: transform 180ms ease, border-color 180ms ease;
         }
 
+        body[data-theme="light"] .ll-product-card {
+            border-color: rgba(8, 17, 31, 0.1);
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        body[data-theme="light"] .ll-product-card p,
+        body[data-theme="light"] .ll-micro-stat span {
+            color: #52677f;
+        }
+
         .ll-product-card:hover {
             transform: translateY(-4px);
             border-color: rgba(255, 255, 255, 0.28);
@@ -825,6 +954,8 @@
                 radial-gradient(circle at 22% 14%, rgba(255, 76, 184, 0.23), transparent 26rem),
                 radial-gradient(circle at 82% 32%, rgba(140, 85, 255, 0.26), transparent 28rem),
                 linear-gradient(145deg, #0c0718, #241039 58%, #100a20);
+            color: #f7fbff;
+            --ll-muted: #d7c7ee;
         }
 
         .ll-deck-showcase {
@@ -978,6 +1109,8 @@
             background:
                 radial-gradient(circle at 80% 12%, rgba(255, 183, 63, 0.2), transparent 27rem),
                 linear-gradient(145deg, #120c05, #1b1322 52%, #080d18);
+            color: #f7fbff;
+            --ll-muted: #dfcdb5;
         }
 
         .ll-dashboard-card {
@@ -987,6 +1120,7 @@
             background: rgba(255, 255, 255, 0.08);
             box-shadow: var(--ll-shadow);
             backdrop-filter: blur(22px);
+            color: #f7fbff;
         }
 
         .ll-stat-grid {
@@ -1060,6 +1194,11 @@
             background: rgba(5, 8, 20, 0.72);
         }
 
+        body[data-theme="light"] .ll-footer {
+            border-top-color: rgba(8, 17, 31, 0.1);
+            background: rgba(246, 251, 255, 0.82);
+        }
+
         .ll-footer-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
@@ -1103,6 +1242,8 @@
             padding: 22px;
             background: rgba(2, 6, 15, 0.72);
             backdrop-filter: blur(14px);
+            color: #f7fbff;
+            --ll-muted: #b6c4da;
         }
 
         .ll-modal[aria-hidden="false"] {
@@ -1467,7 +1608,7 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 <div class="ll-page">
     <header class="ll-nav" data-ll-nav>
         <div class="ll-shell ll-nav-inner">
@@ -1477,7 +1618,7 @@
                     <span class="ll-logo-fallback">L</span>
                 </span>
                 <span>
-                    <img class="ll-logo-img ll-logo-word" src="/logos/livelatch_light.png" alt="Livelatch" onerror="this.hidden=true">
+                    <img class="ll-logo-img ll-logo-word" src="/logos/livelatch_dark.png" alt="Livelatch" data-ll-logo data-logo-context="theme" data-logo-light="/logos/livelatch_light.png" data-logo-dark="/logos/livelatch_dark.png" onerror="this.hidden=true">
                     <span class="ll-logo-fallback">Livelatch</span>
                 </span>
             </a>
@@ -1493,6 +1634,10 @@
             </nav>
 
             <nav class="ll-nav-actions" aria-label="Account actions">
+                <button class="ll-theme-toggle" type="button" data-ll-theme-toggle aria-label="Switch to light mode" aria-pressed="false">
+                    <span class="ll-theme-dark" aria-hidden="true">Dark</span>
+                    <span class="ll-theme-light" aria-hidden="true">Light</span>
+                </button>
                 <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="login">Log in</button>
                 <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Create LatchID</button>
             </nav>
@@ -1532,7 +1677,7 @@
                                 <a class="ll-link-pill" href="#latchid">Verified LatchID <span>✓</span></a>
                             </div>
                             <div class="ll-powered">
-                                <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_light.png" alt="Powered by Livelatch" onerror="this.hidden=true">
+                                <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_dark.png" alt="Powered by Livelatch" data-ll-logo data-logo-context="dark" data-logo-light="/logos/livelatch_light.png" data-logo-dark="/logos/livelatch_dark.png" onerror="this.hidden=true">
                                 <span class="ll-logo-fallback">Powered by Livelatch</span>
                             </div>
                         </div>
@@ -1540,7 +1685,7 @@
 
                     <aside class="ll-floating-panel ll-hero-deck">
                         <div class="ll-panel-heading">
-                            <img class="ll-logo-img ll-logo-small" src="/logos/latchdeck_light.png" alt="LatchDeck" onerror="this.hidden=true">
+                            <img class="ll-logo-img ll-logo-small" src="/logos/latchdeck_dark.png" alt="LatchDeck" data-ll-logo data-logo-context="dark" data-logo-light="/logos/latchdeck_light.png" data-logo-dark="/logos/latchdeck_dark.png" onerror="this.hidden=true">
                             <span class="ll-logo-fallback">LatchDeck</span>
                             <span class="ll-mini-tag">Live drop</span>
                         </div>
@@ -1563,7 +1708,7 @@
 
                     <aside class="ll-floating-panel ll-analytics-panel">
                         <div class="ll-panel-heading">
-                            <img class="ll-logo-img ll-logo-small" src="/logos/latchalytics_light.png" alt="Latchalytics" onerror="this.hidden=true">
+                            <img class="ll-logo-img ll-logo-small" src="/logos/latchalytics_dark.png" alt="Latchalytics" data-ll-logo data-logo-context="dark" data-logo-light="/logos/latchalytics_light.png" data-logo-dark="/logos/latchalytics_dark.png" onerror="this.hidden=true">
                             <span class="ll-logo-fallback">Latchalytics</span>
                             <strong>128.7K clicks</strong>
                         </div>
@@ -1596,7 +1741,7 @@
                             <a class="ll-link-pill" href="#">Request a creator <span>→</span></a>
                         </div>
                         <div class="ll-powered">
-                            <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_light.png" alt="Powered by Livelatch" onerror="this.hidden=true">
+                            <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_dark.png" alt="Powered by Livelatch" data-ll-logo data-logo-context="dark" data-logo-light="/logos/livelatch_light.png" data-logo-dark="/logos/livelatch_dark.png" onerror="this.hidden=true">
                             <span class="ll-logo-fallback">Powered by Livelatch</span>
                         </div>
                     </div>
@@ -1628,7 +1773,7 @@
 
                 <div class="ll-suite-grid">
                     <article class="ll-product-card" style="--ll-accent: rgba(24, 213, 255, 0.72)">
-                        <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_light.png" alt="Livelatch" onerror="this.hidden=true">
+                        <img class="ll-logo-img ll-logo-small" src="/logos/livelatch_dark.png" alt="Livelatch" data-ll-logo data-logo-context="theme" data-logo-light="/logos/livelatch_light.png" data-logo-dark="/logos/livelatch_dark.png" onerror="this.hidden=true">
                         <span class="ll-logo-fallback">Livelatch</span>
                         <h3>Your creator home base.</h3>
                         <p>Bring links, content, community, identity, and tools together in one living profile.</p>
@@ -1641,7 +1786,7 @@
                     </article>
 
                     <article class="ll-product-card" style="--ll-accent: rgba(255, 76, 184, 0.72)">
-                        <img class="ll-logo-img ll-logo-small" src="/logos/latchdeck_light.png" alt="LatchDeck" onerror="this.hidden=true">
+                        <img class="ll-logo-img ll-logo-small" src="/logos/latchdeck_dark.png" alt="LatchDeck" data-ll-logo data-logo-context="theme" data-logo-light="/logos/latchdeck_light.png" data-logo-dark="/logos/latchdeck_dark.png" onerror="this.hidden=true">
                         <span class="ll-logo-fallback">LatchDeck</span>
                         <h3>Community moments.</h3>
                         <p>Create digital cards tied to stream moments, milestones, events, drops, and memories.</p>
@@ -1653,7 +1798,7 @@
                     </article>
 
                     <article class="ll-product-card" style="--ll-accent: rgba(70, 242, 189, 0.72)">
-                        <img class="ll-logo-img ll-logo-small" src="/logos/latchid_light.png" alt="LatchID" onerror="this.hidden=true">
+                        <img class="ll-logo-img ll-logo-small" src="/logos/latchid_dark.png" alt="LatchID" data-ll-logo data-logo-context="theme" data-logo-light="/logos/latchid_light.png" data-logo-dark="/logos/latchid_dark.png" onerror="this.hidden=true">
                         <span class="ll-logo-fallback">LatchID</span>
                         <h3>Universal identity.</h3>
                         <p>A friendly, verified account layer created through trusted social OAuth providers.</p>
@@ -1665,7 +1810,7 @@
                     </article>
 
                     <article class="ll-product-card" style="--ll-accent: rgba(255, 183, 63, 0.78)">
-                        <img class="ll-logo-img ll-logo-small" src="/logos/latchalytics_light.png" alt="Latchalytics" onerror="this.hidden=true">
+                        <img class="ll-logo-img ll-logo-small" src="/logos/latchalytics_dark.png" alt="Latchalytics" data-ll-logo data-logo-context="theme" data-logo-light="/logos/latchalytics_light.png" data-logo-dark="/logos/latchalytics_dark.png" onerror="this.hidden=true">
                         <span class="ll-logo-fallback">Latchalytics</span>
                         <h3>Insight and momentum.</h3>
                         <p>Understand link clicks, engagement, audience behavior, sources, and deck interactions.</p>
@@ -1683,7 +1828,7 @@
         <section class="ll-section ll-deck-section" id="latchdeck" aria-labelledby="llDeckTitle">
             <div class="ll-shell ll-deck-showcase">
                 <div>
-                    <img class="ll-logo-img ll-logo-word" src="/logos/latchdeck_light.png" alt="LatchDeck" onerror="this.hidden=true">
+                    <img class="ll-logo-img ll-logo-word" src="/logos/latchdeck_dark.png" alt="LatchDeck" data-ll-logo data-logo-context="dark" data-logo-light="/logos/latchdeck_light.png" data-logo-dark="/logos/latchdeck_dark.png" onerror="this.hidden=true">
                     <span class="ll-logo-fallback">LatchDeck</span>
                     <p class="ll-kicker">Collectible community moments</p>
                     <h2 id="llDeckTitle">Turn stream moments, milestones, and community memories into collectible cards.</h2>
@@ -1704,7 +1849,7 @@
         <section class="ll-section ll-id-section" id="latchid" aria-labelledby="llIdTitle">
             <div class="ll-shell ll-id-layout">
                 <div>
-                    <img class="ll-logo-img ll-logo-word" src="/logos/latchid_dark.png" alt="LatchID" onerror="this.hidden=true">
+                    <img class="ll-logo-img ll-logo-word" src="/logos/latchid_light.png" alt="LatchID" data-ll-logo data-logo-context="light" data-logo-light="/logos/latchid_light.png" data-logo-dark="/logos/latchid_dark.png" onerror="this.hidden=true">
                     <span class="ll-logo-fallback">LatchID</span>
                     <p class="ll-kicker">Identity layer</p>
                     <h2 id="llIdTitle">Create your LatchID using a trusted social account.</h2>
@@ -1741,7 +1886,7 @@
         <section class="ll-section ll-analytics-section" id="latchalytics" aria-labelledby="llAnalyticsTitle">
             <div class="ll-shell ll-analytics-layout">
                 <div>
-                    <img class="ll-logo-img ll-logo-word" src="/logos/latchalytics_light.png" alt="Latchalytics" onerror="this.hidden=true">
+                    <img class="ll-logo-img ll-logo-word" src="/logos/latchalytics_dark.png" alt="Latchalytics" data-ll-logo data-logo-context="dark" data-logo-light="/logos/latchalytics_light.png" data-logo-dark="/logos/latchalytics_dark.png" onerror="this.hidden=true">
                     <span class="ll-logo-fallback">Latchalytics</span>
                     <p class="ll-kicker">Growth and clarity</p>
                     <h2 id="llAnalyticsTitle">Know what is working across links, audience, and moments.</h2>
@@ -1799,7 +1944,7 @@
         <div class="ll-shell">
             <div class="ll-footer-grid">
                 <div>
-                    <img class="ll-logo-img ll-logo-word" src="/logos/livelatch_light.png" alt="Livelatch" onerror="this.hidden=true">
+                    <img class="ll-logo-img ll-logo-word" src="/logos/livelatch_dark.png" alt="Livelatch" data-ll-logo data-logo-context="theme" data-logo-light="/logos/livelatch_light.png" data-logo-dark="/logos/livelatch_dark.png" onerror="this.hidden=true">
                     <span class="ll-logo-fallback">Livelatch</span>
                     <p><strong>Livelatch Alpha Experience</strong><br>One ecosystem. Infinite creator moments.</p>
                 </div>
@@ -1871,9 +2016,47 @@
         var openButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-open-modal]'));
         var closeButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-close-modal]'));
         var menuButton = document.querySelector('[data-ll-menu]');
+        var themeButton = document.querySelector('[data-ll-theme-toggle]');
+        var themeLogos = Array.prototype.slice.call(document.querySelectorAll('[data-ll-logo]'));
         var nav = document.querySelector('[data-ll-nav]');
         var lastFocused = null;
         var loadingTimer = null;
+
+        function logoVariantFor(element, theme) {
+            var context = element.getAttribute('data-logo-context') || 'theme';
+            if (context === 'light' || context === 'dark') {
+                return context;
+            }
+            return theme;
+        }
+
+        function syncLogos(theme) {
+            themeLogos.forEach(function (logo) {
+                var variant = logoVariantFor(logo, theme);
+                var nextSource = logo.getAttribute(variant === 'light' ? 'data-logo-light' : 'data-logo-dark');
+                if (nextSource && logo.getAttribute('src') !== nextSource) {
+                    logo.hidden = false;
+                    logo.setAttribute('src', nextSource);
+                }
+            });
+        }
+
+        function setTheme(theme) {
+            var nextTheme = theme === 'light' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', nextTheme);
+            syncLogos(nextTheme);
+
+            if (themeButton) {
+                var light = nextTheme === 'light';
+                themeButton.setAttribute('aria-pressed', String(light));
+                themeButton.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+            }
+
+            try {
+                window.localStorage.setItem('ll-homepage-theme', nextTheme);
+            } catch (error) {
+            }
+        }
 
         function clearDemoMessages() {
             Array.prototype.slice.call(document.querySelectorAll('[data-ll-demo-message]')).forEach(function (message) {
@@ -2001,6 +2184,12 @@
             });
         }
 
+        if (themeButton) {
+            themeButton.addEventListener('click', function () {
+                setTheme(document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+            });
+        }
+
         modal.addEventListener('click', function (event) {
             if (event.target === modal) {
                 closeModal();
@@ -2014,6 +2203,12 @@
 
             trapFocus(event);
         });
+
+        try {
+            setTheme(window.localStorage.getItem('ll-homepage-theme') || 'dark');
+        } catch (error) {
+            setTheme('dark');
+        }
     }());
 </script>
 </body>
