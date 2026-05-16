@@ -906,6 +906,359 @@
             color: var(--ll-muted);
         }
 
+        .ll-pricing-section {
+            position: relative;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(24, 213, 255, 0.2), transparent 25rem),
+                radial-gradient(circle at 84% 28%, rgba(255, 183, 63, 0.12), transparent 24rem);
+        }
+
+        .ll-billing-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--ll-line);
+            border-radius: 999px;
+            background: var(--ll-glass);
+        }
+
+        .ll-billing-toggle button {
+            min-height: 38px;
+            padding: 0 15px;
+            border-radius: 999px;
+            color: var(--ll-muted);
+            background: transparent;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .ll-billing-toggle button[aria-pressed="true"] {
+            color: #06111f;
+            background: linear-gradient(135deg, var(--ll-cyan), #bff6ff);
+            box-shadow: 0 12px 28px rgba(24, 213, 255, 0.2);
+        }
+
+        .ll-save-note {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            color: #06111f;
+            background: linear-gradient(135deg, var(--ll-gold), #fff4b8);
+            font-size: 0.78rem;
+            font-weight: 950;
+        }
+
+        .ll-pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 28px;
+        }
+
+        .ll-price-card {
+            position: relative;
+            display: flex;
+            min-height: 520px;
+            padding: 21px;
+            border: 1px solid var(--ll-line);
+            border-radius: var(--ll-radius-lg);
+            background: var(--ll-panel);
+            box-shadow: 0 18px 56px rgba(0, 0, 0, 0.2);
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .ll-price-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(24, 213, 255, 0.42);
+            box-shadow: 0 26px 74px rgba(0, 0, 0, 0.26);
+        }
+
+        .ll-price-card::before {
+            position: absolute;
+            inset: -60px -70px auto auto;
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            content: "";
+            background: var(--ll-plan-glow);
+            filter: blur(34px);
+            opacity: 0.42;
+        }
+
+        .ll-price-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ll-price-card.ll-featured {
+            border-color: rgba(24, 213, 255, 0.52);
+            box-shadow: 0 28px 90px rgba(24, 213, 255, 0.16);
+        }
+
+        .ll-plan-badge {
+            display: inline-flex;
+            width: fit-content;
+            min-height: 29px;
+            align-items: center;
+            padding: 0 10px;
+            border-radius: 999px;
+            color: #06111f;
+            background: var(--ll-plan-badge);
+            font-size: 0.75rem;
+            font-weight: 950;
+        }
+
+        .ll-price-card h3 {
+            margin: 18px 0 8px;
+            font-size: 1.24rem;
+        }
+
+        .ll-plan-positioning {
+            min-height: 48px;
+            color: var(--ll-muted);
+            font-size: 0.92rem;
+        }
+
+        .ll-plan-price {
+            margin: 18px 0 4px;
+            font-size: 2.35rem;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .ll-plan-price small {
+            color: var(--ll-muted);
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .ll-plan-yearly {
+            min-height: 22px;
+            color: var(--ll-muted);
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .ll-plan-list {
+            display: grid;
+            gap: 9px;
+            margin: 18px 0 20px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .ll-plan-list li {
+            display: grid;
+            grid-template-columns: 18px 1fr;
+            gap: 8px;
+            color: var(--ll-muted);
+            font-size: 0.86rem;
+        }
+
+        .ll-plan-list li::before {
+            display: grid;
+            width: 18px;
+            height: 18px;
+            place-items: center;
+            border-radius: 999px;
+            color: #06111f;
+            background: var(--ll-plan-badge);
+            content: "✓";
+            font-size: 0.7rem;
+            font-weight: 950;
+        }
+
+        .ll-plan-list.ll-exclusions li::before {
+            color: var(--ll-muted);
+            background: rgba(255, 255, 255, 0.08);
+            content: "–";
+        }
+
+        body[data-theme="light"] .ll-plan-list.ll-exclusions li::before {
+            background: rgba(8, 17, 31, 0.07);
+        }
+
+        .ll-price-card .ll-button {
+            margin-top: auto;
+        }
+
+        .ll-limit-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .ll-limit-card {
+            padding: 18px;
+            border: 1px solid var(--ll-line);
+            border-radius: var(--ll-radius-md);
+            background: var(--ll-glass);
+        }
+
+        .ll-limit-card strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .ll-limit-card p {
+            margin: 0;
+            color: var(--ll-muted);
+            font-size: 0.9rem;
+        }
+
+        .ll-comparison-wrap {
+            margin-top: 28px;
+            border: 1px solid var(--ll-line);
+            border-radius: var(--ll-radius-lg);
+            background: var(--ll-panel);
+            overflow-x: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+        }
+
+        .ll-comparison {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .ll-comparison th,
+        .ll-comparison td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--ll-line-soft);
+            text-align: center;
+        }
+
+        .ll-comparison th:first-child,
+        .ll-comparison td:first-child {
+            text-align: left;
+        }
+
+        .ll-comparison th {
+            color: var(--ll-text);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+        }
+
+        .ll-comparison td {
+            color: var(--ll-muted);
+            font-size: 0.92rem;
+            font-weight: 800;
+        }
+
+        .ll-check {
+            color: var(--ll-mint);
+            font-weight: 950;
+        }
+
+        .ll-limited {
+            color: var(--ll-amber);
+        }
+
+        .ll-estimator {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(330px, 1fr);
+            gap: 22px;
+            margin-top: 28px;
+            padding: 24px;
+            border: 1px solid var(--ll-line);
+            border-radius: var(--ll-radius-xl);
+            background:
+                radial-gradient(circle at 88% 16%, rgba(70, 242, 189, 0.14), transparent 22rem),
+                var(--ll-panel);
+            box-shadow: 0 24px 74px rgba(0, 0, 0, 0.2);
+        }
+
+        .ll-field-group {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .ll-field-group label {
+            font-weight: 900;
+        }
+
+        .ll-seat-controls {
+            display: grid;
+            grid-template-columns: 1fr 82px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .ll-seat-controls input[type="range"] {
+            accent-color: var(--ll-cyan);
+            width: 100%;
+        }
+
+        .ll-seat-controls input[type="number"] {
+            width: 100%;
+            min-height: 44px;
+            padding: 0 10px;
+            border: 1px solid var(--ll-line);
+            border-radius: 12px;
+            color: var(--ll-text);
+            background: var(--ll-glass);
+            font: inherit;
+            font-weight: 900;
+        }
+
+        .ll-estimator-results {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .ll-estimate-box {
+            padding: 16px;
+            border: 1px solid var(--ll-line-soft);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.065);
+        }
+
+        body[data-theme="light"] .ll-estimate-box {
+            background: rgba(8, 17, 31, 0.045);
+        }
+
+        .ll-estimate-box span {
+            display: block;
+            color: var(--ll-muted);
+            font-size: 0.8rem;
+            font-weight: 850;
+        }
+
+        .ll-estimate-box strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 1.55rem;
+        }
+
+        .ll-estimator-disclaimer {
+            margin: 14px 0 0;
+            color: var(--ll-muted);
+            font-size: 0.84rem;
+        }
+
+        .ll-enterprise-message {
+            display: none;
+            margin-top: 14px;
+            padding: 13px;
+            border: 1px solid rgba(255, 183, 63, 0.28);
+            border-radius: 14px;
+            color: var(--ll-text);
+            background: rgba(255, 183, 63, 0.1);
+            font-weight: 800;
+        }
+
+        .ll-enterprise-message.ll-visible {
+            display: block;
+        }
+
         .ll-micro-ui {
             display: grid;
             gap: 10px;
@@ -1472,6 +1825,22 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .ll-pricing-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .ll-pricing-grid .ll-price-card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .ll-limit-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .ll-estimator {
+                grid-template-columns: 1fr;
+            }
+
             .ll-collector-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -1527,6 +1896,10 @@
 
             .ll-source {
                 grid-template-columns: 84px 1fr 42px;
+            }
+
+            .ll-billing-toggle {
+                margin-top: 18px;
             }
 
             .ll-footer-grid {
@@ -1585,7 +1958,22 @@
             }
 
             .ll-suite-grid,
+            .ll-pricing-grid,
+            .ll-limit-grid,
             .ll-collector-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ll-pricing-grid .ll-price-card:last-child {
+                grid-column: auto;
+            }
+
+            .ll-price-card {
+                min-height: auto;
+            }
+
+            .ll-seat-controls,
+            .ll-estimator-results {
                 grid-template-columns: 1fr;
             }
 
@@ -1630,6 +2018,7 @@
                 <a href="#latchdeck">LatchDeck</a>
                 <a href="#latchid">LatchID</a>
                 <a href="#latchalytics">Latchalytics</a>
+                <a href="#pricing">Pricing</a>
                 <a href="#alpha">Alpha</a>
             </nav>
 
@@ -1654,6 +2043,7 @@
                     <div class="ll-hero-actions">
                         <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Create LatchID</button>
                         <a class="ll-button ll-button-ghost" href="#ecosystem">Explore the ecosystem</a>
+                        <a class="ll-button ll-button-ghost" href="#pricing">See pricing</a>
                     </div>
                     <div class="ll-proof-row" aria-label="Livelatch positioning">
                         <div class="ll-proof"><strong>Not just links.</strong><span>A home for the creator world around you.</span></div>
@@ -1822,6 +2212,228 @@
                         </div>
                     </article>
                 </div>
+
+                <div class="ll-inline-actions" style="margin-top: 24px">
+                    <a class="ll-button ll-button-primary" href="#pricing">Free to start. Priced to grow.</a>
+                    <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="signup">Create LatchID</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="ll-section ll-pricing-section" id="pricing" aria-labelledby="llPricingTitle">
+            <div class="ll-shell">
+                <div class="ll-section-header">
+                    <div>
+                        <p class="ll-kicker">Pricing</p>
+                        <h2 id="llPricingTitle">Free to start. Priced to grow.</h2>
+                    </div>
+                    <div>
+                        <p class="ll-section-copy">Links are the doorway. The community is the home. Start with a real creator profile, then add growth tools when your audience is ready.</p>
+                        <div class="ll-billing-toggle" role="group" aria-label="Billing frequency">
+                            <button type="button" data-ll-billing="monthly" aria-pressed="true">Monthly</button>
+                            <button type="button" data-ll-billing="yearly" aria-pressed="false">Yearly</button>
+                            <span class="ll-save-note">2 months free</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ll-pricing-grid" aria-label="Estimated Livelatch pricing plans">
+                    <article class="ll-price-card" style="--ll-plan-glow: rgba(24, 213, 255, 0.7); --ll-plan-badge: linear-gradient(135deg, #bff6ff, var(--ll-cyan));">
+                        <span class="ll-plan-badge">Free</span>
+                        <h3>Free</h3>
+                        <p class="ll-plan-positioning">Start your creator home.</p>
+                        <div class="ll-plan-price">$0<small>/month</small></div>
+                        <p class="ll-plan-yearly">Explore the ecosystem at no cost.</p>
+                        <ul class="ll-plan-list">
+                            <li>Public Livelatch profile</li>
+                            <li>Unlimited basic links</li>
+                            <li>Basic profile themes</li>
+                            <li>Basic click counts</li>
+                            <li>Create a LatchID</li>
+                            <li>Limited LatchDeck viewer/card preview</li>
+                        </ul>
+                        <ul class="ll-plan-list ll-exclusions">
+                            <li>No advanced analytics</li>
+                            <li>No custom domains</li>
+                            <li>No team members</li>
+                        </ul>
+                        <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="signup">Start free</button>
+                    </article>
+
+                    <article class="ll-price-card ll-featured" style="--ll-plan-glow: rgba(140, 85, 255, 0.65); --ll-plan-badge: linear-gradient(135deg, #f1d8ff, var(--ll-magenta));">
+                        <span class="ll-plan-badge">Most Popular</span>
+                        <h3>Creator Plus</h3>
+                        <p class="ll-plan-positioning">For creators building a real community.</p>
+                        <div class="ll-plan-price"><span data-ll-price="plus">$7</span><small data-ll-period>/month</small></div>
+                        <p class="ll-plan-yearly" data-ll-yearly-note="plus">$70/year with 2 months free.</p>
+                        <ul class="ll-plan-list">
+                            <li>Everything in Free</li>
+                            <li>Advanced themes</li>
+                            <li>More profile blocks</li>
+                            <li>LatchDeck campaigns</li>
+                            <li>Scheduled card drops</li>
+                            <li>Latchalytics basic insights</li>
+                            <li>Custom social preview cards</li>
+                            <li>Remove basic Livelatch branding</li>
+                            <li>Early feature access</li>
+                        </ul>
+                        <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Choose Creator Plus</button>
+                    </article>
+
+                    <article class="ll-price-card" style="--ll-plan-glow: rgba(255, 183, 63, 0.72); --ll-plan-badge: linear-gradient(135deg, var(--ll-gold), var(--ll-orange));">
+                        <span class="ll-plan-badge">Best for Growth</span>
+                        <h3>Creator Pro</h3>
+                        <p class="ll-plan-positioning">For serious creators and growing communities.</p>
+                        <div class="ll-plan-price"><span data-ll-price="pro">$15</span><small data-ll-period>/month</small></div>
+                        <p class="ll-plan-yearly" data-ll-yearly-note="pro">$150/year with 2 months free.</p>
+                        <ul class="ll-plan-list">
+                            <li>Everything in Creator Plus</li>
+                            <li>Custom domain support</li>
+                            <li>Advanced Latchalytics</li>
+                            <li>Conversion tracking</li>
+                            <li>Deeper LatchDeck campaign tools</li>
+                            <li>More campaign/card limits</li>
+                            <li>Priority support</li>
+                            <li>Export analytics data</li>
+                            <li>Audience growth insights</li>
+                        </ul>
+                        <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Choose Creator Pro</button>
+                    </article>
+
+                    <article class="ll-price-card" style="--ll-plan-glow: rgba(70, 242, 189, 0.68); --ll-plan-badge: linear-gradient(135deg, #dfffee, var(--ll-mint));">
+                        <span class="ll-plan-badge">Teams</span>
+                        <h3>Team</h3>
+                        <p class="ll-plan-positioning">For creator teams, agencies, studios, and communities.</p>
+                        <div class="ll-plan-price"><span data-ll-price="team">$25</span><small data-ll-period>/month</small></div>
+                        <p class="ll-plan-yearly" data-ll-yearly-note="team">Includes 2 seats. Extra seats from $8/seat.</p>
+                        <ul class="ll-plan-list">
+                            <li>Everything in Creator Pro</li>
+                            <li>Multi-seat dashboard</li>
+                            <li>Shared creator profiles</li>
+                            <li>Team roles</li>
+                            <li>Approval flows for links/card drops</li>
+                            <li>Team analytics</li>
+                            <li>Shared asset library</li>
+                            <li>Managed creator roster</li>
+                            <li>Optional SSO placeholder, future/enterprise</li>
+                        </ul>
+                        <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Start a team</button>
+                    </article>
+
+                    <article class="ll-price-card" style="--ll-plan-glow: rgba(255, 255, 255, 0.48); --ll-plan-badge: linear-gradient(135deg, #fff, #c9d6e8);">
+                        <span class="ll-plan-badge">Enterprise</span>
+                        <h3>Enterprise / Platinum</h3>
+                        <p class="ll-plan-positioning">For large communities, agencies, and managed creator networks.</p>
+                        <div class="ll-plan-price">Talk<small> to us</small></div>
+                        <p class="ll-plan-yearly">Custom scope and limits.</p>
+                        <ul class="ll-plan-list">
+                            <li>Managed onboarding</li>
+                            <li>Dedicated support</li>
+                            <li>Advanced security options</li>
+                            <li>Custom integrations</li>
+                            <li>White-label or managed mirror options as future-facing demo copy</li>
+                            <li>Custom limits</li>
+                            <li>Optional self-hosted / managed deployment discussion</li>
+                        </ul>
+                        <button class="ll-button ll-button-ghost" type="button" data-ll-enterprise>Contact us soon</button>
+                        <div class="ll-enterprise-message" data-ll-enterprise-message>Demo only: enterprise contact routing is not connected yet.</div>
+                    </article>
+                </div>
+
+                <section class="ll-section" aria-labelledby="llFreeLimitsTitle" style="padding-bottom: 0">
+                    <div class="ll-section-header">
+                        <div>
+                            <p class="ll-kicker">Free plan clarity</p>
+                            <h2 id="llFreeLimitsTitle">What Free doesn't include</h2>
+                        </div>
+                        <p class="ll-section-copy">Free gives you a real creator home base, but the growth tools live in the paid plans.</p>
+                    </div>
+                    <div class="ll-limit-grid">
+                        <article class="ll-limit-card"><strong>No advanced Latchalytics</strong><p>Basic click counts are included, deeper source and conversion insight is paid.</p></article>
+                        <article class="ll-limit-card"><strong>No custom domain</strong><p>Use Livelatch-hosted profile URLs until upgrading to Pro.</p></article>
+                        <article class="ll-limit-card"><strong>No premium themes</strong><p>Free profiles get the essentials, paid plans unlock richer styling.</p></article>
+                        <article class="ll-limit-card"><strong>No team seats</strong><p>Collaboration, roles, and approvals live in Team.</p></article>
+                        <article class="ll-limit-card"><strong>Limited LatchDeck campaigns</strong><p>Preview the card experience, then launch campaigns on paid plans.</p></article>
+                        <article class="ll-limit-card"><strong>Livelatch branding remains</strong><p>Paid plans can reduce or remove basic branding.</p></article>
+                        <article class="ll-limit-card"><strong>No priority support</strong><p>Priority help is reserved for Pro, Team, and Enterprise.</p></article>
+                    </div>
+                </section>
+
+                <section class="ll-section" aria-labelledby="llEstimatorTitle" style="padding-bottom: 0">
+                    <div class="ll-section-header">
+                        <div>
+                            <p class="ll-kicker">Team estimate</p>
+                            <h2 id="llEstimatorTitle">Team price estimator</h2>
+                        </div>
+                        <p class="ll-section-copy">Team includes 2 seats at $25/month. Add more seats at an estimated $8 per seat/month. Yearly billing uses a 2 months free equivalent.</p>
+                    </div>
+                    <div class="ll-estimator">
+                        <div>
+                            <div class="ll-field-group">
+                                <label for="llSeatRange">Number of seats</label>
+                                <div class="ll-seat-controls">
+                                    <input id="llSeatRange" type="range" min="2" max="50" value="5" data-ll-seats-range>
+                                    <input id="llSeatInput" type="number" min="2" max="50" value="5" data-ll-seats-input aria-label="Number of team seats">
+                                </div>
+                            </div>
+                            <div class="ll-field-group">
+                                <span id="llEstimatorBillingLabel">Estimator billing</span>
+                                <div class="ll-billing-toggle" role="group" aria-labelledby="llEstimatorBillingLabel">
+                                    <button type="button" data-ll-estimator-billing="monthly" aria-pressed="true">Monthly</button>
+                                    <button type="button" data-ll-estimator-billing="yearly" aria-pressed="false">Yearly</button>
+                                    <span class="ll-save-note">2 months free</span>
+                                </div>
+                            </div>
+                            <p class="ll-estimator-disclaimer">Demo estimate only. Final pricing may change during beta.</p>
+                        </div>
+                        <div class="ll-estimator-results" aria-live="polite">
+                            <div class="ll-estimate-box"><span>Selected seats</span><strong data-ll-estimate="seats">5</strong></div>
+                            <div class="ll-estimate-box"><span>Included seats</span><strong data-ll-estimate="included">2</strong></div>
+                            <div class="ll-estimate-box"><span>Extra seats</span><strong data-ll-estimate="extra">3</strong></div>
+                            <div class="ll-estimate-box"><span>Monthly estimate</span><strong data-ll-estimate="monthly">$49</strong></div>
+                            <div class="ll-estimate-box"><span>Yearly estimate</span><strong data-ll-estimate="yearly">$490</strong></div>
+                            <div class="ll-estimate-box"><span>Effective monthly</span><strong data-ll-estimate="effective">$40.83</strong></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="ll-section" aria-labelledby="llComparisonTitle" style="padding-bottom: 0">
+                    <div class="ll-section-header">
+                        <div>
+                            <p class="ll-kicker">Compare plans</p>
+                            <h2 id="llComparisonTitle">Choose the layer that matches your creator stage.</h2>
+                        </div>
+                    </div>
+                    <div class="ll-comparison-wrap">
+                        <table class="ll-comparison">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Feature</th>
+                                    <th scope="col">Free</th>
+                                    <th scope="col">Creator Plus</th>
+                                    <th scope="col">Creator Pro</th>
+                                    <th scope="col">Team</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Unlimited basic links</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>LatchID</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Basic themes</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Premium themes</td><td>–</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Basic analytics</td><td class="ll-limited">Limited</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Advanced Latchalytics</td><td>–</td><td class="ll-limited">Basic</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>LatchDeck campaigns</td><td class="ll-limited">Preview</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Scheduled card drops</td><td>–</td><td class="ll-check">✓</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Custom domain</td><td>–</td><td>–</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Brand removal</td><td>–</td><td class="ll-limited">Basic</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Team seats</td><td>–</td><td>–</td><td>–</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Approval flows</td><td>–</td><td>–</td><td>–</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Priority support</td><td>–</td><td>–</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                                <tr><td>Analytics export</td><td>–</td><td>–</td><td class="ll-check">✓</td><td class="ll-check">✓</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </section>
 
@@ -2018,9 +2630,22 @@
         var menuButton = document.querySelector('[data-ll-menu]');
         var themeButton = document.querySelector('[data-ll-theme-toggle]');
         var themeLogos = Array.prototype.slice.call(document.querySelectorAll('[data-ll-logo]'));
+        var billingButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-billing]'));
+        var estimatorBillingButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-estimator-billing]'));
+        var seatRange = document.querySelector('[data-ll-seats-range]');
+        var seatInput = document.querySelector('[data-ll-seats-input]');
+        var enterpriseButton = document.querySelector('[data-ll-enterprise]');
+        var enterpriseMessage = document.querySelector('[data-ll-enterprise-message]');
         var nav = document.querySelector('[data-ll-nav]');
         var lastFocused = null;
         var loadingTimer = null;
+        var currentBilling = 'monthly';
+        var currentEstimatorBilling = 'monthly';
+        var planPrices = {
+            plus: { monthly: '$7', yearly: '$70', monthlyNote: '$70/year with 2 months free.', yearlyNote: 'Billed at $70/year. 2 months free.' },
+            pro: { monthly: '$15', yearly: '$150', monthlyNote: '$150/year with 2 months free.', yearlyNote: 'Billed at $150/year. 2 months free.' },
+            team: { monthly: '$25', yearly: '$250', monthlyNote: 'Includes 2 seats. Extra seats from $8/seat.', yearlyNote: 'Billed from $250/year for 2 seats. 2 months free.' }
+        };
 
         function logoVariantFor(element, theme) {
             var context = element.getAttribute('data-logo-context') || 'theme';
@@ -2056,6 +2681,81 @@
                 window.localStorage.setItem('ll-homepage-theme', nextTheme);
             } catch (error) {
             }
+        }
+
+        function setPressed(buttons, selectedValue, attributeName) {
+            buttons.forEach(function (button) {
+                button.setAttribute('aria-pressed', String(button.getAttribute(attributeName) === selectedValue));
+            });
+        }
+
+        function updatePlanPricing(billing) {
+            currentBilling = billing === 'yearly' ? 'yearly' : 'monthly';
+            setPressed(billingButtons, currentBilling, 'data-ll-billing');
+
+            Object.keys(planPrices).forEach(function (plan) {
+                var priceTarget = document.querySelector('[data-ll-price="' + plan + '"]');
+                var noteTarget = document.querySelector('[data-ll-yearly-note="' + plan + '"]');
+                if (priceTarget) {
+                    priceTarget.textContent = planPrices[plan][currentBilling];
+                }
+                if (noteTarget) {
+                    noteTarget.textContent = currentBilling === 'yearly' ? planPrices[plan].yearlyNote : planPrices[plan].monthlyNote;
+                }
+            });
+
+            Array.prototype.slice.call(document.querySelectorAll('[data-ll-period]')).forEach(function (period) {
+                period.textContent = currentBilling === 'yearly' ? '/year' : '/month';
+            });
+        }
+
+        function money(value, decimals) {
+            var fixed = Number(value).toFixed(decimals);
+            return '$' + fixed.replace(/\.00$/, '');
+        }
+
+        function clampSeats(value) {
+            var parsed = parseInt(value, 10);
+            if (Number.isNaN(parsed)) {
+                return 2;
+            }
+            return Math.min(50, Math.max(2, parsed));
+        }
+
+        function setEstimate(name, value) {
+            var target = document.querySelector('[data-ll-estimate="' + name + '"]');
+            if (target) {
+                target.textContent = value;
+            }
+        }
+
+        function updateEstimator() {
+            var seats = clampSeats(seatInput ? seatInput.value : 5);
+            var includedSeats = 2;
+            var extraSeats = Math.max(0, seats - includedSeats);
+            var monthly = 25 + (extraSeats * 8);
+            var yearly = monthly * 10;
+            var effective = yearly / 12;
+
+            if (seatRange && seatRange.value !== String(seats)) {
+                seatRange.value = seats;
+            }
+            if (seatInput && seatInput.value !== String(seats)) {
+                seatInput.value = seats;
+            }
+
+            setEstimate('seats', String(seats));
+            setEstimate('included', String(includedSeats));
+            setEstimate('extra', String(extraSeats));
+            setEstimate('monthly', money(monthly, 0));
+            setEstimate('yearly', money(yearly, 0));
+            setEstimate('effective', currentEstimatorBilling === 'yearly' ? money(effective, 2) : money(monthly, 0));
+        }
+
+        function updateEstimatorBilling(billing) {
+            currentEstimatorBilling = billing === 'yearly' ? 'yearly' : 'monthly';
+            setPressed(estimatorBillingButtons, currentEstimatorBilling, 'data-ll-estimator-billing');
+            updateEstimator();
         }
 
         function clearDemoMessages() {
@@ -2190,6 +2890,37 @@
             });
         }
 
+        billingButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var billing = button.getAttribute('data-ll-billing');
+                updatePlanPricing(billing);
+                updateEstimatorBilling(billing);
+            });
+        });
+
+        estimatorBillingButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var billing = button.getAttribute('data-ll-estimator-billing');
+                updateEstimatorBilling(billing);
+                updatePlanPricing(billing);
+            });
+        });
+
+        if (seatRange && seatInput) {
+            seatRange.addEventListener('input', function () {
+                seatInput.value = seatRange.value;
+                updateEstimator();
+            });
+            seatInput.addEventListener('input', updateEstimator);
+            seatInput.addEventListener('blur', updateEstimator);
+        }
+
+        if (enterpriseButton && enterpriseMessage) {
+            enterpriseButton.addEventListener('click', function () {
+                enterpriseMessage.classList.add('ll-visible');
+            });
+        }
+
         modal.addEventListener('click', function (event) {
             if (event.target === modal) {
                 closeModal();
@@ -2209,6 +2940,9 @@
         } catch (error) {
             setTheme('dark');
         }
+
+        updatePlanPricing('monthly');
+        updateEstimatorBilling('monthly');
     }());
 </script>
 </body>

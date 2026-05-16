@@ -9,6 +9,9 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 ## Recent Changes
 
 ### 2026-05-16
+- Added a polished `homepage-demo.php` Pricing section with Free, Creator Plus, Creator Pro, Team, and Enterprise demo plans, monthly/yearly pricing toggles, pricing CTAs, free-plan limitations, responsive comparison table, and a client-side Team seat estimator.
+- Kept the pricing work static and demo-only: plan CTAs open the existing Create LatchID modal, Enterprise shows a local placeholder message, and no backend, payment, Stripe, route, controller, Composer, npm, or view files were changed.
+- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with the existing local PHP startup warning about timezone value `+8`.
 - Corrected `homepage-demo.php` logo usage so `_light` assets are used on light backgrounds and `_dark` assets are used on dark backgrounds, with explicit logo context metadata for mixed-background sections.
 - Added a light/dark mode switcher to the standalone homepage demo, including theme-aware CSS variables, persisted local preference, and dynamic swapping for theme-sensitive logo assets.
 - Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with the existing local PHP startup warning about timezone value `+8`.
