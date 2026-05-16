@@ -50,6 +50,19 @@
             overflow-x: hidden;
         }
 
+        body::after {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            content: "";
+            opacity: 0.42;
+            background:
+                linear-gradient(115deg, transparent 0 18%, rgba(39, 195, 255, 0.08) 18.2%, transparent 18.8% 61%, rgba(255, 90, 184, 0.08) 61.2%, transparent 61.8%),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 9px);
+            mask-image: linear-gradient(to bottom, transparent, black 14%, black 76%, transparent);
+        }
+
         body.ll-modal-open {
             overflow: hidden;
         }
@@ -127,6 +140,7 @@
                 linear-gradient(135deg, rgba(140, 92, 255, 0.98), rgba(39, 195, 255, 0.84)),
                 #171b32;
             box-shadow: 0 14px 36px rgba(39, 195, 255, 0.22);
+            animation: ll-logo-pulse 5.4s ease-in-out infinite;
         }
 
         .ll-logo::before,
@@ -251,6 +265,7 @@
             border-radius: 999px;
             background: var(--ll-mint);
             box-shadow: 0 0 18px rgba(61, 255, 208, 0.9);
+            animation: ll-live-pulse 2s ease-in-out infinite;
         }
 
         .ll-hero h1 {
@@ -308,6 +323,7 @@
         .ll-mock-stage {
             position: relative;
             min-height: 640px;
+            perspective: 1200px;
         }
 
         .ll-mock-stage::before {
@@ -317,6 +333,63 @@
             border-radius: 40px;
             background: linear-gradient(135deg, rgba(140, 92, 255, 0.25), rgba(39, 195, 255, 0.18), rgba(255, 90, 184, 0.15));
             filter: blur(34px);
+            animation: ll-ambient-shift 8s ease-in-out infinite alternate;
+        }
+
+        .ll-orbit {
+            position: absolute;
+            border: 1px solid rgba(61, 255, 208, 0.18);
+            border-radius: 999px;
+            pointer-events: none;
+            box-shadow: 0 0 32px rgba(61, 255, 208, 0.1);
+        }
+
+        .ll-orbit-one {
+            top: 34px;
+            right: 20px;
+            width: 360px;
+            height: 360px;
+            animation: ll-float-slow 8s ease-in-out infinite;
+        }
+
+        .ll-orbit-two {
+            right: 76px;
+            bottom: 112px;
+            width: 230px;
+            height: 230px;
+            border-color: rgba(255, 90, 184, 0.16);
+            animation: ll-float-slow 9s ease-in-out infinite reverse;
+        }
+
+        .ll-pixel-spark {
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            border-radius: 3px;
+            background: var(--ll-mint);
+            box-shadow: 0 0 18px rgba(61, 255, 208, 0.82);
+            animation: ll-pixel-drift 5s ease-in-out infinite;
+        }
+
+        .ll-pixel-spark:nth-of-type(3) {
+            top: 96px;
+            left: 44px;
+        }
+
+        .ll-pixel-spark:nth-of-type(4) {
+            right: 34px;
+            top: 416px;
+            background: var(--ll-pink);
+            box-shadow: 0 0 18px rgba(255, 90, 184, 0.72);
+            animation-delay: -1.8s;
+        }
+
+        .ll-pixel-spark:nth-of-type(5) {
+            left: 178px;
+            bottom: 42px;
+            background: var(--ll-amber);
+            box-shadow: 0 0 18px rgba(255, 209, 102, 0.7);
+            animation-delay: -3.2s;
         }
 
         .ll-profile-card,
@@ -335,15 +408,109 @@
             right: 16px;
             width: min(100%, 390px);
             padding: 20px;
+            overflow: hidden;
+            transform: rotateY(-5deg) rotateX(2deg);
+            animation: ll-card-float 6.8s ease-in-out infinite;
+        }
+
+        .ll-profile-card::before,
+        .ll-deck-card::before {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            content: "";
+            border-radius: inherit;
+            background: linear-gradient(120deg, transparent 0 34%, rgba(255, 255, 255, 0.14) 45%, transparent 56% 100%);
+            transform: translateX(-115%);
+            animation: ll-card-sheen 7.5s ease-in-out infinite;
         }
 
         .ll-profile-hero {
+            position: relative;
             min-height: 156px;
             border-radius: 22px;
             background:
                 radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.72), transparent 6rem),
                 linear-gradient(135deg, rgba(255, 90, 184, 0.86), rgba(140, 92, 255, 0.88) 45%, rgba(39, 195, 255, 0.82));
             overflow: hidden;
+        }
+
+        .ll-profile-hero::before {
+            position: absolute;
+            inset: 0;
+            content: "";
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 22px 22px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent);
+        }
+
+        .ll-live-tag {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+            background: rgba(6, 8, 20, 0.38);
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 880;
+            backdrop-filter: blur(12px);
+        }
+
+        .ll-live-tag::before {
+            width: 8px;
+            height: 8px;
+            content: "";
+            border-radius: 999px;
+            background: #ff4f7b;
+            box-shadow: 0 0 16px rgba(255, 79, 123, 0.88);
+            animation: ll-live-pulse 1.6s ease-in-out infinite;
+        }
+
+        .ll-waveform {
+            position: absolute;
+            right: 14px;
+            bottom: 14px;
+            display: flex;
+            align-items: end;
+            height: 34px;
+            gap: 4px;
+            padding: 7px 9px;
+            border-radius: 13px;
+            background: rgba(6, 8, 20, 0.34);
+            backdrop-filter: blur(12px);
+        }
+
+        .ll-waveform span {
+            display: block;
+            width: 4px;
+            height: 12px;
+            border-radius: 999px;
+            background: var(--ll-mint);
+            box-shadow: 0 0 12px rgba(61, 255, 208, 0.65);
+            animation: ll-wave 1.2s ease-in-out infinite;
+        }
+
+        .ll-waveform span:nth-child(2) {
+            animation-delay: -0.25s;
+        }
+
+        .ll-waveform span:nth-child(3) {
+            animation-delay: -0.5s;
+        }
+
+        .ll-waveform span:nth-child(4) {
+            animation-delay: -0.75s;
+        }
+
+        .ll-waveform span:nth-child(5) {
+            animation-delay: -1s;
         }
 
         .ll-profile-head {
@@ -400,6 +567,13 @@
             background: rgba(255, 255, 255, 0.075);
             color: #eef4ff;
             font-weight: 760;
+            transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+        }
+
+        .ll-link-pill:hover {
+            transform: translateX(3px);
+            border-color: rgba(61, 255, 208, 0.26);
+            background: rgba(61, 255, 208, 0.09);
         }
 
         .ll-link-pill span:last-child {
@@ -411,6 +585,9 @@
             bottom: 122px;
             width: 310px;
             padding: 18px;
+            overflow: hidden;
+            transform: rotateY(7deg) rotateX(-1deg);
+            animation: ll-card-float 7.4s ease-in-out infinite reverse;
         }
 
         .ll-deck-strip {
@@ -421,11 +598,25 @@
         }
 
         .ll-mini-card {
+            position: relative;
             min-height: 104px;
             padding: 10px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+
+        .ll-mini-card::after {
+            position: absolute;
+            right: 9px;
+            top: 9px;
+            width: 7px;
+            height: 7px;
+            content: "";
+            border-radius: 999px;
+            background: var(--ll-mint);
+            box-shadow: 0 0 14px rgba(61, 255, 208, 0.82);
         }
 
         .ll-mini-card i {
@@ -464,6 +655,7 @@
             gap: 12px;
             padding: 14px;
             border-radius: 22px;
+            animation: ll-chip-pop 5.6s ease-in-out infinite;
         }
 
         .ll-spark {
@@ -522,6 +714,13 @@
             border-radius: var(--ll-radius);
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045));
             box-shadow: 0 20px 54px rgba(0, 0, 0, 0.2);
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+
+        .ll-feature:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.24);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.06));
         }
 
         .ll-feature-icon {
@@ -651,6 +850,77 @@
             padding: 34px 0 48px;
             color: rgba(220, 230, 255, 0.72);
             font-size: 0.88rem;
+        }
+
+        .ll-chat-bubble {
+            position: absolute;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 230px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 17px;
+            background: rgba(8, 11, 28, 0.62);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+            color: #eef4ff;
+            font-size: 0.83rem;
+            font-weight: 760;
+            backdrop-filter: blur(18px);
+        }
+
+        .ll-chat-bubble::before {
+            width: 8px;
+            height: 8px;
+            content: "";
+            border-radius: 999px;
+            background: var(--ll-blue);
+            box-shadow: 0 0 14px rgba(39, 195, 255, 0.78);
+        }
+
+        .ll-chat-one {
+            left: 4px;
+            top: 218px;
+            animation: ll-chat-rise 6.5s ease-in-out infinite;
+        }
+
+        .ll-chat-two {
+            right: 28px;
+            bottom: 218px;
+            animation: ll-chat-rise 7.5s ease-in-out infinite reverse;
+        }
+
+        .ll-chat-two::before {
+            background: var(--ll-pink);
+            box-shadow: 0 0 14px rgba(255, 90, 184, 0.72);
+        }
+
+        .ll-stream-stat {
+            position: absolute;
+            left: 32px;
+            top: 18px;
+            z-index: 3;
+            display: grid;
+            gap: 3px;
+            min-width: 118px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 18px;
+            background: rgba(8, 11, 28, 0.58);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(18px);
+            animation: ll-stat-hover 6s ease-in-out infinite;
+        }
+
+        .ll-stream-stat strong {
+            font-size: 1.25rem;
+        }
+
+        .ll-stream-stat span {
+            color: var(--ll-muted);
+            font-size: 0.78rem;
+            font-weight: 760;
         }
 
         .ll-modal {
@@ -877,6 +1147,109 @@
             }
         }
 
+        @keyframes ll-logo-pulse {
+            0%, 100% {
+                box-shadow: 0 14px 36px rgba(39, 195, 255, 0.22);
+            }
+            50% {
+                box-shadow: 0 18px 48px rgba(140, 92, 255, 0.34), 0 0 24px rgba(61, 255, 208, 0.22);
+            }
+        }
+
+        @keyframes ll-live-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.72);
+                opacity: 0.64;
+            }
+        }
+
+        @keyframes ll-ambient-shift {
+            from {
+                transform: translate3d(-10px, 4px, 0) scale(0.98);
+            }
+            to {
+                transform: translate3d(10px, -8px, 0) scale(1.03);
+            }
+        }
+
+        @keyframes ll-float-slow {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate3d(0, -14px, 0) rotate(2deg);
+            }
+        }
+
+        @keyframes ll-pixel-drift {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) rotate(0deg);
+                opacity: 0.64;
+            }
+            50% {
+                transform: translate3d(10px, -18px, 0) rotate(45deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes ll-card-float {
+            0%, 100% {
+                translate: 0 0;
+            }
+            50% {
+                translate: 0 -10px;
+            }
+        }
+
+        @keyframes ll-card-sheen {
+            0%, 48%, 100% {
+                transform: translateX(-115%);
+            }
+            62% {
+                transform: translateX(115%);
+            }
+        }
+
+        @keyframes ll-wave {
+            0%, 100% {
+                height: 9px;
+            }
+            50% {
+                height: 26px;
+            }
+        }
+
+        @keyframes ll-chip-pop {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        @keyframes ll-chat-rise {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            50% {
+                transform: translate3d(0, -12px, 0);
+            }
+        }
+
+        @keyframes ll-stat-hover {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            50% {
+                transform: translate3d(8px, -8px, 0);
+            }
+        }
+
         @media (max-width: 920px) {
             .ll-hero,
             .ll-identity-band {
@@ -938,6 +1311,14 @@
                 inset: auto;
                 width: 100%;
                 margin-bottom: 16px;
+                transform: none;
+            }
+
+            .ll-orbit,
+            .ll-pixel-spark,
+            .ll-chat-bubble,
+            .ll-stream-stat {
+                display: none;
             }
 
             .ll-mock-stage::before {
@@ -1023,8 +1404,28 @@
             </div>
 
             <div class="ll-mock-stage" aria-label="Livelatch creator profile preview">
+                <span class="ll-orbit ll-orbit-one" aria-hidden="true"></span>
+                <span class="ll-orbit ll-orbit-two" aria-hidden="true"></span>
+                <span class="ll-pixel-spark" aria-hidden="true"></span>
+                <span class="ll-pixel-spark" aria-hidden="true"></span>
+                <span class="ll-pixel-spark" aria-hidden="true"></span>
+                <div class="ll-stream-stat" aria-hidden="true">
+                    <strong>2.8k</strong>
+                    <span>watching now</span>
+                </div>
+                <div class="ll-chat-bubble ll-chat-one" aria-hidden="true">chat picked the next drop</div>
+                <div class="ll-chat-bubble ll-chat-two" aria-hidden="true">new member moment saved</div>
                 <article class="ll-profile-card">
-                    <div class="ll-profile-hero" aria-hidden="true"></div>
+                    <div class="ll-profile-hero" aria-hidden="true">
+                        <span class="ll-live-tag">Live now</span>
+                        <span class="ll-waveform">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </div>
                     <div class="ll-profile-head">
                         <div class="ll-avatar" aria-hidden="true">LL</div>
                         <div class="ll-profile-title">

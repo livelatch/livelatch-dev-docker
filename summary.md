@@ -9,6 +9,7 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 ## Recent Changes
 
 ### 2026-05-16
+- Refined `homepage-demo.php` with more premium gamer/streamer visual energy, including subtle animated neon glows, broadcast rings, chat overlays, live/waveform indicators, floating cards, and richer interactive polish without adding dependencies.
 - Added `homepage-demo.php`, a standalone static Livelatch landing page prototype with branded hero, Creator profile/LatchDeck mockups, feature sections, and responsive dark neon styling.
 - Added demo-only Create LatchID and Log in modal flows using social OAuth provider buttons, fake loading feedback, dashboard handoff copy, Escape/click-outside close behavior, and no backend or Supabase wiring.
 - Validation: ran `php -l homepage-demo.php`; git status could not be checked because the sandbox user is not marked as a safe Git owner for this checkout.
