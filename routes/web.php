@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\SocialLoginController;
+use App\Http\Controllers\Auth\LatchIdSessionController;
 use App\Http\Controllers\LinkTypeViewController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PagesController;
@@ -58,6 +59,16 @@ if(file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK'
 if(env('MAINTENANCE_MODE') != 'true'){
 
 require __DIR__.'/home.php';
+
+Route::get('/callback/google', function () {
+    return view('auth.latchid-google-callback', [
+        'supabaseUrl' => config('services.supabase.url'),
+        'supabaseAnonKey' => config('services.supabase.anon_key'),
+    ]);
+})->name('latchid.google.callback');
+
+Route::post('/api/latchid/session', [LatchIdSessionController::class, 'store'])
+  ->name('latchid.session');
 
 //Redirect if no page URL is set
 Route::get('/@', function () {

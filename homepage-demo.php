@@ -1,3 +1,39 @@
+<?php
+if (!function_exists('ll_public_env')) {
+    function ll_public_env($key, $default = '')
+    {
+        $value = getenv($key);
+        if ($value !== false && $value !== '') {
+            return $value;
+        }
+
+        $envPath = __DIR__ . '/.env';
+        if (!is_readable($envPath)) {
+            return $default;
+        }
+
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+                continue;
+            }
+
+            [$envKey, $envValue] = explode('=', $line, 2);
+            if (trim($envKey) !== $key) {
+                continue;
+            }
+
+            return trim($envValue, " \t\n\r\0\x0B\"'");
+        }
+
+        return $default;
+    }
+}
+
+$llSupabaseUrl = ll_public_env('SUPABASE_URL');
+$llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -1722,6 +1758,11 @@
             font-weight: 850;
         }
 
+        .ll-provider[disabled] {
+            cursor: not-allowed;
+            opacity: 0.58;
+        }
+
         .ll-provider-icon {
             display: grid;
             width: 30px;
@@ -2468,9 +2509,6 @@
                     <p class="ll-section-copy">No passwords. No email-first signup. LatchID is the access/passport layer for one identity across your creator world.</p>
                     <div class="ll-provider-panel" aria-label="Demo providers">
                         <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Continue with Google</button>
-                        <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="signup">Continue with Discord</button>
-                        <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="signup">Continue with TikTok</button>
-                        <button class="ll-button ll-button-ghost" type="button" data-ll-open-modal="signup">Continue with Twitch</button>
                     </div>
                 </div>
 
@@ -2542,7 +2580,7 @@
                         <p class="ll-kicker">Alpha Experience</p>
                         <h2 id="llAlphaTitle">A static UI prototype for the next Livelatch homepage.</h2>
                     </div>
-                    <p class="ll-section-copy">This demo has no backend, no Supabase calls, and no real authentication. The OAuth provider buttons show the intended handoff before sending users to the dashboard destination.</p>
+                    <p class="ll-section-copy">Google sign in now hands off to Supabase LatchID, then returns here to create the Livelatch dashboard session.</p>
                 </div>
                 <div class="ll-inline-actions">
                     <button class="ll-button ll-button-primary" type="button" data-ll-open-modal="signup">Create LatchID</button>
@@ -2593,9 +2631,6 @@
                 <p class="ll-panel-copy">Choose the social account you want to use for your Livelatch identity.</p>
                 <div class="ll-provider-list">
                     <button class="ll-provider" type="button" data-ll-provider="Google"><span><span class="ll-provider-icon">G</span>Continue with Google</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="Discord"><span><span class="ll-provider-icon">D</span>Continue with Discord</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="TikTok"><span><span class="ll-provider-icon">T</span>Continue with TikTok</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="Twitch"><span><span class="ll-provider-icon">Tw</span>Continue with Twitch</span><small>OAuth</small></button>
                 </div>
                 <p class="ll-helper">No passwords. Your LatchID is created through a trusted social login.</p>
                 <div class="ll-demo-message" data-ll-demo-message></div>
@@ -2606,9 +2641,6 @@
                 <p class="ll-panel-copy">Choose the social account linked to your LatchID.</p>
                 <div class="ll-provider-list">
                     <button class="ll-provider" type="button" data-ll-provider="Google"><span><span class="ll-provider-icon">G</span>Continue with Google</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="Discord"><span><span class="ll-provider-icon">D</span>Continue with Discord</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="TikTok"><span><span class="ll-provider-icon">T</span>Continue with TikTok</span><small>OAuth</small></button>
-                    <button class="ll-provider" type="button" data-ll-provider="Twitch"><span><span class="ll-provider-icon">Tw</span>Continue with Twitch</span><small>OAuth</small></button>
                 </div>
                 <p class="ll-helper">After authentication, you'll be taken to your dashboard.</p>
                 <div class="ll-demo-message" data-ll-demo-message></div>
@@ -2617,9 +2649,16 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     (function () {
         'use strict';
+
+        var latchIdConfig = {
+            supabaseUrl: <?php echo json_encode($llSupabaseUrl); ?>,
+            supabaseAnonKey: <?php echo json_encode($llSupabaseAnonKey); ?>,
+            redirectTo: 'https://dev.livelatch.com/callback/google'
+        };
 
         var modal = document.getElementById('llAuthModal');
         var modalTitle = document.getElementById('llModalTitle');
@@ -2805,7 +2844,12 @@
             }
         }
 
-        function handleProviderClick(button) {
+        function setProviderBusy(button, busy) {
+            button.disabled = busy;
+            button.setAttribute('aria-busy', String(busy));
+        }
+
+        async function handleProviderClick(button) {
             var provider = button.getAttribute('data-ll-provider');
             var panel = button.closest('[data-ll-panel]');
             var message = panel ? panel.querySelector('[data-ll-demo-message]') : null;
@@ -2816,15 +2860,42 @@
 
             window.clearTimeout(loadingTimer);
             message.classList.add('ll-visible');
-            message.innerHTML = '<span class="ll-loading">Connecting to ' + provider + '</span>';
 
-            loadingTimer = window.setTimeout(function () {
-                message.innerHTML =
-                    '<strong>Demo only:</strong> this would redirect to the selected OAuth provider, then return you to your Livelatch dashboard.' +
-                    '<div class="ll-modal-actions">' +
-                    '<a class="ll-button ll-button-primary" href="https://dev.livelatch.com/dashboard">Continue to dashboard</a>' +
-                    '</div>';
-            }, 700);
+            if (provider !== 'Google') {
+                message.innerHTML = '<strong>Google only:</strong> LatchID MVP authentication is currently limited to Google.';
+                return;
+            }
+
+            if (!latchIdConfig.supabaseUrl || !latchIdConfig.supabaseAnonKey) {
+                message.innerHTML = '<strong>Configuration needed:</strong> SUPABASE_URL and SUPABASE_ANON_KEY must be set before Google sign in can start.';
+                return;
+            }
+
+            if (!window.supabase || !window.supabase.createClient) {
+                message.innerHTML = '<strong>Sign in unavailable:</strong> the Supabase browser client could not be loaded.';
+                return;
+            }
+
+            setProviderBusy(button, true);
+            message.innerHTML = '<span class="ll-loading">Connecting to Google</span>';
+
+            try {
+                var client = window.supabase.createClient(latchIdConfig.supabaseUrl, latchIdConfig.supabaseAnonKey);
+                var result = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: latchIdConfig.redirectTo
+                    }
+                });
+
+                if (result.error) {
+                    throw result.error;
+                }
+            } catch (error) {
+                setProviderBusy(button, false);
+                message.innerHTML = '<strong>Google sign in failed:</strong> ' + (error && error.message ? error.message : String(error));
+                console.error('LatchID Google sign in failed:', error);
+            }
         }
 
         function trapFocus(event) {

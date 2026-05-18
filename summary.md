@@ -4,7 +4,7 @@ This file tracks changes made by codex in the Livelatch fork only. It intentiona
 
 Fork range used for the initial backfill: `upstream/main..main`.
 
-Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a` on 2026-05-14.
+Current coverage: 39 fork commits from `8e19376` on 2026-05-12 through `c8fd7db` on 2026-05-18.
 
 ## Recent Changes
 
@@ -13,6 +13,10 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 !!users.supabase_user_id CHAR(36) NULL UNIQUE
 !!Purpose:
 !!Bridge Laravel users to Supabase LatchID auth.users.id
+- Wired the existing `homepage-demo.php` LatchID Google button to Supabase Auth using `SUPABASE_URL` and `SUPABASE_ANON_KEY`, with `/` now serving that demo homepage through `HomeController` when the file exists.
+- Added `/callback/google` and session-backed `POST /api/latchid/session`; the callback completes the Supabase browser session, posts the Supabase user details and access token to Laravel, links or creates the local user, logs them in, and redirects to `/dashboard`.
+- Updated `config/services.php`, `.env.example`, `app/Models/User.php`, `app/Http/Controllers/Auth/LatchIdSessionController.php`, `routes/web.php`, and `resources/views/auth/latchid-google-callback.blade.php`; Google is the only enabled MVP provider.
+- Required env vars: `SUPABASE_URL` and `SUPABASE_ANON_KEY`; test by visiting `https://dev.livelatch.com`, choosing Google in the LatchID modal, returning through `/callback/google`, confirming `users.supabase_user_id` is populated, and landing on `/dashboard`.
 
 ### 2026-05-16
 - Added a polished `homepage-demo.php` Pricing section with Free, Creator Plus, Creator Pro, Team, and Enterprise demo plans, monthly/yearly pricing toggles, pricing CTAs, free-plan limitations, responsive comparison table, and a client-side Team seat estimator.

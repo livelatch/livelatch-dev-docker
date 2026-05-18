@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'provider',
         'provider_id',
+        'supabase_user_id',
         'email_verified_at',
         'littlelink_name',
     ];

@@ -14,6 +14,12 @@ class HomeController extends Controller
     //Show home message, number of buttons and updated pages
     public function home()
     {
+        if (file_exists(base_path('homepage-demo.php'))) {
+            ob_start();
+            include base_path('homepage-demo.php');
+
+            return response(ob_get_clean());
+        }
 
         $message = Page::select('home_message')->first();
 
