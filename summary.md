@@ -8,6 +8,12 @@ Current coverage: 27 fork commits from `8e19376` on 2026-05-12 through `c45776a`
 
 ## Recent Changes
 
+### 2026-05-18
+!!Manual DB change made:
+!!users.supabase_user_id CHAR(36) NULL UNIQUE
+!!Purpose:
+!!Bridge Laravel users to Supabase LatchID auth.users.id
+
 ### 2026-05-16
 - Added a polished `homepage-demo.php` Pricing section with Free, Creator Plus, Creator Pro, Team, and Enterprise demo plans, monthly/yearly pricing toggles, pricing CTAs, free-plan limitations, responsive comparison table, and a client-side Team seat estimator.
 - Kept the pricing work static and demo-only: plan CTAs open the existing Create LatchID modal, Enterprise shows a local placeholder message, and no backend, payment, Stripe, route, controller, Composer, npm, or view files were changed.
