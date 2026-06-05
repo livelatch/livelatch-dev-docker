@@ -177,6 +177,20 @@ See the `LICENSE` file for details.
 
 ---
 
+## Optional LatchDeck Integration
+
+This project may include optional integration points for LatchDeck, a separate
+service operated independently from this application.
+
+The LatchDeck service, its backend, administration panel, campaign logic,
+redemption engine, card issuance system, and related proprietary components
+are not part of this repository.
+
+This repository only contains optional client-side or server-side integration
+code used to communicate with a configured LatchDeck API endpoint.
+
+Livelatch remains functional without LatchDeck being enabled.
+
 ## Acknowledgements
 
 Special thanks to:
