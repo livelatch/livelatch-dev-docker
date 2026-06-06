@@ -456,44 +456,162 @@ $usrhandl = Auth::user()->littlelink_name;
               </ul>
             </div>
           </div>
-        </nav>          <!-- Nav Header Component Start -->
-        <style>.header-block{background-color:var(--bs-primary);border-bottom-left-radius:1rem;border-bottom-right-radius:1rem;}</style>
-          <div class="iq-navbar-header header-block mb-2" style="height: 205px;">
-              <div class="container-fluid iq-container">
-                  <div class="row">
-                      <div class="col-md-12">
-                          <div style="z-index:5;position:relative;" class="flex-wrap d-flex justify-content-between align-items-center">
-                              <div>
-                                @if(!isset($usrhandl))
-                                  <h1>👋 {{__('messages.Hi')}}, {{__('messages.stranger')}}</h1>
-                                @else
-                                  <h1>👋 {{__('messages.Hi')}}, {{'@'.$usrhandl}}</h1>
-                                @endif
+        <!-- Nav Header Component Start -->
 
-                                  <h5>{{__('messages.welcome', ['appName' => config('app.name')])}}</h5>
-                              </div>
-                              <div>
-                                @if(!isset($usrhandl))
-                                  <a href="{{ url('/studio/page') }}" class="btn btn-link btn-soft-light">
-                                    <i style="top:3px;position:relative;font-size:2.5vh;" class="bi bi-at"></i>
-                                    {{__('messages.Set a handle')}}
-                                  </a>
-                                  @endif
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div style="z-index:0!important;" class="iq-header-img">
-                @php if(file_exists(base_path("assets/dashboard-themes/header.png"))){$headerImage = asset('assets/dashboard-themes/header.png');}else{$headerImage = asset('assets/images/dashboard/top-header-overlay.png');} @endphp
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="img-fluid w-100 h-100 animated-scaleX">
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="theme-color-purple-img img-fluid w-100 h-100 animated-scaleX">
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="theme-color-blue-img img-fluid w-100 h-100 animated-scaleX">
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="theme-color-green-img img-fluid w-100 h-100 animated-scaleX">
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="theme-color-yellow-img img-fluid w-100 h-100 animated-scaleX">
-                  <img src="{{$headerImage}}" draggable="false" alt="header" class="theme-color-pink-img img-fluid w-100 h-100 animated-scaleX">
-              </div>
-          </div>          <!-- Nav Header Component End -->
+<style>
+.header-block {
+    position: relative;
+    overflow: hidden;
+    min-height: 220px;
+    padding: 2rem 0;
+    border-radius: 0 0 24px 24px;
+    background:
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.8), transparent 35%),
+        linear-gradient(135deg, #120824 0%, #32127a 45%, #6d28d9 100%);
+    box-shadow: 0 24px 60px rgba(17, 12, 46, 0.35);
+}
+
+.header-block::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(120deg, rgba(255,255,255,0.08), transparent 35%),
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.08), transparent 20%);
+    pointer-events: none;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.header-title {
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.04em;
+}
+
+.header-subtitle {
+    color: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.header-action {
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white !important;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.header-action:hover {
+    background: rgba(255,255,255,0.18);
+    transform: translateY(-2px);
+}
+
+.iq-header-img {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.iq-header-img img {
+    object-fit: cover;
+}
+
+.header-glow {
+    position: absolute;
+    right: -150px;
+    top: -150px;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(
+        circle,
+        rgba(255,255,255,0.15),
+        transparent 70%
+    );
+    pointer-events: none;
+}
+</style>
+
+<div class="iq-navbar-header header-block mb-4">
+
+    <div class="header-glow"></div>
+
+    <div class="container-fluid iq-container">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="header-content d-flex flex-wrap justify-content-between align-items-center">
+
+                    <div>
+
+                        @if(!isset($usrhandl))
+                            <h1 class="header-title">
+                                👋 {{ __('messages.Hi') }}, {{ __('messages.stranger') }}
+                            </h1>
+                        @else
+                            <h1 class="header-title">
+                                👋 {{ __('messages.Hi') }}, {{ '@'.$usrhandl }}
+                            </h1>
+                        @endif
+
+                        <p class="header-subtitle">
+                            {{ __('messages.welcome', ['appName' => config('app.name')]) }}
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        @if(!isset($usrhandl))
+                            <a href="{{ url('/studio/page') }}"
+                               class="btn header-action">
+                                <i class="bi bi-at me-2"></i>
+                                {{ __('messages.Set a handle') }}
+                            </a>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="iq-header-img">
+
+        @php
+            if(file_exists(base_path("assets/dashboard-themes/header.png"))) {
+                $headerImage = asset('assets/dashboard-themes/header.png');
+            } else {
+                $headerImage = asset('assets/images/dashboard/top-header-overlay.png');
+            }
+        @endphp
+
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="img-fluid w-100 h-100 animated-scaleX">
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="theme-color-purple-img img-fluid w-100 h-100 animated-scaleX">
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="theme-color-blue-img img-fluid w-100 h-100 animated-scaleX">
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="theme-color-green-img img-fluid w-100 h-100 animated-scaleX">
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="theme-color-yellow-img img-fluid w-100 h-100 animated-scaleX">
+        <img src="{{ $headerImage }}" draggable="false" alt="header" class="theme-color-pink-img img-fluid w-100 h-100 animated-scaleX">
+
+    </div>
+
+</div>
+
+<!-- Nav Header Component End -->
         <!--Nav End-->
 
 		@yield('content')
