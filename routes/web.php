@@ -242,6 +242,30 @@ Route::group([
     ]);
 })->middleware('auth');
 
+  Route::get('/debug-my-notifications', function () {
+    $user = auth()->user();
+
+    $url = rtrim(env('SUPABASE_URL'), '/') . '/rest/v1/livelatch_notifications';
+
+    $response = Http::withHeaders([
+        'apikey' => env('SUPABASE_SERVICE_ROLE_KEY'),
+        'Authorization' => 'Bearer ' . env('SUPABASE_SERVICE_ROLE_KEY'),
+        'Content-Type' => 'application/json',
+    ])->get($url, [
+        'or' => '(user_id.eq.' . $user->supabase_user_id . ',user_id.is.null)',
+        'select' => '*',
+        'order' => 'created_at.desc',
+        'limit' => 10,
+    ]);
+
+    dd([
+        'supabase_user_id' => $user->supabase_user_id,
+        'status' => $response->status(),
+        'body' => $response->json(),
+        'raw' => $response->body(),
+    ]);
+})->middleware('auth');
+
 }); // End Admin authenticated routes
 });
 
