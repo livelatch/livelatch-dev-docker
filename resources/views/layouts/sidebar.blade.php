@@ -1,10 +1,25 @@
 @php
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\User;
+use App\Services\LivelatchNotificationService;
 
 $usrhandl = Auth::user()->littlelink_name ?? null;
 $profileUrl = $usrhandl ? url('/@'.$usrhandl) : url('/studio/page');
 $userRole = optional(auth()->user())->role;
+
+$latchIdUserId = Auth::user()->supabase_user_id ?? null;
+$livelatchNotifications = collect();
+$livelatchUnreadNotificationCount = 0;
+
+try {
+    $livelatchNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 8);
+    $livelatchUnreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
+} catch (\Throwable $e) {
+    $livelatchNotifications = collect();
+    $livelatchUnreadNotificationCount = 0;
+}
+
+$GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUnreadNotificationCount > 0);
 @endphp
 <!doctype html>
 @include('layouts.lang')
@@ -19,7 +34,7 @@ $userRole = optional(auth()->user())->role;
 
     @include('layouts.analytics')
     @stack('sidebar-stylesheets')
-    @include('layouts.notifications')
+    {{-- Legacy LinkStack notifications disabled. Livelatch notifications are rendered directly in this layout. --}}
 
     @php
         if (auth()->check()) {
@@ -672,6 +687,167 @@ $userRole = optional(auth()->user())->role;
             padding: 10px;
         }
 
+        .ll-notification-dropdown {
+            width: min(420px, calc(100vw - 24px));
+            overflow: hidden;
+            padding: 0;
+            border-radius: 24px;
+            border: 1px solid var(--ll-border);
+            background: var(--ll-surface-solid);
+            box-shadow: var(--ll-shadow);
+        }
+
+        .ll-notification-header {
+            padding: 16px 18px;
+            color: #fff;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 36%),
+                linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+        }
+
+        .ll-notification-header h6,
+        .ll-notification-header p {
+            color: #fff;
+        }
+
+        .ll-notification-header h6 {
+            margin: 0;
+            font-size: 0.98rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .ll-notification-header p {
+            margin: 4px 0 0;
+            font-size: 0.78rem;
+            opacity: 0.78;
+            font-weight: 500;
+        }
+
+        .ll-notification-list {
+            max-height: 440px;
+            overflow-y: auto;
+        }
+
+        .ll-notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--ll-text);
+            text-decoration: none;
+            border-bottom: 1px solid var(--ll-border);
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+
+        .ll-notification-item:hover {
+            color: var(--ll-text);
+            background: rgba(98, 54, 255, 0.08);
+            transform: translateX(2px);
+        }
+
+        .ll-notification-item.is-unread {
+            background: rgba(98, 54, 255, 0.10);
+        }
+
+        .ll-notification-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            border-radius: 15px;
+            font-size: 1rem;
+        }
+
+        .ll-notification-icon.info {
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.14);
+        }
+
+        .ll-notification-icon.success {
+            color: #16a34a;
+            background: rgba(34, 197, 94, 0.14);
+        }
+
+        .ll-notification-icon.warning {
+            color: #d97706;
+            background: rgba(245, 158, 11, 0.16);
+        }
+
+        .ll-notification-icon.danger {
+            color: #dc2626;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .ll-notification-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .ll-notification-title {
+            color: var(--ll-text);
+            font-size: 0.9rem;
+            font-weight: 800;
+            line-height: 1.24;
+            margin: 0;
+        }
+
+        .ll-notification-message {
+            color: var(--ll-muted);
+            font-size: 0.78rem;
+            line-height: 1.35;
+            margin: 3px 0 0;
+        }
+
+        .ll-notification-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 8px;
+            color: var(--ll-muted);
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .ll-notification-source {
+            padding: 2px 8px;
+            border-radius: 999px;
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.10);
+        }
+
+        .ll-notification-empty {
+            padding: 28px 18px;
+            text-align: center;
+            color: var(--ll-muted);
+            font-size: 0.86rem;
+        }
+
+        .ll-notification-empty i {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            color: var(--ll-primary);
+        }
+
+        .ll-notification-footer {
+            display: block;
+            padding: 13px 16px;
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.08);
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .ll-notification-footer:hover {
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.13);
+        }
+
+
         .dropdown-item {
             border-radius: 12px;
             font-weight: 600;
@@ -955,20 +1131,81 @@ $userRole = optional(auth()->user())->role;
                         </ul>
                     </div>
 
-                    <button class="ll-icon-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
-                        <i class="bi bi-bell-fill"></i>
-                        @if($GLOBALS['activenotify'])
-                            <span class="ll-dot"></span>
-                        @endif
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end p-0">
-                        <div class="card border-0 shadow-none m-0" style="min-width: 320px;">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0 text-white">{{ __('messages.All Notifications') }}</h6>
+                    <div class="dropdown">
+                        <button class="ll-icon-button" type="button" id="llNotificationMenu" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                            <i class="bi bi-bell-fill"></i>
+                            @if($livelatchUnreadNotificationCount > 0)
+                                <span class="ll-dot"></span>
+                            @endif
+                        </button>
+
+                        <div class="dropdown-menu dropdown-menu-end ll-notification-dropdown" aria-labelledby="llNotificationMenu">
+                            <div class="ll-notification-header">
+                                <h6>Notifications</h6>
+                                @if($livelatchUnreadNotificationCount > 0)
+                                    <p>{{ $livelatchUnreadNotificationCount }} unread notification{{ $livelatchUnreadNotificationCount === 1 ? '' : 's' }}</p>
+                                @else
+                                    <p>You're all caught up</p>
+                                @endif
                             </div>
-                            <div class="card-body p-0">
-                                @stack('notifications')
+
+                            <div class="ll-notification-list">
+                                @forelse($livelatchNotifications as $notification)
+                                    @php
+                                        $severity = $notification['severity'] ?? 'info';
+                                        $severityClass = match ($severity) {
+                                            'success' => 'success',
+                                            'warning' => 'warning',
+                                            'danger' => 'danger',
+                                            default => 'info',
+                                        };
+
+                                        $notificationUrl = $notification['action_url'] ?? '#';
+                                        $notificationIcon = $notification['icon'] ?? 'bi-bell-fill';
+                                        $notificationSource = $notification['source'] ?? null;
+                                        $notificationCreatedAt = $notification['created_at'] ?? null;
+                                        $isUnread = empty($notification['read_at']);
+                                    @endphp
+
+                                    <a href="{{ $notificationUrl }}"
+                                       class="ll-notification-item {{ $isUnread ? 'is-unread' : '' }}">
+                                        <div class="ll-notification-icon {{ $severityClass }}">
+                                            <i class="bi {{ $notificationIcon }}"></i>
+                                        </div>
+
+                                        <div class="ll-notification-content">
+                                            <p class="ll-notification-title">
+                                                {{ $notification['title'] ?? 'Notification' }}
+                                            </p>
+
+                                            @if(!empty($notification['message']))
+                                                <p class="ll-notification-message">
+                                                    {{ $notification['message'] }}
+                                                </p>
+                                            @endif
+
+                                            <div class="ll-notification-meta">
+                                                @if($notificationSource)
+                                                    <span class="ll-notification-source">{{ ucfirst($notificationSource) }}</span>
+                                                @endif
+
+                                                @if($notificationCreatedAt)
+                                                    <span>{{ \Carbon\Carbon::parse($notificationCreatedAt)->diffForHumans() }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="ll-notification-empty">
+                                        <i class="bi bi-bell-slash"></i>
+                                        No notifications yet.
+                                    </div>
+                                @endforelse
                             </div>
+
+                            <a href="{{ url('/studio/notifications') }}" class="ll-notification-footer">
+                                View notification center
+                            </a>
                         </div>
                     </div>
 
