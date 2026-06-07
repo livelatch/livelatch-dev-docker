@@ -17,61 +17,20 @@
             class="card-body d-flex flex-column justify-content-center text-white">
 
             <span class="badge bg-light text-dark mb-3" style="width:max-content;">
-                Studio Preview
+                Post Release Feature
             </span>
 
             <h1 class="fw-bold mb-2">
-                Hello World 👋
+                Livelatch Creator Program 
             </h1>
 
             <p class="mb-4 opacity-75 fs-5">
-                This is a placeholder Studio page for testing HTMX navigation,
-                dark mode, layouts, and future Livelatch features.
+                Create themes, addons and integrations and sell the on the livelatch marketplace.
             </p>
 
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-light">
-                    Primary Action
-                </button>
-
-                <button class="btn btn-outline-light">
-                    Secondary Action
-                </button>
             </div>
 
         </div>
-    </div>
-
-    {{-- Stats Row --}}
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Test Metric</small>
-                    <h2 class="mb-0">123</h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Another Metric</small>
-                    <h2 class="mb-0">456</h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Something Else</small>
-                    <h2 class="mb-0">789</h2>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     {{-- Main Content --}}
@@ -79,24 +38,21 @@
         <div class="card-body">
 
             <h3 class="mb-3">
-                Content Area
+                What is the Creator Program?
             </h3>
 
             <p>
-                If you're seeing this page load without the sidebar refreshing,
-                HTMX navigation is working correctly.
+                Are you an artist or programmer? Your skills can enhance user experience within Livelatch. Post launch, the livelatch marketplace will open up, giving you the chance to generate income on this platform.
             </p>
 
             <p>
-                This section can later become:
+                Some examples of things you could create:
             </p>
 
             <ul>
-                <li>LatchDeck Dashboard</li>
-                <li>Subscription Management</li>
-                <li>Affiliate Analytics</li>
-                <li>Creator Program Applications</li>
-                <li>Notification Centre</li>
+                <li>Dynamic themes for online creators</li>
+                <li>Latches like latchdeck</li>
+                <li>integrations with social platforms</li>
             </ul>
 
         </div>
