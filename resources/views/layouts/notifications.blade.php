@@ -1,104 +1,22 @@
 @php
-use App\Models\UserData;
 use App\Services\LivelatchNotificationService;
 
-$GLOBALS['activenotify'] = false;
-
-$compromised = false;
-$notifyID = Auth::user()->id;
 $latchIdUserId = Auth::user()->supabase_user_id ?? null;
-
-/*
-|--------------------------------------------------------------------------
-| Admin security check
-|--------------------------------------------------------------------------
-*/
-
-if (auth()->user()->role == 'admin') {
-    function getUrlSatusCodesb($urlsb, $timeoutsb = 3)
-    {
-        $chsb = curl_init();
-
-        $optssb = [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $urlsb,
-            CURLOPT_NOBODY => true,
-            CURLOPT_TIMEOUT => $timeoutsb,
-        ];
-
-        curl_setopt_array($chsb, $optssb);
-        curl_exec($chsb);
-
-        $status = curl_getinfo($chsb, CURLINFO_HTTP_CODE);
-
-        curl_close($chsb);
-
-        return $status;
-    }
-
-    $url1sb = getUrlSatusCodesb(url('.env'));
-    $url2sb = getUrlSatusCodesb(url('database/database.sqlite'));
-
-    $compromised = ($url1sb == '200' || $url2sb == '200');
-}
-
-/*
-|--------------------------------------------------------------------------
-| Supabase notifications
-|--------------------------------------------------------------------------
-*/
 
 $supabaseNotifications = collect();
 $unreadNotificationCount = 0;
 
 try {
-    if ($latchIdUserId) {
-        $supabaseNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 6);
-        $unreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
-    }
+    $supabaseNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 8);
+    $unreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
 } catch (\Throwable $e) {
     $supabaseNotifications = collect();
     $unreadNotificationCount = 0;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Legacy local notifications
-|--------------------------------------------------------------------------
-*/
+$GLOBALS['activenotify'] = ($supabaseNotifications->count() > 0 || $unreadNotificationCount > 0);
 
-$legacyNotifications = collect([
-    [
-        'id' => 'modal-1',
-        'icon' => 'bi bi-exclamation-triangle-fill',
-        'title' => __('messages.Your security is at risk!'),
-        'message' => __('messages.Immediate action is required!'),
-        'condition' => $compromised,
-        'dismiss' => '',
-        'adminonly' => true,
-        'severity' => 'danger',
-    ],
-    [
-        'id' => 'modal-star',
-        'icon' => 'bi bi-heart-fill',
-        'title' => __('messages.Enjoying Linkstack?'),
-        'message' => __('messages.Help Us Out'),
-        'condition' => UserData::getData($notifyID, 'hide-star-notification') !== true,
-        'dismiss' => __('messages.Hide this notification'),
-        'adminonly' => true,
-        'severity' => 'info',
-    ],
-])->filter(function ($notification) {
-    return $notification['condition'] && (!$notification['adminonly'] || auth()->user()->role == 'admin');
-});
-
-$totalNotifications = $supabaseNotifications->count() + $legacyNotifications->count();
-
-if ($totalNotifications > 0 || $unreadNotificationCount > 0) {
-    $GLOBALS['activenotify'] = true;
-}
-
-function severityIconClass($severity)
+function livelatchNotificationSeverityClass($severity)
 {
     return match ($severity) {
         'success' => 'notification-success',
@@ -112,7 +30,7 @@ function severityIconClass($severity)
 @push('notifications')
 <style>
 .livelatch-notification-panel {
-    width: min(380px, calc(100vw - 2rem));
+    width: min(390px, calc(100vw - 2rem));
     overflow: hidden;
     border-radius: 22px;
     background: var(--surface, #ffffff);
@@ -142,7 +60,7 @@ function severityIconClass($severity)
 }
 
 .livelatch-notification-list {
-    max-height: 420px;
+    max-height: 440px;
     overflow-y: auto;
     background: var(--surface, #ffffff);
 }
@@ -215,10 +133,21 @@ function severityIconClass($severity)
     line-height: 1.35;
 }
 
-.livelatch-notification-time {
-    margin-top: 0.35rem;
+.livelatch-notification-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.45rem;
     color: var(--text-muted, #94a3b8) !important;
     font-size: 0.7rem;
+}
+
+.livelatch-notification-pill {
+    padding: 0.14rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+    font-weight: 700;
 }
 
 .livelatch-notification-empty {
@@ -255,9 +184,14 @@ function severityIconClass($severity)
 }
 
 [data-theme="dark"] .livelatch-notification-message,
-[data-theme="dark"] .livelatch-notification-time,
+[data-theme="dark"] .livelatch-notification-meta,
 [data-theme="dark"] .livelatch-notification-empty {
     color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .livelatch-notification-pill {
+    background: rgba(167, 139, 250, 0.16);
+    color: #c4b5fd;
 }
 </style>
 
@@ -273,31 +207,11 @@ function severityIconClass($severity)
     </div>
 
     <div class="livelatch-notification-list">
-        @foreach($legacyNotifications as $notification)
-            <a data-bs-target="#{{ $notification['id'] }}"
-               data-bs-toggle="modal"
-               class="livelatch-notification-item is-unread"
-               style="cursor:pointer!important;">
-                <div class="livelatch-notification-icon {{ severityIconClass($notification['severity']) }}">
-                    <i class="{{ $notification['icon'] }}"></i>
-                </div>
-
-                <div class="livelatch-notification-content">
-                    <div class="livelatch-notification-title">
-                        {{ $notification['title'] }}
-                    </div>
-
-                    <div class="livelatch-notification-message">
-                        {{ $notification['message'] }}
-                    </div>
-                </div>
-            </a>
-        @endforeach
-
         @forelse($supabaseNotifications as $notification)
             <a href="{{ $notification['action_url'] ?? '#' }}"
                class="livelatch-notification-item {{ empty($notification['read_at']) ? 'is-unread' : '' }}">
-                <div class="livelatch-notification-icon {{ severityIconClass($notification['severity'] ?? 'info') }}">
+
+                <div class="livelatch-notification-icon {{ livelatchNotificationSeverityClass($notification['severity'] ?? 'info') }}">
                     <i class="bi {{ $notification['icon'] ?? 'bi-bell-fill' }}"></i>
                 </div>
 
@@ -306,23 +220,27 @@ function severityIconClass($severity)
                         {{ $notification['title'] ?? 'Notification' }}
                     </div>
 
-                    <div class="livelatch-notification-message">
-                        {{ $notification['message'] ?? '' }}
-                    </div>
-
-                    @if(!empty($notification['created_at']))
-                        <div class="livelatch-notification-time">
-                            {{ \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() }}
+                    @if(!empty($notification['message']))
+                        <div class="livelatch-notification-message">
+                            {{ $notification['message'] }}
                         </div>
                     @endif
+
+                    <div class="livelatch-notification-meta">
+                        @if(!empty($notification['source']))
+                            <span class="livelatch-notification-pill">{{ ucfirst($notification['source']) }}</span>
+                        @endif
+
+                        @if(!empty($notification['created_at']))
+                            <span>{{ \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() }}</span>
+                        @endif
+                    </div>
                 </div>
             </a>
         @empty
-            @if($legacyNotifications->count() === 0)
-                <div class="livelatch-notification-empty">
-                    No notifications yet.
-                </div>
-            @endif
+            <div class="livelatch-notification-empty">
+                No notifications yet.
+            </div>
         @endforelse
     </div>
 
@@ -331,54 +249,3 @@ function severityIconClass($severity)
     </a>
 </div>
 @endpush
-
-@push('sidebar-scripts')
-@php
-function notification($dismiss = '', $ntid, $heading, $body) {
-    $closeMSG = __('messages.Close');
-    $dismissMSG = __('messages.Dismiss');
-    $dismissBtn = '';
-
-    if ($dismiss) {
-        $dismissBtn = '<a href="' . url()->current() . '?dismiss=' . $dismiss . '" class="btn btn-danger">'.$dismissMSG.'</a>';
-    }
-
-    echo <<<MODAL
-    <div class="modal fade" id="$ntid" data-bs-backdrop="true" data-bs-keyboard="false" tabindex="-1" aria-labelledby="${ntid}-label" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="${ntid}-label">$heading</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="$closeMSG"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="bd-example">
-                        $body
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    $dismissBtn
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">$closeMSG</button>
-                </div>
-            </div>
-        </div>
-    </div>
-MODAL;
-}
-
-notification('', 'modal-1', __('messages.Your security is at risk!'), '<b>'.__('messages.security.msg1').'</b> '.__('messages.security.msg2').'<br><br>'.__('messages.security.msg3').'<br><a href="'.url('admin/config#5').'">'.__('messages.security.msg3').'</a>.');
-
-notification('hide-star-notification', 'modal-star', __('messages.Support Linkstack'), ''.__('messages.support.msg1').' <a target="_blank" href="https://github.com/linkstackorg/linkstack">'.__('messages.support.msg2').'</a>. '.__('messages.support.msg3').'<br><br>'.__('messages.support.msg4').' <a target="_blank" href="https://linkstack.org/donate">'.__('messages.support.msg5').'<br><br>'.__('messages.support.msg6').'');
-@endphp
-@endpush
-
-@php
-if (isset($_GET['dismiss'])) {
-    $dismiss = $_GET['dismiss'];
-    $param = str_replace('dismiss=', '', $dismiss);
-
-    UserData::saveData($notifyID, $param, true);
-
-    exit(header("Location: " . url()->current()));
-}
-@endphp
