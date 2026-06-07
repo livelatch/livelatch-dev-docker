@@ -1323,7 +1323,7 @@ function llHtmxAttrs($url) {
 
                 @if(auth()->user()->role == 'admin')
                     <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llAdminMenu" aria-expanded="true" aria-controls="llAdminMenu">
-                        <span>{{ __('messages.LiveLatch Administration') }}</span>
+                        <span>Livelatch Administration</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <ul class="ll-nav-list collapse show" id="llAdminMenu">

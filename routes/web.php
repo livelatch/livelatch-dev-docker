@@ -147,6 +147,16 @@ Route::get('/studio/page/delprofilepicture', [UserController::class, 'delProfile
 Route::get('/studio/delete-user/{id}', [UserController::class, 'deleteUser'])->name('deleteUser')->middleware('verified');
 Route::post('/auth-as', [AdminController::class, 'authAs'])->name('authAs');
 
+Route::view('/studio/latchdeck', 'studio.latchdeck.index');
+Route::view('/studio/latchdeck/cards', 'studio.latchdeck.cards');
+Route::view('/studio/latchdeck/redemptions', 'studio.latchdeck.redemptions');
+Route::view('/studio/latchdeck/settings', 'studio.latchdeck.settings');
+Route::view('/studio/subscription', 'studio.account.subscription');
+Route::view('/studio/my-data', 'studio.account.my-data');
+Route::view('/studio/feedback', 'studio.growth.feedback');
+Route::view('/studio/affiliate-program', 'studio.growth.affiliate-program');
+Route::view('/studio/creator-program', 'studio.growth.creator-program');
+
 // Catch all redirects
 Route::get('/admin/users/all', fn() => redirect(route('showUsers')));
 Route::get('/studio', fn() => redirect(url('dashboard')));
