@@ -8,6 +8,19 @@ Current coverage: 39 fork commits from `8e19376` on 2026-05-12 through `c8fd7db`
 
 ## Recent Changes
 
+### 2026-06-07
+!! finished current ui overhaul of sidebar.blade.php
+!! added new menu items 
+!! now there is a lightmode/dark mode switch, removing linkstacks dashboard UI configurability 
+!! started working on notification system, it works in supabase, but I have not been able to get it working on the website yet, this is still a work in progress.
+
+### 2026-06-06
+!! development of livelatch has resumed. It was on pause while I was working on an University assignment.
+!! restored inactive supabase project and fixed google auth settings
+!! laravel/lang had a security warning, as it is not used in this project, it was removed. I need to look in to updating laravel as linkstack devs are doing that on their branch. I can not simply merge their changes as livelatch has modified too much of the base code.
+!! started UI overhaul of sidebar.blade.php
+
+
 ### 2026-05-18
 !!Manual DB change made:
 !!users.supabase_user_id CHAR(36) NULL UNIQUE
