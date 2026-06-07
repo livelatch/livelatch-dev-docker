@@ -1,4 +1,6 @@
-@php
+from pathlib import Path
+
+content = r'''@php
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\User;
 use App\Services\LivelatchNotificationService;
@@ -20,6 +22,14 @@ try {
 }
 
 $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUnreadNotificationCount > 0);
+
+function llActive($segment, $value) {
+    return Request::segment($segment) == $value ? 'active' : '';
+}
+
+function llHtmxAttrs($url) {
+    return 'href="' . e($url) . '" hx-get="' . e($url) . '" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML"';
+}
 @endphp
 <!doctype html>
 @include('layouts.lang')
@@ -106,9 +116,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             --ll-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.22);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html,
         body {
@@ -126,16 +134,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             overflow-x: hidden;
         }
 
-        body,
-        p,
-        div,
-        span,
-        a,
-        button,
-        input,
-        textarea,
-        select,
-        label {
+        body, p, div, span, a, button, input, textarea, select, label {
             font-family: var(--ll-font);
         }
 
@@ -145,13 +144,9 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             color: var(--ll-text);
         }
 
-        a {
-            color: inherit;
-        }
+        a { color: inherit; }
 
-        #loading {
-            background: var(--ll-bg);
-        }
+        #loading { background: var(--ll-bg); }
 
         .ll-shell {
             min-height: 100vh;
@@ -202,9 +197,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             object-fit: contain;
         }
 
-        .ll-brand-copy {
-            min-width: 0;
-        }
+        .ll-brand-copy { min-width: 0; }
 
         .ll-brand-title {
             font-size: 1.02rem;
@@ -244,11 +237,36 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             overflow-y: auto;
         }
 
+        .ll-nav-section-button {
+            width: 100%;
+            margin: 20px 0 8px;
+            padding: 0 12px;
+            border: 0;
+            background: transparent;
+            color: var(--ll-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+        }
+
+        .ll-nav-section-button i {
+            font-size: 0.72rem;
+            transition: transform 0.18s ease;
+        }
+
+        .ll-nav-section-button[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
         .ll-nav-section {
             margin: 20px 0 8px;
             padding: 0 12px;
             font-size: 0.72rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.11em;
             color: var(--ll-muted);
@@ -295,25 +313,19 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             box-shadow: 0 14px 28px rgba(98, 54, 255, 0.28);
         }
 
-
         .ll-nav-badge {
             margin-left: auto;
             padding: 2px 8px;
             border-radius: 999px;
-            font-size: 0.64rem;
-            line-height: 1.2;
-            font-weight: 800;
-            letter-spacing: 0.02em;
+            background: rgba(98, 54, 255, 0.12);
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.10);
-            border: 1px solid rgba(98, 54, 255, 0.12);
+            font-size: 0.64rem;
+            font-weight: 800;
         }
 
-        .ll-nav-link.active .ll-nav-badge,
-        .ll-nav-link.bg-soft-primary .ll-nav-badge {
+        .ll-nav-link.active .ll-nav-badge {
+            background: rgba(255,255,255,0.22);
             color: #fff;
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .ll-sidebar-footer {
@@ -381,9 +393,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             box-shadow: var(--ll-shadow-soft);
         }
 
-        .ll-topbar-spacer {
-            flex: 1;
-        }
+        .ll-topbar-spacer { flex: 1; }
 
         .ll-pill-button,
         .ll-icon-button {
@@ -622,6 +632,16 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             padding: 22px 0 30px;
         }
 
+        .ll-content.htmx-swapping {
+            opacity: 0.4;
+            transition: opacity 0.18s ease;
+        }
+
+        .ll-content.htmx-settling {
+            opacity: 1;
+            transition: opacity 0.18s ease;
+        }
+
         .ll-content > .container-fluid,
         .ll-content .card,
         .ll-content .iq-card,
@@ -704,9 +724,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             box-shadow: var(--ll-shadow);
         }
 
-        .dropdown-menu {
-            padding: 10px;
-        }
+        .dropdown-menu { padding: 10px; }
 
         .ll-notification-dropdown {
             width: min(420px, calc(100vw - 24px));
@@ -727,9 +745,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
         }
 
         .ll-notification-header h6,
-        .ll-notification-header p {
-            color: #fff;
-        }
+        .ll-notification-header p { color: #fff; }
 
         .ll-notification-header h6 {
             margin: 0;
@@ -868,7 +884,6 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             background: rgba(98, 54, 255, 0.13);
         }
 
-
         .dropdown-item {
             border-radius: 12px;
             font-weight: 600;
@@ -881,9 +896,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             border-color: transparent !important;
         }
 
-        .text-primary {
-            color: var(--ll-primary) !important;
-        }
+        .text-primary { color: var(--ll-primary) !important; }
 
         @media (max-width: 1199.98px) {
             .ll-sidebar {
@@ -896,24 +909,18 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 opacity: 1;
             }
 
-            .ll-sidebar-close {
-                display: grid;
-            }
+            .ll-sidebar-close { display: grid; }
 
             .ll-main {
                 margin-left: 0;
                 padding: 12px;
             }
 
-            .ll-mobile-menu {
-                display: grid;
-            }
+            .ll-mobile-menu { display: grid; }
         }
 
         @media (min-width: 1200px) {
-            .ll-mobile-menu {
-                display: none;
-            }
+            .ll-mobile-menu { display: none; }
         }
 
         @media (max-width: 767.98px) {
@@ -923,9 +930,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 border-radius: 24px;
             }
 
-            .ll-main {
-                padding: 10px;
-            }
+            .ll-main { padding: 10px; }
 
             .ll-topbar {
                 top: 10px;
@@ -936,9 +941,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 flex-wrap: wrap;
             }
 
-            .ll-topbar-spacer {
-                display: none;
-            }
+            .ll-topbar-spacer { display: none; }
 
             .ll-topbar-actions {
                 width: 100%;
@@ -947,9 +950,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 gap: 8px;
             }
 
-            .ll-profile-text {
-                display: none;
-            }
+            .ll-profile-text { display: none; }
 
             .ll-pill-button {
                 justify-content: center;
@@ -963,9 +964,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 border-radius: 26px;
             }
 
-            .ll-hero h1 {
-                letter-spacing: -0.06em;
-            }
+            .ll-hero h1 { letter-spacing: -0.06em; }
 
             .ll-footer {
                 justify-content: center;
@@ -1011,13 +1010,13 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 <p class="ll-nav-section">{{ __('messages.Home') }}</p>
                 <ul class="ll-nav-list">
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}" href="{{ route('panelIndex') }}">
+                        <a class="ll-nav-link {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}" {!! llHtmxAttrs(route('panelIndex')) !!}>
                             <i class="bi bi-grid-1x2-fill"></i>
                             <span>{{ __('messages.Dashboard') }}</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'add-link' ? 'active' : '' }}" href="{{ url('/studio/add-link') }}">
+                        <a class="ll-nav-link {{ Request::segment(2) == 'add-link' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/add-link')) !!}>
                             <i class="bi bi-plus-square-fill"></i>
                             <span>{{ __('messages.Add Link') }}</span>
                         </a>
@@ -1025,32 +1024,34 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 </ul>
 
                 @if(auth()->user()->role == 'admin')
-                    <p class="ll-nav-section">{{ __('messages.LiveLatch Administration') }}</p>
-                    <ul class="ll-nav-list">
+                    <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llAdminMenu" aria-expanded="true" aria-controls="llAdminMenu">
+                        <span>{{ __('messages.LiveLatch Administration') }}</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <ul class="ll-nav-list collapse show" id="llAdminMenu">
                         <li>
-                            <a class="ll-nav-link" data-bs-toggle="collapse" href="#llAdminMenu" role="button" aria-expanded="false" aria-controls="llAdminMenu">
-                                <i class="bi bi-shield-lock-fill"></i>
-                                <span>{{ __('messages.Admin') }}</span>
-                                <i class="bi bi-chevron-down ms-auto"></i>
+                            <a class="ll-nav-link {{ Request::segment(2) == 'config' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/config')) !!}>
+                                <i class="bi bi-sliders"></i>
+                                <span>{{ __('messages.Config') }}</span>
                             </a>
-                            <div class="collapse" id="llAdminMenu">
-                                <a class="ll-nav-link {{ Request::segment(2) == 'config' ? 'active' : '' }}" href="{{ url('admin/config') }}">
-                                    <i class="bi bi-sliders"></i>
-                                    <span>{{ __('messages.Config') }}</span>
-                                </a>
-                                <a class="ll-nav-link {{ Request::segment(2) == 'users' ? 'active' : '' }}" href="{{ url('admin/users/all') }}">
-                                    <i class="bi bi-people-fill"></i>
-                                    <span>{{ __('messages.Manage Users') }}</span>
-                                </a>
-                                <a class="ll-nav-link {{ Request::segment(2) == 'pages' ? 'active' : '' }}" href="{{ url('admin/pages') }}">
-                                    <i class="bi bi-collection-fill"></i>
-                                    <span>{{ __('messages.Footer Pages') }}</span>
-                                </a>
-                                <a class="ll-nav-link {{ Request::segment(2) == 'site' ? 'active' : '' }}" href="{{ url('admin/site') }}">
-                                    <i class="bi bi-palette-fill"></i>
-                                    <span>{{ __('messages.Site Customization') }}</span>
-                                </a>
-                            </div>
+                        </li>
+                        <li>
+                            <a class="ll-nav-link {{ Request::segment(2) == 'users' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/users/all')) !!}>
+                                <i class="bi bi-people-fill"></i>
+                                <span>{{ __('messages.Manage Users') }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ll-nav-link {{ Request::segment(2) == 'pages' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/pages')) !!}>
+                                <i class="bi bi-collection-fill"></i>
+                                <span>{{ __('messages.Footer Pages') }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="ll-nav-link {{ Request::segment(2) == 'site' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/site')) !!}>
+                                <i class="bi bi-palette-fill"></i>
+                                <span>{{ __('messages.Site Customization') }}</span>
+                            </a>
                         </li>
                     </ul>
                 @endif
@@ -1058,90 +1059,98 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 <p class="ll-nav-section">{{ __('messages.Personalization') }}</p>
                 <ul class="ll-nav-list">
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'links' ? 'active' : '' }}" href="{{ url('/studio/links') }}">
+                        <a class="ll-nav-link {{ Request::segment(2) == 'links' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/links')) !!}>
                             <i class="bi bi-link-45deg"></i>
                             <span>{{ __('messages.Links') }}</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'page' ? 'active' : '' }}" href="{{ url('/studio/page') }}">
+                        <a class="ll-nav-link {{ Request::segment(2) == 'page' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/page')) !!}>
                             <i class="bi bi-person-badge-fill"></i>
                             <span>{{ __('messages.Appearance') }}</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'theme' ? 'active' : '' }}" href="{{ url('/studio/theme') }}">
+                        <a class="ll-nav-link {{ Request::segment(2) == 'theme' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/theme')) !!}>
                             <i class="bi bi-stars"></i>
                             <span>{{ __('messages.Themes') }}</span>
                         </a>
                     </li>
                 </ul>
 
-                <p class="ll-nav-section">LatchDeck Management</p>
-                <ul class="ll-nav-list">
+                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llLatchDeckMenu" aria-expanded="true" aria-controls="llLatchDeckMenu">
+                    <span>LatchDeck Management</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <ul class="ll-nav-list collapse show" id="llLatchDeckMenu">
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck') ? 'active' : '' }}" href="{{ url('/studio/latchdeck') }}">
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck')) !!}>
                             <i class="bi bi-grid-3x3-gap-fill"></i>
                             <span>LatchDeck Overview</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/cards*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/cards') }}">
-                            <i class="bi bi-postcard-heart-fill"></i>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/cards') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/cards')) !!}>
+                            <i class="bi bi-card-image"></i>
                             <span>Cards</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/redemptions*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/redemptions') }}">
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/redemptions') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/redemptions')) !!}>
                             <i class="bi bi-ticket-perforated-fill"></i>
                             <span>Redemptions</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/settings*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/settings') }}">
-                            <i class="bi bi-sliders2-vertical"></i>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/settings') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/settings')) !!}>
+                            <i class="bi bi-sliders2"></i>
                             <span>Deck Settings</span>
                             <span class="ll-nav-badge">MVP</span>
                         </a>
                     </li>
                 </ul>
 
-                <p class="ll-nav-section">Account Management</p>
-                <ul class="ll-nav-list">
+                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llAccountMenu" aria-expanded="true" aria-controls="llAccountMenu">
+                    <span>Account Management</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <ul class="ll-nav-list collapse show" id="llAccountMenu">
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/subscription*') ? 'active' : '' }}" href="{{ url('/studio/subscription') }}">
-                            <i class="bi bi-credit-card-2-front-fill"></i>
+                        <a class="ll-nav-link {{ Request::is('studio/subscription') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/subscription')) !!}>
+                            <i class="bi bi-credit-card-fill"></i>
                             <span>My Subscription</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/data*') ? 'active' : '' }}" href="{{ url('/studio/data') }}">
+                        <a class="ll-nav-link {{ Request::is('studio/my-data') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/my-data')) !!}>
                             <i class="bi bi-database-lock"></i>
                             <span>My Data</span>
                         </a>
                     </li>
                 </ul>
 
-                <p class="ll-nav-section">Growth & Community</p>
-                <ul class="ll-nav-list">
+                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llGrowthMenu" aria-expanded="true" aria-controls="llGrowthMenu">
+                    <span>Growth & Community</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <ul class="ll-nav-list collapse show" id="llGrowthMenu">
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/feedback*') ? 'active' : '' }}" href="{{ url('/studio/feedback') }}">
+                        <a class="ll-nav-link {{ Request::is('studio/feedback') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/feedback')) !!}>
                             <i class="bi bi-chat-heart-fill"></i>
                             <span>Provide Feedback</span>
                             <span class="ll-nav-badge">Tally</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/affiliate*') ? 'active' : '' }}" href="{{ url('/studio/affiliate') }}">
+                        <a class="ll-nav-link {{ Request::is('studio/affiliate-program') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/affiliate-program')) !!}>
                             <i class="bi bi-diagram-3-fill"></i>
                             <span>Affiliate Program</span>
                         </a>
                     </li>
                     <li>
-                        <a class="ll-nav-link {{ Request::is('studio/creator-program*') ? 'active' : '' }}" href="{{ url('/studio/creator-program') }}">
-                            <i class="bi bi-puzzle-fill"></i>
+                        <a class="ll-nav-link {{ Request::is('studio/creator-program') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/creator-program')) !!}>
+                            <i class="bi bi-brush-fill"></i>
                             <span>Creator Program</span>
-                            <span class="ll-nav-badge">EOI</span>
                         </a>
                     </li>
                 </ul>
@@ -1352,18 +1361,18 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                     <p>{{ __('messages.welcome', ['appName' => config('app.name')]) }}</p>
 
                     <div class="ll-hero-actions">
-                        <a href="{{ url('/studio/links') }}" class="ll-hero-button">
+                        <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                             <i class="bi bi-link-45deg"></i>
                             {{ __('messages.Links') }}
                         </a>
 
-                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary">
+                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                             <i class="bi bi-person-badge"></i>
                             {{ __('messages.Appearance') }}
                         </a>
 
                         @if(!isset($usrhandl))
-                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary">
+                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                                 <i class="bi bi-at"></i>
                                 {{ __('messages.Set a handle') }}
                             </a>
@@ -1372,7 +1381,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 </div>
             </section>
 
-            <section class="ll-content">
+            <section id="ll-content" class="ll-content">
                 @yield('content')
             </section>
 
@@ -1428,11 +1437,11 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             <hr class="my-4">
 
             <h5 class="mb-3">{{ __('messages.Profile') }}</h5>
-            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2">
+            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-person-fill"></i>
                 {{ __('messages.Profile') }}
             </a>
-            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center">
+            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center" hx-get="{{ url('/studio/profile') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-gear-fill"></i>
                 {{ __('messages.Settings') }}
             </a>
@@ -1484,6 +1493,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
     <script src="{{ asset('assets/js/Sortable.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery-block-ui.js') }}"></script>
     <script src="{{ asset('assets/js/main-dashboard.js') }}"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
     <script>
         (function () {
@@ -1518,6 +1528,29 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                     }
                 });
             });
+
+            document.body.addEventListener('htmx:beforeSwap', function (event) {
+                if (event.detail.target && event.detail.target.id === 'll-content') {
+                    event.detail.target.classList.add('htmx-swapping');
+                }
+            });
+
+            document.body.addEventListener('htmx:afterSwap', function (event) {
+                if (event.detail.target && event.detail.target.id === 'll-content') {
+                    event.detail.target.classList.remove('htmx-swapping');
+                    event.detail.target.classList.add('htmx-settling');
+
+                    setTimeout(() => {
+                        event.detail.target.classList.remove('htmx-settling');
+                    }, 220);
+                }
+            });
+
+            document.body.addEventListener('htmx:afterSettle', function () {
+                if (window.AOS) {
+                    AOS.refresh();
+                }
+            });
         })();
 
         document.querySelectorAll('.share-button').forEach(button => {
@@ -1542,3 +1575,8 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
     @stack('sidebar-scripts')
 </body>
 </html>
+'''
+
+path = Path('/mnt/data/sidebar_htmx_dropdown_sections.blade.php')
+path.write_text(content, encoding='utf-8')
+print(f"Created {path} ({path.stat().st_size:,} bytes)")
