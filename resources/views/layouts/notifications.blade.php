@@ -51,9 +51,14 @@ if (auth()->user()->role == 'admin') {
 $supabaseNotifications = collect();
 $unreadNotificationCount = 0;
 
-if ($latchIdUserId) {
-    $supabaseNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 6);
-    $unreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
+try {
+    if ($latchIdUserId) {
+        $supabaseNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 6);
+        $unreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
+    }
+} catch (\Throwable $e) {
+    $supabaseNotifications = collect();
+    $unreadNotificationCount = 0;
 }
 
 /*
