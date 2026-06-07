@@ -1,6 +1,4 @@
-from pathlib import Path
-
-content = r'''@php
+@php
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\User;
 use App\Services\LivelatchNotificationService;
@@ -898,6 +896,306 @@ function llHtmxAttrs($url) {
 
         .text-primary { color: var(--ll-primary) !important; }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Livelatch production polish
+        |--------------------------------------------------------------------------
+        | These rules tame older LinkStack/Bootstrap content when it is injected
+        | into the persistent dashboard shell via HTMX.
+        */
+
+        #ll-content {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            isolation: isolate;
+        }
+
+        #ll-content > * {
+            max-width: 100%;
+        }
+
+        #ll-content .container,
+        #ll-content .container-fluid {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: clamp(14px, 1.5vw, 22px) !important;
+            padding-right: clamp(14px, 1.5vw, 22px) !important;
+        }
+
+        #ll-content .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        #ll-content [class*="col-"] {
+            min-width: 0;
+        }
+
+        #ll-content .card,
+        #ll-content .iq-card,
+        #ll-content .card-body,
+        #ll-content .list-group-item,
+        #ll-content .accordion-item,
+        #ll-content .tab-content,
+        #ll-content .tab-pane {
+            color: var(--ll-text) !important;
+            background: var(--ll-surface-solid) !important;
+            border-color: var(--ll-border) !important;
+        }
+
+        #ll-content .card,
+        #ll-content .iq-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: auto !important;
+            overflow: hidden;
+            border-radius: var(--ll-radius) !important;
+            box-shadow: var(--ll-shadow-soft) !important;
+        }
+
+        #ll-content .card-body,
+        #ll-content .iq-card-body {
+            padding: clamp(18px, 2vw, 28px) !important;
+        }
+
+        #ll-content h1,
+        #ll-content h2,
+        #ll-content h3,
+        #ll-content h4,
+        #ll-content h5,
+        #ll-content h6,
+        #ll-content p,
+        #ll-content span,
+        #ll-content label,
+        #ll-content small,
+        #ll-content strong,
+        #ll-content div {
+            color: inherit;
+        }
+
+        #ll-content h1,
+        #ll-content h2,
+        #ll-content h3,
+        #ll-content h4,
+        #ll-content h5,
+        #ll-content h6 {
+            color: var(--ll-text) !important;
+            letter-spacing: -0.035em;
+        }
+
+        #ll-content p,
+        #ll-content small,
+        #ll-content .text-muted,
+        #ll-content .form-text,
+        #ll-content .help-block,
+        #ll-content .caption-sub-title {
+            color: var(--ll-muted) !important;
+        }
+
+        #ll-content a:not(.btn) {
+            color: var(--ll-primary);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+        }
+
+        #ll-content img,
+        #ll-content svg,
+        #ll-content canvas,
+        #ll-content iframe {
+            max-width: 100%;
+        }
+
+        #ll-content table,
+        #ll-content .table {
+            width: 100%;
+            color: var(--ll-text) !important;
+            border-color: var(--ll-border) !important;
+            background: transparent !important;
+        }
+
+        #ll-content .table > :not(caption) > * > * {
+            color: var(--ll-text) !important;
+            background: transparent !important;
+            border-color: var(--ll-border) !important;
+        }
+
+        #ll-content input,
+        #ll-content textarea,
+        #ll-content select,
+        #ll-content .form-control,
+        #ll-content .form-select,
+        #ll-content .input-group-text {
+            color: var(--ll-text) !important;
+            background: var(--ll-surface-solid) !important;
+            border: 1px solid var(--ll-border) !important;
+            border-radius: 14px !important;
+            box-shadow: none !important;
+        }
+
+        #ll-content input:focus,
+        #ll-content textarea:focus,
+        #ll-content select:focus,
+        #ll-content .form-control:focus,
+        #ll-content .form-select:focus {
+            border-color: rgba(98, 54, 255, 0.55) !important;
+            box-shadow: 0 0 0 4px rgba(98, 54, 255, 0.14) !important;
+        }
+
+        #ll-content input::placeholder,
+        #ll-content textarea::placeholder {
+            color: color-mix(in srgb, var(--ll-muted), transparent 20%) !important;
+        }
+
+        #ll-content .btn {
+            border-radius: 14px;
+            font-weight: 700;
+        }
+
+        #ll-content .btn-primary,
+        #ll-content .btn-soft-primary,
+        #ll-content .badge.bg-primary {
+            color: #fff !important;
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2)) !important;
+            border-color: transparent !important;
+        }
+
+        #ll-content .badge,
+        #ll-content .rounded-pill {
+            font-weight: 800;
+        }
+
+        #ll-content .bg-white,
+        #ll-content .bg-light {
+            background: var(--ll-surface-solid) !important;
+        }
+
+        #ll-content .text-dark,
+        #ll-content .text-black {
+            color: var(--ll-text) !important;
+        }
+
+        #ll-content .border,
+        #ll-content .border-top,
+        #ll-content .border-end,
+        #ll-content .border-bottom,
+        #ll-content .border-start {
+            border-color: var(--ll-border) !important;
+        }
+
+        #ll-content .sortable,
+        #ll-content .list-group,
+        #ll-content [id*="sortable"],
+        #ll-content [class*="sortable"] {
+            min-height: auto !important;
+        }
+
+        #ll-content .link-card,
+        #ll-content .link-item,
+        #ll-content .page-icon,
+        #ll-content .page-icon-card {
+            color: var(--ll-text) !important;
+            background: var(--ll-surface-solid) !important;
+            border-color: var(--ll-border) !important;
+            box-shadow: none !important;
+        }
+
+        .dropdown-menu,
+        .modal-content,
+        .offcanvas,
+        .popover {
+            color: var(--ll-text) !important;
+            background: var(--ll-surface-solid) !important;
+            border-color: var(--ll-border) !important;
+        }
+
+        .dropdown-header,
+        .dropdown-item,
+        .modal-title,
+        .offcanvas-title {
+            color: var(--ll-text) !important;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            color: var(--ll-text) !important;
+            background: rgba(98, 54, 255, 0.10) !important;
+        }
+
+        [data-ll-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        [data-ll-theme="light"] {
+            color-scheme: light;
+        }
+
+        [data-ll-theme="dark"] .ll-sidebar,
+        [data-ll-theme="dark"] .ll-topbar,
+        [data-ll-theme="dark"] .ll-footer {
+            background: rgba(16, 16, 31, 0.82);
+        }
+
+        [data-ll-theme="dark"] #ll-content .card,
+        [data-ll-theme="dark"] #ll-content .iq-card,
+        [data-ll-theme="dark"] #ll-content .card-body,
+        [data-ll-theme="dark"] #ll-content .list-group-item,
+        [data-ll-theme="dark"] #ll-content .accordion-item {
+            color: var(--ll-text) !important;
+            background: #10101f !important;
+            border-color: rgba(255,255,255,0.10) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content input,
+        [data-ll-theme="dark"] #ll-content textarea,
+        [data-ll-theme="dark"] #ll-content select,
+        [data-ll-theme="dark"] #ll-content .form-control,
+        [data-ll-theme="dark"] #ll-content .form-select,
+        [data-ll-theme="dark"] #ll-content .input-group-text {
+            color: var(--ll-text) !important;
+            background: #0c0c19 !important;
+            border-color: rgba(255,255,255,0.12) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .bg-white,
+        [data-ll-theme="dark"] #ll-content .bg-light,
+        [data-ll-theme="dark"] .dropdown-menu,
+        [data-ll-theme="dark"] .modal-content,
+        [data-ll-theme="dark"] .offcanvas {
+            background: #10101f !important;
+            color: var(--ll-text) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .text-muted,
+        [data-ll-theme="dark"] #ll-content .form-text,
+        [data-ll-theme="dark"] #ll-content small {
+            color: var(--ll-muted) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .table > :not(caption) > * > * {
+            color: var(--ll-text) !important;
+            background: transparent !important;
+            border-color: rgba(255,255,255,0.10) !important;
+        }
+
+        .ll-nav-link.is-loading {
+            opacity: 0.72;
+            pointer-events: none;
+        }
+
+        .ll-nav-link.active {
+            color: #fff !important;
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2)) !important;
+            box-shadow: 0 14px 28px rgba(98, 54, 255, 0.28) !important;
+        }
+
+        .ll-nav-link.active i,
+        .ll-nav-link.active span {
+            color: #fff !important;
+        }
+
         @media (max-width: 1199.98px) {
             .ll-sidebar {
                 transform: translateX(-112%);
@@ -1507,7 +1805,41 @@ function llHtmxAttrs($url) {
                 localStorage.setItem('livelatch-theme', theme);
             }
 
+            function setActiveNavFromUrl(url) {
+                const path = new URL(url, window.location.origin).pathname.replace(/\/$/, '') || '/';
+
+                document.querySelectorAll('.ll-nav-link').forEach(link => {
+                    const linkPath = new URL(link.getAttribute('href'), window.location.origin).pathname.replace(/\/$/, '') || '/';
+                    link.classList.toggle('active', linkPath === path);
+                    link.classList.remove('is-loading');
+                });
+            }
+
+            function closeMobileSidebar() {
+                if (window.innerWidth < 1200) {
+                    body.classList.remove('ll-sidebar-open');
+                }
+            }
+
+            function polishInjectedContent() {
+                const content = document.getElementById('ll-content');
+
+                if (!content) {
+                    return;
+                }
+
+                content.querySelectorAll('img').forEach(img => {
+                    img.setAttribute('loading', img.getAttribute('loading') || 'lazy');
+                });
+
+                content.querySelectorAll('.card[style*="height"], .iq-card[style*="height"]').forEach(card => {
+                    card.style.minHeight = 'auto';
+                });
+            }
+
             setTheme(initialTheme);
+            setActiveNavFromUrl(window.location.href);
+            polishInjectedContent();
 
             document.querySelectorAll('[data-theme-choice]').forEach(button => {
                 button.addEventListener('click', () => setTheme(button.dataset.themeChoice));
@@ -1522,11 +1854,19 @@ function llHtmxAttrs($url) {
             });
 
             document.querySelectorAll('.ll-nav-link[href]').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 1200) {
-                        body.classList.remove('ll-sidebar-open');
-                    }
-                });
+                link.addEventListener('click', closeMobileSidebar);
+            });
+
+            document.body.addEventListener('htmx:beforeRequest', function (event) {
+                const clickedLink = event.detail.elt;
+
+                if (clickedLink && clickedLink.classList.contains('ll-nav-link')) {
+                    document.querySelectorAll('.ll-nav-link').forEach(link => {
+                        link.classList.remove('active', 'is-loading');
+                    });
+
+                    clickedLink.classList.add('active', 'is-loading');
+                }
             });
 
             document.body.addEventListener('htmx:beforeSwap', function (event) {
@@ -1543,13 +1883,25 @@ function llHtmxAttrs($url) {
                     setTimeout(() => {
                         event.detail.target.classList.remove('htmx-settling');
                     }, 220);
+
+                    polishInjectedContent();
+                    setActiveNavFromUrl(window.location.href);
+                    closeMobileSidebar();
                 }
+            });
+
+            document.body.addEventListener('htmx:responseError', function () {
+                document.querySelectorAll('.ll-nav-link').forEach(link => link.classList.remove('is-loading'));
             });
 
             document.body.addEventListener('htmx:afterSettle', function () {
                 if (window.AOS) {
                     AOS.refresh();
                 }
+            });
+
+            window.addEventListener('popstate', () => {
+                setActiveNavFromUrl(window.location.href);
             });
         })();
 
@@ -1575,8 +1927,3 @@ function llHtmxAttrs($url) {
     @stack('sidebar-scripts')
 </body>
 </html>
-'''
-
-path = Path('/mnt/data/sidebar_htmx_dropdown_sections.blade.php')
-path.write_text(content, encoding='utf-8')
-print(f"Created {path} ({path.stat().st_size:,} bytes)")
