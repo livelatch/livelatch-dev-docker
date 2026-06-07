@@ -216,6 +216,32 @@ Route::group([
         ]);
     });
 
+  Route::get('/debug-supabase-notifications', function () {
+    $user = auth()->user();
+
+    $url = rtrim(env('SUPABASE_URL'), '/') . '/rest/v1/livelatch_notifications';
+
+    $response = Http::withHeaders([
+        'apikey' => env('SUPABASE_SERVICE_ROLE_KEY'),
+        'Authorization' => 'Bearer ' . env('SUPABASE_SERVICE_ROLE_KEY'),
+        'Content-Type' => 'application/json',
+    ])->get($url, [
+        'select' => '*',
+        'limit' => 10,
+    ]);
+
+    dd([
+        'laravel_user_id' => $user->id,
+        'laravel_email' => $user->email,
+        'supabase_user_id_from_laravel' => $user->supabase_user_id,
+        'supabase_url_exists' => !empty(env('SUPABASE_URL')),
+        'service_role_key_exists' => !empty(env('SUPABASE_SERVICE_ROLE_KEY')),
+        'supabase_status' => $response->status(),
+        'supabase_body' => $response->json(),
+        'supabase_raw' => $response->body(),
+    ]);
+})->middleware('auth');
+
 }); // End Admin authenticated routes
 });
 
