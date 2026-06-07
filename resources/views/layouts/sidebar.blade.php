@@ -3,10 +3,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\User;
 use App\Services\LivelatchNotificationService;
 
-$debugNotifications = LivelatchNotificationService::latestForUser(auth()->user()->supabase_user_id ?? null, 10);
-
-dd($debugNotifications);
-
 $usrhandl = Auth::user()->littlelink_name ?? null;
 $profileUrl = $usrhandl ? url('/@'.$usrhandl) : url('/studio/page');
 $userRole = optional(auth()->user())->role;
