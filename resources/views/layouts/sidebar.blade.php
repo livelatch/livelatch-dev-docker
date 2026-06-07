@@ -295,6 +295,27 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
             box-shadow: 0 14px 28px rgba(98, 54, 255, 0.28);
         }
 
+
+        .ll-nav-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.64rem;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.10);
+            border: 1px solid rgba(98, 54, 255, 0.12);
+        }
+
+        .ll-nav-link.active .ll-nav-badge,
+        .ll-nav-link.bg-soft-primary .ll-nav-badge {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
         .ll-sidebar-footer {
             margin-top: auto;
             padding: 18px;
@@ -1004,7 +1025,7 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                 </ul>
 
                 @if(auth()->user()->role == 'admin')
-                    <p class="ll-nav-section">{{ __('messages.Administration') }}</p>
+                    <p class="ll-nav-section">{{ __('messages.LiveLatch Administration') }}</p>
                     <ul class="ll-nav-list">
                         <li>
                             <a class="ll-nav-link" data-bs-toggle="collapse" href="#llAdminMenu" role="button" aria-expanded="false" aria-controls="llAdminMenu">
@@ -1052,6 +1073,75 @@ $GLOBALS['activenotify'] = ($livelatchNotifications->count() > 0 || $livelatchUn
                         <a class="ll-nav-link {{ Request::segment(2) == 'theme' ? 'active' : '' }}" href="{{ url('/studio/theme') }}">
                             <i class="bi bi-stars"></i>
                             <span>{{ __('messages.Themes') }}</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <p class="ll-nav-section">LatchDeck Management</p>
+                <ul class="ll-nav-list">
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck') ? 'active' : '' }}" href="{{ url('/studio/latchdeck') }}">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                            <span>LatchDeck Overview</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/cards*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/cards') }}">
+                            <i class="bi bi-postcard-heart-fill"></i>
+                            <span>Cards</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/redemptions*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/redemptions') }}">
+                            <i class="bi bi-ticket-perforated-fill"></i>
+                            <span>Redemptions</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/settings*') ? 'active' : '' }}" href="{{ url('/studio/latchdeck/settings') }}">
+                            <i class="bi bi-sliders2-vertical"></i>
+                            <span>Deck Settings</span>
+                            <span class="ll-nav-badge">MVP</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <p class="ll-nav-section">Account Management</p>
+                <ul class="ll-nav-list">
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/subscription*') ? 'active' : '' }}" href="{{ url('/studio/subscription') }}">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                            <span>My Subscription</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/data*') ? 'active' : '' }}" href="{{ url('/studio/data') }}">
+                            <i class="bi bi-database-lock"></i>
+                            <span>My Data</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <p class="ll-nav-section">Growth & Community</p>
+                <ul class="ll-nav-list">
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/feedback*') ? 'active' : '' }}" href="{{ url('/studio/feedback') }}">
+                            <i class="bi bi-chat-heart-fill"></i>
+                            <span>Provide Feedback</span>
+                            <span class="ll-nav-badge">Tally</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/affiliate*') ? 'active' : '' }}" href="{{ url('/studio/affiliate') }}">
+                            <i class="bi bi-diagram-3-fill"></i>
+                            <span>Affiliate Program</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/creator-program*') ? 'active' : '' }}" href="{{ url('/studio/creator-program') }}">
+                            <i class="bi bi-puzzle-fill"></i>
+                            <span>Creator Program</span>
+                            <span class="ll-nav-badge">EOI</span>
                         </a>
                     </li>
                 </ul>
