@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserBilling;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Models\UserBilling;
 use Stripe\Stripe;
 use Stripe\Customer;
 use Stripe\Subscription;
@@ -62,6 +62,7 @@ class LatchIdSessionController extends Controller
 
             if (!$user) {
                 $displayName = trim((string) ($validated['name'] ?? ''));
+
                 if ($displayName === '') {
                     $displayName = Str::before($requestEmail, '@');
                 }
@@ -80,39 +81,42 @@ class LatchIdSessionController extends Controller
                 }
 
                 $user = User::create($userData);
-    
-    Stripe::setApiKey(config('billing.stripe_secret'));
 
-    $customer = Customer::create([
-        'email' => $user->email,
-        'name' => $user->name,
-        'metadata' => [
-            'livelatch_user_id' => $user->id,
-            'supabase_user_id' => $user->supabase_user_id,
-        ],
-    ]);
+                Stripe::setApiKey(config('billing.stripe_secret'));
 
-    $subscription = Subscription::create([
-        'customer' => $customer->id,
-        'items' => [[
-            'price' => config('billing.free_price_id'),
-        ]],
-    ]);
+                $customer = Customer::create([
+                    'email' => $user->email,
+                    'name' => $user->name,
+                    'metadata' => [
+                        'livelatch_user_id' => (string) $user->id,
+                        'supabase_user_id' => (string) $user->supabase_user_id,
+                    ],
+                ]);
 
-    UserBilling::create([
-        'user_id' => $user->id,
-        'plan_key' => 'free',
-        'stripe_customer_id' => $customer->id,
-        'stripe_subscription_id' => $subscription->id,
-        'stripe_price_id' => config('billing.free_price_id'),
-        'stripe_status' => $subscription->status,
-        'current_period_end' => isset($subscription->current_period_end)
-            ? now()->setTimestamp($subscription->current_period_end)
-            : null,
-        'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
-    ]);
-        
+                $subscription = Subscription::create([
+                    'customer' => $customer->id,
+                    'items' => [[
+                        'price' => config('billing.free_price_id'),
+                    ]],
+                    'metadata' => [
+                        'livelatch_user_id' => (string) $user->id,
+                        'supabase_user_id' => (string) $user->supabase_user_id,
+                        'plan_key' => 'free',
+                    ],
+                ]);
 
+                UserBilling::create([
+                    'user_id' => $user->id,
+                    'plan_key' => 'free',
+                    'stripe_customer_id' => $customer->id,
+                    'stripe_subscription_id' => $subscription->id,
+                    'stripe_price_id' => config('billing.free_price_id'),
+                    'stripe_status' => $subscription->status,
+                    'current_period_end' => isset($subscription->current_period_end)
+                        ? now()->setTimestamp($subscription->current_period_end)
+                        : null,
+                    'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
+                ]);
             }
 
             return $user;
