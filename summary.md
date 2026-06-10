@@ -13,6 +13,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 !! Today marks a significant milestone with stripe integration. The user onboarding process is now functional and one step, or should I say one leap towards an MVP. When a new user is created, they are automatically assigned the free tier in Stripe (this will change based on paid sign ups in the future). There is a functioning accounts panel in the dashboard that pulls data from stripe. 
 
 !!CHANGES MADE IN ASSISTANCE WITH CHATGPT
+- Added `docs/laravel12 Migration Plan/roadmap.md` with a staged Laravel 12 LinkStack migration roadmap covering dependency jumps, high-conflict Livelatch areas, porting phases, validation gates, risks, and open decisions.
+- Validation: reviewed existing docs layout, created documentation only, and confirmed the working tree was clean before editing.
 - Reviewed the live Supabase LatchID project schema and added `docs/supabase/latchid-schema.md` documenting LatchID as the branded identity/data layer, Supabase as the backing platform, custom public tables, managed schemas, Livelatch joins, LatchDeck relations, and advisor follow-ups.
 - Validation: inspected existing Supabase docs for style, queried Supabase tables, migrations, extensions, Edge Functions, project URL, and security/performance advisors; no database changes were made.
 - Added the first Stripe billing foundation for Livelatch so every LatchID user can be represented in Stripe from signup onward.
