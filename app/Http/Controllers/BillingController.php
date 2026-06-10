@@ -37,7 +37,7 @@ class BillingController extends Controller
             }
         }
 
-        return view('studio.subscription', [
+        return view('studio.account.subscription', [
             'invoices' => $invoices,
         ]);
     }
