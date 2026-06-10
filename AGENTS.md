@@ -31,6 +31,38 @@ Manual context notes in `summary.md`:
 - preserve `!!` notes when editing or compressing `summary.md`
 - do not rewrite owner-authored `!!` notes unless explicitly asked
 
+## Documentation Updates
+
+When significant change is made, update the documentation library under `docs/` or add a new entry there.
+
+A change counts as significant when any 2 of the following are true:
+
+- a commit of 100 or more lines of code is made to a file
+- a new system is introduced
+- a system is updated
+- a new integration is defined
+- another change clearly adds enough product, architecture, operational, or workflow context that future readers would benefit from documentation
+
+When documentation is updated:
+
+- keep it human readable so someone without deep technical knowledge can still understand what changed and why it matters
+- format all code blocks correctly and always include the language
+- when a product is mentioned, include a link to its public webpage when one is known
+- include references whenever possible
+- make sure the entry gives enough context that someone reading older entries can still understand the significance
+- do not change documentation formatting conventions unless the repo owner explicitly approves it
+
+Before adding or editing documentation:
+
+- quickly review related existing docs in `docs/` to confirm they are still relevant
+- if related docs appear stale, inconsistent, or incomplete, tell the repo owner what should be updated and ask permission before changing that existing documentation format or content beyond the requested scope
+
+After completing work:
+
+- ask the repo owner if they want the documentation updated when the change meets the significant-change threshold, or when there is a reasonable case that the docs should be refreshed
+
+Agent-facing implementation notes for this workflow may be stored in `agent-docs-instructions.md`. Future agents may use and update that file as an internal reference.
+
 ## Open Graph Images
 
 When implementing generated Open Graph preview cards from the internal editor output, assume the production output should be PNG unless explicitly instructed otherwise.
