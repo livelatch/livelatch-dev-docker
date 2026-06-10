@@ -11,6 +11,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\DocumentationController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
@@ -194,6 +195,14 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                 ->name('billing.portal');
 
             Route::view('/studio/my-data', 'studio.account.my-data');
+            Route::get('/studio/docs', [DocumentationController::class, 'index'])
+                ->name('docs.index');
+            Route::get('/studio/docs/article/{path}', [DocumentationController::class, 'article'])
+                ->where('path', '.*')
+                ->name('docs.article');
+            Route::get('/studio/docs/{path}', [DocumentationController::class, 'show'])
+                ->where('path', '.*')
+                ->name('docs.show');
             Route::view('/studio/feedback', 'studio.growth.feedback');
             Route::view('/studio/affiliate-program', 'studio.growth.affiliate-program');
             Route::view('/studio/creator-program', 'studio.growth.creator-program');

@@ -1,0 +1,803 @@
+@extends('layouts.sidebar')
+
+@section('content')
+
+@php
+    $selectedPath = $selectedDocument['path'] ?? null;
+    $categories = $library['categories'] ?? [];
+    $documents = $library['documents'] ?? [];
+
+    $docsIndex = collect($documents)->map(function ($document) {
+        return [
+            'path' => $document['path'],
+            'title' => $document['title'],
+            'summary' => $document['summary'],
+            'category' => $document['category_name'],
+            'category_slug' => $document['category_slug'],
+            'url' => url('/studio/docs/' . $document['path']),
+            'article_url' => url('/studio/docs/article/' . $document['path']),
+        ];
+    })->values();
+@endphp
+
+<style>
+    .ll-docs {
+        --docs-bg: rgba(255, 255, 255, 0.72);
+        --docs-surface: rgba(255, 255, 255, 0.9);
+        --docs-border: rgba(18, 15, 45, 0.08);
+        --docs-shadow: 0 24px 60px rgba(22, 12, 50, 0.10);
+        --docs-text: var(--ll-text);
+        --docs-muted: var(--ll-muted);
+        --docs-accent: #6236ff;
+        --docs-accent-soft: rgba(98, 54, 255, 0.12);
+        --docs-accent-2: #12d6df;
+    }
+
+    [data-ll-theme="dark"] .ll-docs {
+        --docs-bg: rgba(16, 16, 31, 0.72);
+        --docs-surface: rgba(14, 14, 27, 0.92);
+        --docs-border: rgba(255, 255, 255, 0.08);
+        --docs-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .ll-docs-hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--docs-border);
+        border-radius: 32px;
+        padding: clamp(28px, 4vw, 42px);
+        background:
+            radial-gradient(circle at 16% 20%, rgba(18, 214, 223, 0.26), transparent 24%),
+            radial-gradient(circle at 84% 12%, rgba(255, 255, 255, 0.18), transparent 18%),
+            linear-gradient(135deg, #08081a 0%, #28106a 55%, #1eb7ff 100%);
+        box-shadow: var(--docs-shadow);
+        color: #fff;
+    }
+
+    .ll-docs-hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -80px -120px auto;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+        pointer-events: none;
+    }
+
+    .ll-docs-kicker,
+    .ll-docs-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.10);
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .ll-docs-hero h1 {
+        margin: 16px 0 12px;
+        color: #fff;
+        font-size: clamp(2rem, 5vw, 3.6rem);
+        font-weight: 800;
+        letter-spacing: -0.06em;
+    }
+
+    .ll-docs-hero p {
+        max-width: 760px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 1.02rem;
+        margin: 0;
+    }
+
+    .ll-docs-hero-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .ll-docs-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+        gap: 22px;
+        margin-top: 22px;
+        align-items: start;
+    }
+
+    .ll-docs-card {
+        border: 1px solid var(--docs-border);
+        border-radius: 28px;
+        background: var(--docs-surface);
+        box-shadow: var(--docs-shadow);
+        backdrop-filter: blur(18px);
+    }
+
+    .ll-docs-browser {
+        position: sticky;
+        top: 96px;
+        overflow: hidden;
+    }
+
+    .ll-docs-browser-header {
+        padding: 20px 20px 0;
+    }
+
+    .ll-docs-browser-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .ll-docs-browser-header p {
+        margin: 8px 0 0;
+        color: var(--docs-muted);
+        font-size: 0.92rem;
+    }
+
+    .ll-docs-search {
+        position: relative;
+        padding: 18px 20px 16px;
+    }
+
+    .ll-docs-search input {
+        width: 100%;
+        min-height: 52px;
+        border-radius: 18px;
+        border: 1px solid var(--docs-border);
+        background: var(--docs-bg);
+        color: var(--docs-text);
+        padding: 0 52px 0 16px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        outline: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .ll-docs-search i {
+        position: absolute;
+        right: 36px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--docs-muted);
+    }
+
+    .ll-docs-search-results {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: calc(100% - 10px);
+        z-index: 15;
+        display: none;
+        max-height: 320px;
+        overflow: auto;
+        border: 1px solid var(--docs-border);
+        border-radius: 18px;
+        background: var(--docs-surface);
+        box-shadow: 0 18px 48px rgba(22, 12, 50, 0.18);
+        padding: 8px;
+    }
+
+    .ll-docs-search-results.is-open {
+        display: block;
+    }
+
+    .ll-docs-search-result {
+        display: block;
+        padding: 12px 14px;
+        border-radius: 14px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .ll-docs-search-result:hover,
+    .ll-docs-search-result.is-active {
+        background: var(--docs-accent-soft);
+    }
+
+    .ll-docs-search-result strong {
+        display: block;
+        font-size: 0.92rem;
+    }
+
+    .ll-docs-search-result span {
+        display: block;
+        margin-top: 4px;
+        color: var(--docs-muted);
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+
+    .ll-docs-search-empty {
+        padding: 14px;
+        color: var(--docs-muted);
+        font-size: 0.86rem;
+    }
+
+    .ll-docs-category-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 20px 14px;
+    }
+
+    .ll-docs-chip {
+        border: 1px solid var(--docs-border);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--docs-muted);
+        min-height: 36px;
+        padding: 0 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .ll-docs-chip.is-active,
+    .ll-docs-chip:hover {
+        color: var(--docs-accent);
+        background: var(--docs-accent-soft);
+        border-color: rgba(98, 54, 255, 0.14);
+    }
+
+    .ll-docs-nav {
+        max-height: calc(100vh - 290px);
+        overflow: auto;
+        padding: 4px 12px 14px;
+    }
+
+    .ll-docs-category {
+        margin: 0 0 10px;
+        padding: 10px 8px;
+        border-radius: 20px;
+    }
+
+    .ll-docs-category.is-hidden,
+    .ll-docs-link.is-hidden {
+        display: none !important;
+    }
+
+    .ll-docs-category-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--docs-text);
+        padding: 8px 10px;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 0.82rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .ll-docs-category-header i {
+        transition: transform 0.2s ease;
+    }
+
+    .ll-docs-category-header[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+
+    .ll-docs-doc-list {
+        list-style: none;
+        margin: 4px 0 0;
+        padding: 0;
+    }
+
+    .ll-docs-link {
+        display: block;
+        padding: 12px 12px 12px 14px;
+        border-radius: 18px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        border: 1px solid transparent;
+    }
+
+    .ll-docs-link + .ll-docs-link {
+        margin-top: 8px;
+    }
+
+    .ll-docs-link:hover {
+        transform: translateX(2px);
+        background: rgba(98, 54, 255, 0.05);
+        border-color: rgba(98, 54, 255, 0.10);
+    }
+
+    .ll-docs-link.is-current {
+        background: linear-gradient(135deg, rgba(98, 54, 255, 0.16), rgba(18, 214, 223, 0.14));
+        border-color: rgba(98, 54, 255, 0.16);
+    }
+
+    .ll-docs-link strong {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--docs-text);
+    }
+
+    .ll-docs-link span {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        color: var(--docs-muted);
+    }
+
+    .ll-docs-pane {
+        overflow: hidden;
+    }
+
+    .ll-docs-pane-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--docs-border);
+    }
+
+    .ll-docs-pane-header h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .ll-docs-pane-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ll-docs-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        background: var(--docs-accent-soft);
+        color: var(--docs-accent);
+        padding: 8px 12px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .ll-doc-article-shell {
+        padding: 24px;
+    }
+
+    .ll-doc-article-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: var(--docs-accent-soft);
+        color: var(--docs-accent);
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .ll-doc-article-head {
+        margin: 18px 0 24px;
+    }
+
+    .ll-doc-article-head h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.06em;
+    }
+
+    .ll-doc-article-head p {
+        margin: 0;
+        color: var(--docs-muted);
+        font-size: 0.98rem;
+        line-height: 1.7;
+    }
+
+    .ll-doc-article-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .ll-doc-article-prose {
+        color: var(--docs-text);
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    .ll-doc-article-prose h1,
+    .ll-doc-article-prose h2,
+    .ll-doc-article-prose h3,
+    .ll-doc-article-prose h4 {
+        margin-top: 1.9em;
+        margin-bottom: 0.7em;
+        letter-spacing: -0.04em;
+    }
+
+    .ll-doc-article-prose h1:first-child,
+    .ll-doc-article-prose h2:first-child {
+        margin-top: 0;
+    }
+
+    .ll-doc-article-prose p,
+    .ll-doc-article-prose ul,
+    .ll-doc-article-prose ol,
+    .ll-doc-article-prose blockquote {
+        margin-bottom: 1rem;
+    }
+
+    .ll-doc-article-prose ul,
+    .ll-doc-article-prose ol {
+        padding-left: 1.25rem;
+    }
+
+    .ll-doc-article-prose code {
+        border-radius: 10px;
+        background: rgba(98, 54, 255, 0.10);
+        color: var(--docs-accent);
+        padding: 0.18rem 0.42rem;
+        font-size: 0.92em;
+    }
+
+    .ll-doc-article-prose pre {
+        padding: 18px;
+        border-radius: 20px;
+        background: #0f1122;
+        color: #f6f7fb;
+        overflow: auto;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .ll-doc-article-prose pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+    }
+
+    .ll-doc-article-prose blockquote {
+        margin-left: 0;
+        padding: 14px 16px;
+        border-left: 4px solid var(--docs-accent);
+        border-radius: 0 18px 18px 0;
+        background: rgba(98, 54, 255, 0.06);
+        color: var(--docs-muted);
+    }
+
+    .ll-doc-article-prose a {
+        color: var(--docs-accent);
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+        text-underline-offset: 3px;
+    }
+
+    .ll-doc-article-prose hr {
+        border: 0;
+        border-top: 1px solid var(--docs-border);
+        margin: 1.8rem 0;
+    }
+
+    @media (max-width: 1199.98px) {
+        .ll-docs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ll-docs-browser {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .ll-docs-hero,
+        .ll-docs-card {
+            border-radius: 24px;
+        }
+
+        .ll-docs-pane-header,
+        .ll-doc-article-shell {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="container-fluid ll-docs" id="ll-docs-root" data-selected-doc="{{ $selectedPath }}">
+    <section class="ll-docs-hero">
+        <span class="ll-docs-kicker">
+            <i class="bi bi-journal-richtext"></i>
+            Documentation Library
+        </span>
+
+        <h1>Welcome to the documentation.</h1>
+
+        <p>
+            This library is built from the Livelatch fork history and organized as Markdown files under
+            <code>docs/</code>. Create a new page by adding a <code>.md</code> file. Create a new category by adding a folder.
+        </p>
+
+        <div class="ll-docs-hero-stats">
+            <span class="ll-docs-stat"><i class="bi bi-folder2-open"></i> {{ count($categories) }} categories</span>
+            <span class="ll-docs-stat"><i class="bi bi-file-earmark-text"></i> {{ count($documents) }} docs</span>
+            <span class="ll-docs-stat"><i class="bi bi-lightning-charge"></i> HTMX article loading</span>
+        </div>
+    </section>
+
+    <div class="ll-docs-grid">
+        <aside class="ll-docs-card ll-docs-browser">
+            <div class="ll-docs-browser-header">
+                <h2>Browse the library</h2>
+                <p>Search, filter by category, or open a doc without refreshing the studio shell.</p>
+            </div>
+
+            <div class="ll-docs-search">
+                <input type="search" id="ll-docs-search-input" placeholder="Search docs, topics, services..." autocomplete="off">
+                <i class="bi bi-search"></i>
+                <div class="ll-docs-search-results" id="ll-docs-search-results"></div>
+            </div>
+
+            <div class="ll-docs-category-bar" id="ll-docs-category-bar">
+                <button type="button" class="ll-docs-chip is-active" data-category-filter="all">All</button>
+                @foreach($categories as $category)
+                    <button type="button" class="ll-docs-chip" data-category-filter="{{ $category['slug'] }}">{{ $category['name'] }}</button>
+                @endforeach
+            </div>
+
+            <div class="ll-docs-nav" id="ll-docs-nav">
+                @foreach($categories as $category)
+                    <section class="ll-docs-category" data-category="{{ $category['slug'] }}">
+                        <button class="ll-docs-category-header" type="button" data-docs-toggle aria-expanded="true">
+                            <span>{{ $category['name'] }}</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+
+                        <div data-docs-collapse>
+                            @foreach($category['documents'] as $document)
+                                <a
+                                    class="ll-docs-link {{ $selectedPath === $document['path'] ? 'is-current' : '' }}"
+                                    href="{{ url('/studio/docs/' . $document['path']) }}"
+                                    hx-get="{{ url('/studio/docs/article/' . $document['path']) }}"
+                                    hx-target="#ll-doc-article"
+                                    hx-swap="innerHTML"
+                                    hx-push-url="{{ url('/studio/docs/' . $document['path']) }}"
+                                    data-doc-path="{{ $document['path'] }}"
+                                    data-doc-title="{{ $document['title'] }}"
+                                    data-doc-summary="{{ $document['summary'] }}"
+                                    data-doc-category="{{ $document['category_slug'] }}"
+                                >
+                                    <strong>{{ $document['title'] }}</strong>
+                                    <span>{{ $document['summary'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
+                @endforeach
+            </div>
+        </aside>
+
+        <section class="ll-docs-card ll-docs-pane">
+            <div class="ll-docs-pane-header">
+                <h2>Current article</h2>
+                <div class="ll-docs-pane-meta">
+                    <span class="ll-docs-pill"><i class="bi bi-folder-fill"></i> File system sourced</span>
+                    <span class="ll-docs-pill"><i class="bi bi-code-slash"></i> Markdown rendered</span>
+                </div>
+            </div>
+
+            <div id="ll-doc-article">
+                @if($selectedDocument)
+                    @include('studio.docs.article', ['document' => $selectedDocument])
+                @else
+                    <div class="ll-doc-article-shell">
+                        <div class="ll-doc-article-head">
+                            <h1>No documentation found</h1>
+                            <p>Create a category folder under <code>docs/</code> and add your first Markdown file to populate this library.</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+    </div>
+</div>
+
+<script type="application/json" id="ll-docs-index-json">{!! $docsIndex->toJson(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+<script>
+    (function () {
+        const root = document.getElementById('ll-docs-root');
+
+        if (!root || root.dataset.docsReady === 'true') {
+            return;
+        }
+
+        root.dataset.docsReady = 'true';
+
+        const searchInput = root.querySelector('#ll-docs-search-input');
+        const resultsBox = root.querySelector('#ll-docs-search-results');
+        const nav = root.querySelector('#ll-docs-nav');
+        const categoryBar = root.querySelector('#ll-docs-category-bar');
+        const indexNode = document.getElementById('ll-docs-index-json');
+        const docsIndex = indexNode ? JSON.parse(indexNode.textContent) : [];
+        let activeCategory = 'all';
+
+        function setCurrentDoc(path) {
+            root.dataset.selectedDoc = path || '';
+
+            root.querySelectorAll('.ll-docs-link').forEach(link => {
+                link.classList.toggle('is-current', link.dataset.docPath === path);
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function applyFilters() {
+            const term = (searchInput.value || '').trim().toLowerCase();
+
+            root.querySelectorAll('.ll-docs-category').forEach(categorySection => {
+                const categorySlug = categorySection.dataset.category;
+                const matchesCategory = activeCategory === 'all' || activeCategory === categorySlug;
+                let visibleLinks = 0;
+
+                categorySection.querySelectorAll('.ll-docs-link').forEach(link => {
+                    const haystack = [
+                        link.dataset.docTitle,
+                        link.dataset.docSummary,
+                        link.dataset.docCategory,
+                        link.dataset.docPath
+                    ].join(' ').toLowerCase();
+
+                    const matchesTerm = term === '' || haystack.includes(term);
+                    const visible = matchesCategory && matchesTerm;
+
+                    link.classList.toggle('is-hidden', !visible);
+
+                    if (visible) {
+                        visibleLinks++;
+                    }
+                });
+
+                categorySection.classList.toggle('is-hidden', visibleLinks === 0);
+            });
+        }
+
+        function closeResults() {
+            resultsBox.classList.remove('is-open');
+            resultsBox.innerHTML = '';
+        }
+
+        function openResults(matches) {
+            if (!matches.length) {
+                resultsBox.innerHTML = '<div class="ll-docs-search-empty">No matching docs yet. Add another Markdown file under <code>docs/</code> to grow the library.</div>';
+                resultsBox.classList.add('is-open');
+                return;
+            }
+
+            resultsBox.innerHTML = matches.map(function (doc) {
+                return '' +
+                    '<a class="ll-docs-search-result" ' +
+                    'href="' + escapeHtml(doc.url) + '" ' +
+                    'hx-get="' + escapeHtml(doc.article_url) + '" ' +
+                    'hx-target="#ll-doc-article" ' +
+                    'hx-swap="innerHTML" ' +
+                    'hx-push-url="' + escapeHtml(doc.url) + '" ' +
+                    'data-doc-path="' + escapeHtml(doc.path) + '">' +
+                        '<strong>' + escapeHtml(doc.title) + '</strong>' +
+                        '<span>' + escapeHtml(doc.category + ' • ' + doc.summary) + '</span>' +
+                    '</a>';
+            }).join('');
+
+            if (window.htmx) {
+                window.htmx.process(resultsBox);
+            }
+
+            resultsBox.classList.add('is-open');
+        }
+
+        function updateSuggestions() {
+            const term = (searchInput.value || '').trim().toLowerCase();
+
+            if (term.length < 2) {
+                closeResults();
+                return;
+            }
+
+            const matches = docsIndex.filter(function (doc) {
+                const categoryMatch = activeCategory === 'all' || doc.category_slug === activeCategory;
+                const haystack = [doc.title, doc.summary, doc.category, doc.path].join(' ').toLowerCase();
+
+                return categoryMatch && haystack.includes(term);
+            }).slice(0, 8);
+
+            openResults(matches);
+        }
+
+        searchInput.addEventListener('input', function () {
+            applyFilters();
+            updateSuggestions();
+        });
+
+        categoryBar.addEventListener('click', function (event) {
+            const button = event.target.closest('[data-category-filter]');
+
+            if (!button) {
+                return;
+            }
+
+            activeCategory = button.dataset.categoryFilter;
+
+            categoryBar.querySelectorAll('[data-category-filter]').forEach(chip => {
+                chip.classList.toggle('is-active', chip === button);
+            });
+
+            applyFilters();
+            updateSuggestions();
+        });
+
+        nav.addEventListener('click', function (event) {
+            const toggle = event.target.closest('[data-docs-toggle]');
+
+            if (toggle) {
+                const container = toggle.parentElement.querySelector('[data-docs-collapse]');
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+                toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+                container.style.display = expanded ? 'none' : '';
+                return;
+            }
+
+            const link = event.target.closest('.ll-docs-link');
+
+            if (link) {
+                setCurrentDoc(link.dataset.docPath);
+            }
+        });
+
+        resultsBox.addEventListener('click', function (event) {
+            const link = event.target.closest('[data-doc-path]');
+
+            if (!link) {
+                return;
+            }
+
+            setCurrentDoc(link.dataset.docPath);
+            closeResults();
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!root.contains(event.target)) {
+                closeResults();
+            }
+        });
+
+        document.body.addEventListener('htmx:afterSwap', function (event) {
+            if (event.detail.target && event.detail.target.id === 'll-doc-article') {
+                const pushedPath = new URL(window.location.href).pathname.replace(/^\/studio\/docs\/?/, '').replace(/\/$/, '');
+
+                if (pushedPath) {
+                    setCurrentDoc(pushedPath);
+                }
+            }
+        });
+
+        applyFilters();
+        setCurrentDoc(root.dataset.selectedDoc || '');
+    })();
+</script>
+
+@endsection

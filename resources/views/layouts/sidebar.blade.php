@@ -1425,6 +1425,13 @@ function llHtmxAttrs($url) {
                             <span>My Data</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="ll-nav-link {{ Request::is('studio/docs*') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/docs')) !!}>
+                            <i class="bi bi-journal-richtext"></i>
+                            <span>Documentation</span>
+                            <span class="ll-nav-badge">New</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llGrowthMenu" aria-expanded="true" aria-controls="llGrowthMenu">
