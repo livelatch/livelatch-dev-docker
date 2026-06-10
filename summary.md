@@ -1,27 +1,44 @@
 # Livelatch Fork Summary
 
-This file tracks changes made by codex in the Livelatch fork only. It intentionally excludes the inherited upstream LinkStack history.
+This file tracks changes made in the Livelatch fork only. It excludes inherited upstream LinkStack history.
 
 Fork range used for the initial backfill: `upstream/main..main`.
 
-Current coverage: 39 fork commits from `8e19376` on 2026-05-12 through `c8fd7db` on 2026-05-18.
+Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9` on 2026-06-10.
 
 ## Recent Changes
 
+### 2026-06-10
+
+!! Today marks a significant milestone with stripe integration. The user onboarding process is now functional and one step, or should I say one leap towards an MVP. When a new user is created, they are automatically assigned the free tier in Stripe (this will change based on paid sign ups in the future). There is a functioning accounts panel in the dashboard that pulls data from stripe. 
+
+!!CHANGES MADE IN ASSISTANCE WITH CHATGPT
+- Added the first Stripe billing foundation for Livelatch so every LatchID user can be represented in Stripe from signup onward.
+- Created the `user_billing` persistence layer and related Laravel model/relationships to store Stripe customer, subscription, plan, and billing-status data locally.
+- Added billing configuration, Stripe SDK integration, signup-time billing provisioning, and a backfill command for existing users to create Stripe customers and free subscriptions safely.
+- Added billing routes/controller groundwork for subscription management, checkout, portal access, and invoice retrieval to support future paid plans and entitlements.
+- Validation: existing users were backfilled and checked in Stripe and the local database; billing flow behavior was reviewed end to end for future signup handling.
+- Reformatted `summary.md` to match `AGENTS.md` requirements, compressed the oversized narrative entry into concise bullets, preserved owner `!!` notes, and kept the fork-history section separate.
+- Validation: reviewed `summary.md` structure against `AGENTS.md` conventions for headings, bullet style, fork-only scope, and note preservation.
+- Updated the top-of-file fork coverage line so the commit count and end-of-range hash/date reflect the current `upstream/main..HEAD` range.
+- Validation: checked `git -c safe.directory=G:/repos/livelatch-dev-docker rev-list --count upstream/main..HEAD` and `git -c safe.directory=G:/repos/livelatch-dev-docker log --reverse --format="%h %cs" upstream/main..HEAD`.
+
 ### 2026-06-07
+
 !! finished current ui overhaul of sidebar.blade.php
-!! added new menu items 
-!! now there is a lightmode/dark mode switch, removing linkstacks dashboard UI configurability 
+!! added new menu items
+!! now there is a lightmode/dark mode switch, removing linkstacks dashboard UI configurability
 !! started working on notification system, it works in supabase, but I have not been able to get it working on the website yet, this is still a work in progress.
 
 ### 2026-06-06
+
 !! development of livelatch has resumed. It was on pause while I was working on an University assignment.
 !! restored inactive supabase project and fixed google auth settings
 !! laravel/lang had a security warning, as it is not used in this project, it was removed. I need to look in to updating laravel as linkstack devs are doing that on their branch. I can not simply merge their changes as livelatch has modified too much of the base code.
 !! started UI overhaul of sidebar.blade.php
 
-
 ### 2026-05-18
+
 !!Manual DB change made:
 !!users.supabase_user_id CHAR(36) NULL UNIQUE
 !!Purpose:
@@ -29,31 +46,20 @@ Current coverage: 39 fork commits from `8e19376` on 2026-05-12 through `c8fd7db`
 - Wired the existing `homepage-demo.php` LatchID Google button to Supabase Auth using `SUPABASE_URL` and `SUPABASE_ANON_KEY`, with `/` now serving that demo homepage through `HomeController` when the file exists.
 - Added `/callback/google` and session-backed `POST /api/latchid/session`; the callback completes the Supabase browser session, posts the Supabase user details and access token to Laravel, links or creates the local user, logs them in, and redirects to `/dashboard`.
 - Updated `config/services.php`, `.env.example`, `app/Models/User.php`, `app/Http/Controllers/Auth/LatchIdSessionController.php`, `routes/web.php`, and `resources/views/auth/latchid-google-callback.blade.php`; Google is the only enabled MVP provider.
-- Required env vars: `SUPABASE_URL` and `SUPABASE_ANON_KEY`; test by visiting `https://dev.livelatch.com`, choosing Google in the LatchID modal, returning through `/callback/google`, confirming `users.supabase_user_id` is populated, and landing on `/dashboard`.
+- Validation: visit `https://dev.livelatch.com`, complete Google auth through the LatchID modal, confirm `users.supabase_user_id` is populated, and verify the user lands on `/dashboard`.
 
 ### 2026-05-16
-- Added a polished `homepage-demo.php` Pricing section with Free, Creator Plus, Creator Pro, Team, and Enterprise demo plans, monthly/yearly pricing toggles, pricing CTAs, free-plan limitations, responsive comparison table, and a client-side Team seat estimator.
-- Kept the pricing work static and demo-only: plan CTAs open the existing Create LatchID modal, Enterprise shows a local placeholder message, and no backend, payment, Stripe, route, controller, Composer, npm, or view files were changed.
-- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with the existing local PHP startup warning about timezone value `+8`.
-- Corrected `homepage-demo.php` logo usage so `_light` assets are used on light backgrounds and `_dark` assets are used on dark backgrounds, with explicit logo context metadata for mixed-background sections.
-- Added a light/dark mode switcher to the standalone homepage demo, including theme-aware CSS variables, persisted local preference, and dynamic swapping for theme-sensitive logo assets.
-- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with the existing local PHP startup warning about timezone value `+8`.
-- Rebuilt `homepage-demo.php` as a polished standalone Livelatch homepage concept using exported `/logos` PNG assets for Livelatch, LatchDeck, LatchID, and Latchalytics instead of CSS-recreated branding.
-- Added complete static sections for the hero, creator link-page preview, product suite, LatchDeck cards, LatchID social-only onboarding, Latchalytics dashboard mockup, alpha positioning, and footer compliance note.
-- Kept auth demo-only with Create LatchID and Log in modal tabs, fake provider loading states, keyboard/click-outside close behavior, no email/password fields, no Supabase calls, and dashboard handoff to `https://dev.livelatch.com/dashboard`.
-- Validation: ran `php -l homepage-demo.php`; it reported no syntax errors, with a local PHP startup warning about the configured timezone value `+8`.
-- Refined `homepage-demo.php` with more premium gamer/streamer visual energy, including subtle animated neon glows, broadcast rings, chat overlays, live/waveform indicators, floating cards, and richer interactive polish without adding dependencies.
-- Added `homepage-demo.php`, a standalone static Livelatch landing page prototype with branded hero, Creator profile/LatchDeck mockups, feature sections, and responsive dark neon styling.
-- Added demo-only Create LatchID and Log in modal flows using social OAuth provider buttons, fake loading feedback, dashboard handoff copy, Escape/click-outside close behavior, and no backend or Supabase wiring.
-- Validation: ran `php -l homepage-demo.php`; git status could not be checked because the sandbox user is not marked as a safe Git owner for this checkout.
+
+- Expanded `homepage-demo.php` with static pricing plans, yearly/monthly toggles, a comparison table, and a client-side Team seat estimator to explore the Livelatch marketing direction without backend changes.
+- Reworked the standalone homepage concept around exported `/logos` assets, broader product-suite sections, and improved gamer/streamer visual polish while keeping auth flows demo-only.
+- Added theme-aware logo handling plus a light/dark mode switcher with persisted preference for the homepage demo.
+- Validation: ran `php -l homepage-demo.php`; syntax passed, with the existing local PHP timezone warning for configured value `+8`.
 
 ### 2026-05-14
-- Added an `AGENTS.md` convention for owner-authored notes in `summary.md`; future reports should preserve those notes and treat them as additional context/justification.
-- Updated `AGENTS.md` to require future `summary.md` entries to preserve the current format, date heading style, fork-only scope, and separation between recent changes and fork history.
-- Added `AGENTS.md` with repo-level instructions for future agent sessions, including automatic `summary.md` updates after changes and PNG output for generated Open Graph previews.
-- Replaced the previous full-repository history digest with a fork-only summary based on `upstream/main..main`.
-- Kept the file focused on Livelatch-specific deployment, S3 media, dashboard avatar, and Open Graph work.
-- Expanded the 2026-05-14 fork history entry so every commit from today is listed, not only representative commits.
+
+- Added `AGENTS.md` with repo-level instructions covering scoped fork work, required `summary.md` updates, owner `!!` note handling, and PNG output expectations for generated Open Graph images.
+- Replaced the previous full-repository digest with a fork-only summary based on `upstream/main..main` and expanded the 2026-05-14 entry to list the full fork-specific commit range.
+- Kept the summary focused on Livelatch-specific deployment, S3 media, dashboard avatar, and Open Graph work rather than inherited upstream history.
 
 ## Fork History Digest
 
@@ -61,27 +67,11 @@ Current coverage: 39 fork commits from `8e19376` on 2026-05-12 through `c8fd7db`
 
 15 commits: `8e19376` through `81c76d8`.
 
-#### Platform Identity
-- Reworked the README to introduce the project as Livelatch rather than stock LinkStack.
-- Removed/renamed legacy install documentation that no longer matched the Railway-oriented setup.
-
-#### Composer And Runtime Alignment
-- Updated `composer.json` and `composer.lock` to align the app with Livelatch runtime needs.
-- Added compatibility dependencies for S3-compatible object storage.
-- Added `composer.lock.old` during Composer recovery work.
-- Pulled in Laravel language/runtime files needed after dependency changes.
-
-#### Railway Deployment
-- Added `railpack.json` for Railway builds.
-- Adjusted Laravel app config and routes to avoid post-deploy Artisan/runtime errors.
-- Added a clean redeploy trigger commit.
-- Updated `.gitattributes` and route/view references involved in deployment fixes.
-
-#### Routing And UI Cleanup
-- Adjusted `routes/web.php`, `routes/home.php`, and the PHP info view during route repair.
-- Edited the dashboard sidebar and added a sidebar backup/copy during layout changes.
-
-Representative commits: `8e19376`, `faeb738`, `8de0844`, `7a27f03`, `2fa2778`, `78024b8`, `81c76d8`.
+- Platform identity: reworked the README to present the project as Livelatch and removed or renamed install docs that no longer fit the Railway-oriented setup.
+- Composer and runtime alignment: updated `composer.json` and `composer.lock`, added S3-compatible dependencies, kept `composer.lock.old` during recovery work, and restored Laravel language/runtime files needed after dependency changes.
+- Railway deployment: added `railpack.json`, adjusted app config and routes to avoid post-deploy Artisan/runtime errors, and added a clean redeploy trigger commit.
+- Routing and UI cleanup: repaired route/view wiring across `routes/web.php`, `routes/home.php`, the PHP info view, and sidebar-related layout work.
+- Representative commits: `8e19376`, `faeb738`, `8de0844`, `7a27f03`, `2fa2778`, `78024b8`, `81c76d8`.
 
 ### 2026-05-14
 
@@ -101,41 +91,17 @@ Commit list:
 - `e2209c7` - Fix Discord compatibility for Open Graph previews.
 - `c45776a` - Fix PNG preview resolution and rendering quality.
 
-#### Private S3 Profile Image Storage
-- Replaced local profile photo writes under `assets/img` with Laravel S3 disk uploads.
-- Added profile image upload logging and safer filename/path handling.
-- Added support for storing the actual profile image path separately from existing profile settings data.
-- Added `users.profile_image` migration and updated user/profile controllers to prefer that field.
-
-#### Profile Image Rendering
-- Added helper logic for empty/default images, legacy local filenames, S3 object paths, and full URLs.
-- Fixed the bug where JSON profile settings were being treated as an image filename.
-- Updated public, dashboard, studio, sidebar, admin bar, and related avatar views to use safe shared image resolution.
-
-#### Private Media Proxy
-- Added `MediaController`.
-- Added public media routes for profile images.
-- Proxied private S3-backed profile images through clean app URLs instead of exposing signed S3 URLs.
-- Added cache headers suitable for Cloudflare and browser caching.
-- Added fallback behavior for missing, invalid, legacy local, or default images.
-
-#### Open Graph And Discord Preview Images
-- Added dynamic Open Graph and Twitter Card metadata to public profile pages.
-- Added a generated Open Graph preview image route.
-- Added `opengraph.php`, an internal editor/tool for designing generated profile preview cards.
-- Updated the generated preview card design from the editor output.
-- Switched Discord-facing preview images to PNG output instead of SVG.
-- Improved PNG rendering quality by rendering at higher internal resolution, downsampling, improving fallbacks, and cache-busting the OG image URL.
-
+- Private S3 profile image storage: moved profile photo writes from local `assets/img` paths to Laravel S3 uploads, added safer path handling, and introduced `users.profile_image` plus related controller/model changes.
+- Profile image rendering: added shared resolution logic for empty/default images, legacy local files, S3 object paths, and full URLs so dashboard, studio, public, sidebar, and admin views render avatars safely.
+- Private media proxy: added `MediaController` and public media routes to serve private S3-backed profile images through app URLs with cache headers and fallback behavior.
+- Open Graph and Discord previews: added dynamic profile metadata, a generated preview route, the internal `opengraph.php` editor, PNG-based Discord previews, and higher-quality rendering behavior.
 !! I need to look in to font rendering for opengraph, please provide some suggestions for this.
-
-#### Documentation
-- Made a small README edit after the media/Open Graph work.
-
-All commits for this date are listed above.
+- Documentation: made a small README edit after the media/Open Graph work.
+- All commits for this date are listed above.
 
 ## Ongoing Summary Rules
 
-- After each future code/config change, append a dated entry under **Recent Changes**.
-- Keep entries focused on what changed, why it changed, and the user-facing/deployment impact.
-- As this file grows, compress older detailed entries into shorter dated summaries instead of keeping every implementation detail forever.
+- After each future code/config/doc change, append a dated entry under **Recent Changes**.
+- Keep entries concise and focused on what changed, why it changed, affected files or work areas, and validation performed.
+- Preserve owner-authored `!!` lines exactly unless explicitly asked to rewrite them.
+- As this file grows, compress older detailed entries into shorter dated summaries instead of removing history.
