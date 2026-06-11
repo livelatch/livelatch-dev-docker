@@ -73,7 +73,46 @@ $customBackgroundExists = file_exists($customBackgroundPath)
   <link rel="stylesheet" href="{{ asset('assets/linkstack/css/brands.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/linkstack/css/skeleton-auto.css') }}">
 @endif
-<style>.container{word-break: break-word;}</style>
+@php
+  $llPreset = $publicThemePreset['preset'] ?? [];
+  $llPrimary = $llPreset['primary'] ?? '#2563eb';
+  $llBackground = $llPreset['background'] ?? '#ffffff';
+  $llText = $llPreset['text'] ?? '#111827';
+  $llButtonRadius = $llPreset['buttonRadius'] ?? '8px';
+@endphp
+<style>
+  :root {
+    --ll-primary: {{ $llPrimary }};
+    --ll-background: {{ $llBackground }};
+    --ll-text: {{ $llText }};
+    --ll-button-radius: {{ $llButtonRadius }};
+  }
+
+  body {
+    background-color: var(--ll-background) !important;
+    color: var(--ll-text) !important;
+  }
+
+  .container {
+    word-break: break-word;
+  }
+
+  .container,
+  .container h1,
+  .container h2,
+  .container h3,
+  .container p,
+  .container .dynamic-contrast {
+    color: var(--ll-text) !important;
+  }
+
+  .container .button {
+    background-color: var(--ll-primary) !important;
+    border-color: var(--ll-primary) !important;
+    border-radius: var(--ll-button-radius) !important;
+    color: #ffffff !important;
+  }
+</style>
 @endpush
 
 @push('linkstack-body-start')

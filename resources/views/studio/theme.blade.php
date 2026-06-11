@@ -65,10 +65,30 @@
                             </div>
 
                             <div class="mb-4">
-                                <div id="theme-preview" class="border rounded p-4">
-                                    <h3 id="theme-preview-heading" class="mb-3">Livelatch Default</h3>
-                                    <p id="theme-preview-text" class="mb-3">A simple preview using the selected preset values.</p>
-                                    <span id="theme-preview-button" class="d-inline-block px-4 py-2">Sample button</span>
+                                <div
+                                    id="theme-preview"
+                                    class="border rounded p-4"
+                                    style="--ll-primary: #2563eb; --ll-background: #ffffff; --ll-text: #111827; --ll-button-radius: 8px;"
+                                >
+                                    <div class="ll-theme-preview-page">
+                                        <div class="ll-theme-preview-profile">
+                                            <div class="ll-theme-preview-avatar"></div>
+                                            <h3 id="theme-preview-heading" class="ll-theme-preview-heading">Livelatch Default</h3>
+                                            <p id="theme-preview-text" class="ll-theme-preview-text">Preset preview for your public profile.</p>
+
+                                            <a id="theme-preview-button" class="ll-theme-preview-button" href="#" onclick="return false;">
+                                                Sample button
+                                            </a>
+
+                                            <div id="theme-preview-link-card" class="ll-theme-preview-link-card">
+                                                <span class="ll-theme-preview-link-icon"></span>
+                                                <div>
+                                                    <strong>Sample link card</strong>
+                                                    <p>Creator link preview using this preset.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -82,6 +102,87 @@
 </div>
 
 @push('sidebar-scripts')
+<style>
+    #theme-preview {
+        background: #f8fafc;
+    }
+
+    #theme-preview .ll-theme-preview-page {
+        min-height: 360px;
+        background: var(--ll-background);
+        color: var(--ll-text);
+        border-radius: 12px;
+        padding: 32px 20px;
+        transition: background 160ms ease, color 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-profile {
+        max-width: 360px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    #theme-preview .ll-theme-preview-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        margin: 0 auto 16px;
+        background: var(--ll-primary);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    #theme-preview .ll-theme-preview-heading {
+        color: var(--ll-text);
+        margin-bottom: 8px;
+    }
+
+    #theme-preview .ll-theme-preview-text {
+        color: var(--ll-text);
+        opacity: 0.82;
+        margin-bottom: 20px;
+    }
+
+    #theme-preview .ll-theme-preview-button {
+        display: block;
+        width: 100%;
+        padding: 13px 18px;
+        border-radius: var(--ll-button-radius);
+        background: var(--ll-primary);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 700;
+        margin-bottom: 14px;
+        transition: background 160ms ease, border-radius 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-link-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+        padding: 14px;
+        border-radius: var(--ll-button-radius);
+        border: 1px solid color-mix(in srgb, var(--ll-text) 18%, transparent);
+        background: color-mix(in srgb, var(--ll-background) 86%, var(--ll-primary));
+        color: var(--ll-text);
+        transition: background 160ms ease, color 160ms ease, border-radius 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-link-card p {
+        margin: 2px 0 0;
+        color: var(--ll-text);
+        opacity: 0.72;
+        font-size: 0.9rem;
+    }
+
+    #theme-preview .ll-theme-preview-link-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--ll-primary);
+        flex: 0 0 auto;
+    }
+</style>
 <script>
     (function () {
         const themeSelect = document.getElementById('theme-id');
@@ -90,7 +191,6 @@
         const preview = document.getElementById('theme-preview');
         const previewHeading = document.getElementById('theme-preview-heading');
         const previewText = document.getElementById('theme-preview-text');
-        const previewButton = document.getElementById('theme-preview-button');
 
         if (!themeSelect || !presetSelect || !versionInput || !preview) {
             return;
@@ -147,13 +247,12 @@
             const primary = preset.primary || '#2563eb';
             const buttonRadius = preset.buttonRadius || '8px';
 
-            preview.style.background = background;
-            preview.style.color = text;
-            previewHeading.style.color = text;
-            previewText.style.color = text;
-            previewButton.style.background = primary;
-            previewButton.style.color = '#ffffff';
-            previewButton.style.borderRadius = buttonRadius;
+            preview.style.setProperty('--ll-primary', primary);
+            preview.style.setProperty('--ll-background', background);
+            preview.style.setProperty('--ll-text', text);
+            preview.style.setProperty('--ll-button-radius', buttonRadius);
+            previewHeading.textContent = getSelectedThemeOption().textContent.trim();
+            previewText.textContent = formatPresetName(presetSelect.value) + ' preset preview for your public profile.';
         }
 
         themeSelect.addEventListener('change', renderPresets);

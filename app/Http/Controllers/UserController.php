@@ -27,6 +27,7 @@ use App\Models\Button;
 use App\Models\Link;
 use App\Models\LinkType;
 use App\Models\UserData;
+use App\Services\ThemeService;
 
 
 //Function tests if string starts with certain string (used to test for illegal strings)
@@ -50,6 +51,9 @@ function stringEndsWith($haystack, $needle, $case = true)
 
 class UserController extends Controller
 {
+    public function __construct(private ThemeService $themeService)
+    {
+    }
 
     //Statistics of the number of clicks and links
     public function index()
@@ -127,7 +131,13 @@ class UserController extends Controller
             }
         }
 
-        return view('linkstack.linkstack', ['userinfo' => $userinfo, 'information' => $information, 'links' => $links, 'littlelink_name' => $littlelink_name]);
+        return view('linkstack.linkstack', [
+            'userinfo' => $userinfo,
+            'information' => $information,
+            'links' => $links,
+            'littlelink_name' => $littlelink_name,
+            'publicThemePreset' => $this->themeService->resolvePublicPreset($userinfo),
+        ]);
     }
 
     //Show littlelink page as home page if set in config
@@ -165,7 +175,13 @@ class UserController extends Controller
             }
         }
 
-        return view('linkstack.linkstack', ['userinfo' => $userinfo, 'information' => $information, 'links' => $links, 'littlelink_name' => $littlelink_name]);
+        return view('linkstack.linkstack', [
+            'userinfo' => $userinfo,
+            'information' => $information,
+            'links' => $links,
+            'littlelink_name' => $littlelink_name,
+            'publicThemePreset' => $this->themeService->resolvePublicPreset($userinfo),
+        ]);
     }
 
     //Redirect to user page
