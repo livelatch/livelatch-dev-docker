@@ -321,14 +321,18 @@
                 }
 
                 const messages = [];
-                Object.keys(errors || {}).forEach(function (key) {
-                    const value = errors[key];
-                    if (Array.isArray(value)) {
-                        messages.push.apply(messages, value);
-                    } else {
-                        messages.push(value);
-                    }
-                });
+                if (typeof errors === 'string') {
+                    messages.push(errors);
+                } else {
+                    Object.keys(errors || {}).forEach(function (key) {
+                        const value = errors[key];
+                        if (Array.isArray(value)) {
+                            messages.push.apply(messages, value);
+                        } else {
+                            messages.push(value);
+                        }
+                    });
+                }
 
                 errorBox.innerHTML = messages.map(function (message) {
                     return '<div>' + String(message) + '</div>';
@@ -411,25 +415,70 @@
                 saveButton.disabled = true;
                 saveButton.textContent = 'Saving...';
 
+                const csrfToken = form.querySelector('input[name="_token"]')?.value
+                    || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                    || '';
+
                 fetch(form.action, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
                     },
+                    credentials: 'same-origin',
                     body: new FormData(form)
                 })
                     .then(function (response) {
+                        const contentType = response.headers.get('content-type') || '';
+
                         if (!response.ok) {
-                            return response.json().then(function (data) {
-                                throw data;
+                            return response.text().then(function (text) {
+                                let data = {};
+
+                                if (contentType.includes('application/json')) {
+                                    try {
+                                        data = JSON.parse(text);
+                                    } catch (error) {
+                                        data = {};
+                                    }
+                                }
+
+                                if (data.errors) {
+                                    throw data;
+                                }
+
+                                throw {
+                                    errors: {
+                                        theme: 'Theme settings could not be saved. Server returned HTTP ' + response.status + '.'
+                                    }
+                                };
                             });
                         }
 
-                        return response.json();
+                        if (contentType.includes('application/json')) {
+                            return response.json();
+                        }
+
+                        return {
+                            message: 'Theme settings saved.',
+                            setting: {
+                                custom_settings: {
+                                    primary: primaryInput.value,
+                                    background: backgroundInput.value,
+                                    text: textInput.value,
+                                    fontFamily: fontInput.value
+                                }
+                            }
+                        };
                     })
                     .then(function (data) {
-                        form.dataset.customSettings = JSON.stringify(data.setting.custom_settings || {});
+                        form.dataset.customSettings = JSON.stringify(data.setting?.custom_settings || {
+                            primary: primaryInput.value,
+                            background: backgroundInput.value,
+                            text: textInput.value,
+                            fontFamily: fontInput.value
+                        });
 
                         if (window.bootstrap && document.getElementById('theme-saved-modal')) {
                             bootstrap.Modal.getOrCreateInstance(document.getElementById('theme-saved-modal')).show();

@@ -58,7 +58,7 @@ class ThemeController extends Controller
 
         $setting = $this->themeService->saveUserSettings($request->user(), $validated);
 
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => 'Theme settings saved.',
                 'setting' => [
@@ -75,7 +75,7 @@ class ThemeController extends Controller
 
     private function themeError(Request $request, array $errors)
     {
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() || $request->ajax()) {
             return response()->json(['errors' => $errors], 422);
         }
 

@@ -16,6 +16,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Expanded the Studio theme preview so preset changes immediately update a mock page background, heading, sample button, and sample link card without auto-saving.
 - Added default-theme color and Google Font family controls backed by `user_theme_settings.custom_settings`, with public profile rendering now merging saved overrides into the selected preset.
 - Fixed `/studio/theme` initialization when loaded from the HTMX sidebar by keeping the editor script inside the swapped page content, and changed theme saves to an AJAX request that shows a success modal instead of refreshing the page.
+- Hardened the Studio theme AJAX save request with an explicit CSRF header, same-origin credentials, and clearer server-status error handling for failed saves.
+- Fixed a false-negative Studio theme save state where settings persisted but the browser still showed an error by accepting successful non-JSON responses and broadening controller JSON detection for AJAX requests.
 - Added `docs/themes/theme-settings-mvp.md` to document the new route flow, data dependencies, retained legacy behavior, and next steps for the theme overhaul.
 - Validation: ran PHP syntax, route, and Blade cache checks for the theme controller, service, Studio theme view, public theme module, and `/studio/theme` routes.
 
