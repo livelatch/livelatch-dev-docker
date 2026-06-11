@@ -62,7 +62,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(SocialAccount::class);
     }
-
+    public function themeSetting()
+    {
+        return $this->hasOne(\App\Models\UserThemeSetting::class);
+    }
     protected static function boot()
     {
         parent::boot();
