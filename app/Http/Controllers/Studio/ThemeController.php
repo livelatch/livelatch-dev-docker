@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Http\Controllers\Studio;
+
+use App\Http\Controllers\Controller;
+use App\Models\ThemeVersion;
+use App\Services\ThemeService;
+use Illuminate\Http\Request;
+
+class ThemeController extends Controller
+{
+    public function __construct(private ThemeService $themeService)
+    {
+    }
+
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+        $themes = $this->themeService->getAvailableThemes();
+        $currentSetting = $this->themeService->getUserTheme($user);
+
+        return view('studio.theme', [
+            'themes' => $themes,
+            'currentSetting' => $currentSetting,
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'theme_id' => ['required', 'exists:themes,id'],
+            'theme_version_id' => ['required', 'exists:theme_versions,id'],
+            'preset' => ['required', 'string', 'max:50'],
+        ]);
+
+        $themeVersion = ThemeVersion::query()
+            ->where('id', $validated['theme_version_id'])
+            ->where('theme_id', $validated['theme_id'])
+            ->first();
+
+        if (!$themeVersion) {
+            return back()
+                ->withErrors(['theme_version_id' => 'The selected theme version does not belong to this theme.'])
+                ->withInput();
+        }
+
+        $manifest = $this->themeService->getThemeManifest($themeVersion);
+        $presets = $manifest['presets'] ?? [];
+
+        if (!array_key_exists($validated['preset'], $presets)) {
+            return back()
+                ->withErrors(['preset' => 'The selected preset is not available for this theme.'])
+                ->withInput();
+        }
+
+        $this->themeService->saveUserSettings($request->user(), $validated);
+
+        return back()->with('success', 'Theme settings saved.');
+    }
+}

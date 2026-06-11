@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-11
+
+- Added the first browser-based MVP theme settings flow for `/studio/theme`, routing GET/POST requests to a new `Studio\ThemeController` backed by `ThemeService` and `user_theme_settings`.
+- Replaced the legacy theme-management page content with a simple authenticated Blade form for selecting the published Livelatch Default theme preset, saving it through the service layer, and previewing basic manifest colors.
+- Added `docs/themes/theme-settings-mvp.md` to document the new route flow, data dependencies, retained legacy behavior, and next steps for the theme overhaul.
+- Validation: ran PHP syntax, route, and Blade cache checks for the new controller and `/studio/theme` routes.
+
 ### 2026-06-10
 
 !! Today marks a significant milestone with stripe integration. The user onboarding process is now functional and one step, or should I say one leap towards an MVP. When a new user is created, they are automatically assigned the free tier in Stripe (this will change based on paid sign ups in the future). There is a functioning accounts panel in the dashboard that pulls data from stripe. 
