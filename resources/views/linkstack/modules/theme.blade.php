@@ -79,22 +79,28 @@ $customBackgroundExists = file_exists($customBackgroundPath)
   $llBackground = $llPreset['background'] ?? '#ffffff';
   $llText = $llPreset['text'] ?? '#111827';
   $llButtonRadius = $llPreset['buttonRadius'] ?? '8px';
+  $llFontFamily = $llPreset['fontFamily'] ?? 'Inter';
 @endphp
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
   :root {
     --ll-primary: {{ $llPrimary }};
     --ll-background: {{ $llBackground }};
     --ll-text: {{ $llText }};
     --ll-button-radius: {{ $llButtonRadius }};
+    --ll-font-family: "{{ $llFontFamily }}", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
   body {
     background-color: var(--ll-background) !important;
     color: var(--ll-text) !important;
+    font-family: var(--ll-font-family) !important;
   }
 
   .container {
     word-break: break-word;
+    font-family: var(--ll-font-family) !important;
   }
 
   .container,
@@ -111,6 +117,7 @@ $customBackgroundExists = file_exists($customBackgroundPath)
     border-color: var(--ll-primary) !important;
     border-radius: var(--ll-button-radius) !important;
     color: #ffffff !important;
+    font-family: var(--ll-font-family) !important;
   }
 </style>
 @endpush

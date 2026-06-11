@@ -40,7 +40,7 @@ class ThemeService
                 'theme_id' => $settings['theme_id'],
                 'theme_version_id' => $settings['theme_version_id'],
                 'preset' => $settings['preset'] ?? 'default',
-                'custom_settings' => $settings['custom_settings'] ?? [],
+                'custom_settings' => $this->cleanCustomSettings($settings['custom_settings'] ?? []),
             ]
         );
     }
@@ -64,10 +64,28 @@ class ThemeService
         $presets = $manifest['presets'] ?? [];
         $preset = $presets[$presetKey] ?? $presets[self::DEFAULT_PRESET] ?? [];
 
+        $customSettings = $setting?->custom_settings ?? [];
+
         return [
             'theme_version' => $version,
             'preset_key' => isset($presets[$presetKey]) ? $presetKey : self::DEFAULT_PRESET,
-            'preset' => array_merge($this->defaultPresetValues(), $preset),
+            'preset' => array_merge($this->defaultPresetValues(), $preset, $this->cleanCustomSettings($customSettings)),
+        ];
+    }
+
+    public function getDefaultThemeFontFamilies(): array
+    {
+        return [
+            'Inter' => 'Inter',
+            'Poppins' => 'Poppins',
+            'Roboto' => 'Roboto',
+            'Open Sans' => 'Open Sans',
+            'Montserrat' => 'Montserrat',
+            'Lato' => 'Lato',
+            'Playfair Display' => 'Playfair Display',
+            'Merriweather' => 'Merriweather',
+            'Oswald' => 'Oswald',
+            'Source Sans 3' => 'Source Sans 3',
         ];
     }
 
@@ -78,6 +96,17 @@ class ThemeService
             'background' => '#ffffff',
             'text' => '#111827',
             'buttonRadius' => '8px',
+            'fontFamily' => 'Inter',
         ];
+    }
+
+    private function cleanCustomSettings(array $settings): array
+    {
+        $allowedKeys = ['primary', 'background', 'text', 'buttonRadius', 'fontFamily'];
+        $cleanSettings = array_intersect_key($settings, array_flip($allowedKeys));
+
+        return array_filter($cleanSettings, function ($value) {
+            return is_string($value) && trim($value) !== '';
+        });
     }
 }

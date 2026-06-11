@@ -3,9 +3,105 @@
 @section('content')
 @php
     $selectedThemeId = old('theme_id', $currentSetting?->theme_id ?? $themes->first()?->id);
-    $selectedVersionId = old('theme_version_id', $currentSetting?->theme_version_id ?? $themes->first()?->currentVersion?->id);
+    $selectedTheme = $themes->firstWhere('id', (int) $selectedThemeId) ?? $themes->first();
+    $selectedVersion = $selectedTheme?->currentVersion;
+    $selectedVersionId = old('theme_version_id', $currentSetting?->theme_version_id ?? $selectedVersion?->id);
     $selectedPreset = old('preset', $currentSetting?->preset ?? 'default');
+    $selectedPresets = $selectedVersion?->manifest['presets'] ?? [];
+    $selectedPresetValues = $selectedPresets[$selectedPreset] ?? $selectedPresets['default'] ?? [];
+    $customSettings = old('custom_settings', $currentSetting?->custom_settings ?? []);
+    $initialPrimary = $customSettings['primary'] ?? $selectedPresetValues['primary'] ?? '#2563eb';
+    $initialBackground = $customSettings['background'] ?? $selectedPresetValues['background'] ?? '#ffffff';
+    $initialText = $customSettings['text'] ?? $selectedPresetValues['text'] ?? '#111827';
+    $initialFontFamily = $customSettings['fontFamily'] ?? $selectedPresetValues['fontFamily'] ?? 'Inter';
 @endphp
+
+<style data-ll-theme-editor-style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+    #theme-preview {
+        background: #f8fafc;
+    }
+
+    #theme-preview .ll-theme-preview-page {
+        min-height: 360px;
+        background: var(--ll-background);
+        color: var(--ll-text);
+        border-radius: 12px;
+        padding: 32px 20px;
+        font-family: var(--ll-font-family);
+        transition: background 160ms ease, color 160ms ease, font-family 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-profile {
+        max-width: 360px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    #theme-preview .ll-theme-preview-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        margin: 0 auto 16px;
+        background: var(--ll-primary);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    #theme-preview .ll-theme-preview-heading {
+        color: var(--ll-text);
+        margin-bottom: 8px;
+        font-family: var(--ll-font-family);
+    }
+
+    #theme-preview .ll-theme-preview-text {
+        color: var(--ll-text);
+        opacity: 0.82;
+        margin-bottom: 20px;
+    }
+
+    #theme-preview .ll-theme-preview-button {
+        display: block;
+        width: 100%;
+        padding: 13px 18px;
+        border-radius: var(--ll-button-radius);
+        background: var(--ll-primary);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 700;
+        margin-bottom: 14px;
+        font-family: var(--ll-font-family);
+        transition: background 160ms ease, border-radius 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-link-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+        padding: 14px;
+        border-radius: var(--ll-button-radius);
+        border: 1px solid rgba(17, 24, 39, 0.14);
+        background: rgba(255, 255, 255, 0.28);
+        color: var(--ll-text);
+        transition: background 160ms ease, color 160ms ease, border-radius 160ms ease;
+    }
+
+    #theme-preview .ll-theme-preview-link-card p {
+        margin: 2px 0 0;
+        color: var(--ll-text);
+        opacity: 0.72;
+        font-size: 0.9rem;
+    }
+
+    #theme-preview .ll-theme-preview-link-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--ll-primary);
+        flex: 0 0 auto;
+    }
+</style>
 
 <div class="container-fluid content-inner mt-n5 py-0">
     <div class="row">
@@ -13,13 +109,15 @@
             <div class="card rounded">
                 <div class="card-body">
                     <h2 class="mb-2">Theme Settings</h2>
-                    <p class="text-muted mb-4">Select a published theme preset and save it to your profile.</p>
+                    <p class="text-muted mb-4">Select a published theme preset and customize the default theme styling for your profile.</p>
 
                     @if(session('success'))
                         <div class="alert alert-success" role="alert">
                             {{ session('success') }}
                         </div>
                     @endif
+
+                    <div class="alert alert-danger d-none" id="theme-settings-errors" role="alert"></div>
 
                     @if($errors->any())
                         <div class="alert alert-danger" role="alert">
@@ -34,7 +132,12 @@
                             No published themes are available yet.
                         </div>
                     @else
-                        <form method="post" action="{{ route('editTheme') }}" id="theme-settings-form">
+                        <form
+                            method="post"
+                            action="{{ route('editTheme') }}"
+                            id="theme-settings-form"
+                            data-custom-settings='@json($customSettings)'
+                        >
                             @csrf
 
                             <input type="hidden" name="theme_version_id" id="theme-version-id" value="{{ $selectedVersionId }}">
@@ -61,14 +164,48 @@
 
                             <div class="mb-4">
                                 <label for="preset" class="form-label">Preset</label>
-                                <select class="form-control" id="preset" name="preset" data-selected-preset="{{ $selectedPreset }}"></select>
+                                <select class="form-control" id="preset" name="preset" data-selected-preset="{{ $selectedPreset }}">
+                                    @foreach($selectedPresets as $presetKey => $preset)
+                                        <option value="{{ $presetKey }}" @selected($selectedPreset === $presetKey)>
+                                            {{ Str::headline($presetKey) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="theme-primary" class="form-label">Primary colour</label>
+                                    <input type="color" class="form-control form-control-color w-100" id="theme-primary" name="custom_settings[primary]" value="{{ $initialPrimary }}">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="theme-background" class="form-label">Background colour</label>
+                                    <input type="color" class="form-control form-control-color w-100" id="theme-background" name="custom_settings[background]" value="{{ $initialBackground }}">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label for="theme-text" class="form-label">Text colour</label>
+                                    <input type="color" class="form-control form-control-color w-100" id="theme-text" name="custom_settings[text]" value="{{ $initialText }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="theme-font-family" class="form-label">Font family</label>
+                                <select class="form-control" id="theme-font-family" name="custom_settings[fontFamily]">
+                                    @foreach($fontFamilies as $fontFamily => $label)
+                                        <option value="{{ $fontFamily }}" @selected($initialFontFamily === $fontFamily)>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="mb-4">
                                 <div
                                     id="theme-preview"
                                     class="border rounded p-4"
-                                    style="--ll-primary: #2563eb; --ll-background: #ffffff; --ll-text: #111827; --ll-button-radius: 8px;"
+                                    style="--ll-primary: {{ $initialPrimary }}; --ll-background: {{ $initialBackground }}; --ll-text: {{ $initialText }}; --ll-button-radius: 8px; --ll-font-family: '{{ $initialFontFamily }}', system-ui, sans-serif;"
                                 >
                                     <div class="ll-theme-preview-page">
                                         <div class="ll-theme-preview-profile">
@@ -92,7 +229,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Save theme settings</button>
+                            <button type="submit" class="btn btn-primary" id="theme-save-button">Save theme settings</button>
                         </form>
                     @endif
                 </div>
@@ -101,164 +238,216 @@
     </div>
 </div>
 
-@push('sidebar-scripts')
-<style>
-    #theme-preview {
-        background: #f8fafc;
-    }
+<div class="modal fade" id="theme-saved-modal" tabindex="-1" aria-labelledby="theme-saved-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="theme-saved-modal-label">Theme saved</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0">
+                Your theme settings have been saved to your public profile.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    #theme-preview .ll-theme-preview-page {
-        min-height: 360px;
-        background: var(--ll-background);
-        color: var(--ll-text);
-        border-radius: 12px;
-        padding: 32px 20px;
-        transition: background 160ms ease, color 160ms ease;
-    }
-
-    #theme-preview .ll-theme-preview-profile {
-        max-width: 360px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    #theme-preview .ll-theme-preview-avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 999px;
-        margin: 0 auto 16px;
-        background: var(--ll-primary);
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
-    }
-
-    #theme-preview .ll-theme-preview-heading {
-        color: var(--ll-text);
-        margin-bottom: 8px;
-    }
-
-    #theme-preview .ll-theme-preview-text {
-        color: var(--ll-text);
-        opacity: 0.82;
-        margin-bottom: 20px;
-    }
-
-    #theme-preview .ll-theme-preview-button {
-        display: block;
-        width: 100%;
-        padding: 13px 18px;
-        border-radius: var(--ll-button-radius);
-        background: var(--ll-primary);
-        color: #ffffff;
-        text-decoration: none;
-        font-weight: 700;
-        margin-bottom: 14px;
-        transition: background 160ms ease, border-radius 160ms ease;
-    }
-
-    #theme-preview .ll-theme-preview-link-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        text-align: left;
-        padding: 14px;
-        border-radius: var(--ll-button-radius);
-        border: 1px solid color-mix(in srgb, var(--ll-text) 18%, transparent);
-        background: color-mix(in srgb, var(--ll-background) 86%, var(--ll-primary));
-        color: var(--ll-text);
-        transition: background 160ms ease, color 160ms ease, border-radius 160ms ease;
-    }
-
-    #theme-preview .ll-theme-preview-link-card p {
-        margin: 2px 0 0;
-        color: var(--ll-text);
-        opacity: 0.72;
-        font-size: 0.9rem;
-    }
-
-    #theme-preview .ll-theme-preview-link-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: var(--ll-primary);
-        flex: 0 0 auto;
-    }
-</style>
 <script>
-    (function () {
-        const themeSelect = document.getElementById('theme-id');
-        const presetSelect = document.getElementById('preset');
-        const versionInput = document.getElementById('theme-version-id');
-        const preview = document.getElementById('theme-preview');
-        const previewHeading = document.getElementById('theme-preview-heading');
-        const previewText = document.getElementById('theme-preview-text');
+    window.LivelatchThemeEditor = window.LivelatchThemeEditor || {
+        init: function () {
+            const form = document.getElementById('theme-settings-form');
+            const themeSelect = document.getElementById('theme-id');
+            const presetSelect = document.getElementById('preset');
+            const versionInput = document.getElementById('theme-version-id');
+            const preview = document.getElementById('theme-preview');
+            const previewHeading = document.getElementById('theme-preview-heading');
+            const previewText = document.getElementById('theme-preview-text');
+            const primaryInput = document.getElementById('theme-primary');
+            const backgroundInput = document.getElementById('theme-background');
+            const textInput = document.getElementById('theme-text');
+            const fontInput = document.getElementById('theme-font-family');
+            const saveButton = document.getElementById('theme-save-button');
+            const errorBox = document.getElementById('theme-settings-errors');
 
-        if (!themeSelect || !presetSelect || !versionInput || !preview) {
-            return;
-        }
-
-        function getSelectedThemeOption() {
-            return themeSelect.options[themeSelect.selectedIndex];
-        }
-
-        function getPresets(option) {
-            try {
-                return JSON.parse(option.dataset.presets || '{}');
-            } catch (error) {
-                return {};
+            if (!form || !themeSelect || !presetSelect || !versionInput || !preview || form.dataset.themeEditorInitialized === 'true') {
+                return;
             }
-        }
 
-        function formatPresetName(value) {
-            return value
-                .replace(/[-_]+/g, ' ')
-                .replace(/\b\w/g, function (letter) {
-                    return letter.toUpperCase();
+            form.dataset.themeEditorInitialized = 'true';
+
+            function getSelectedThemeOption() {
+                return themeSelect.options[themeSelect.selectedIndex];
+            }
+
+            function getPresets(option) {
+                try {
+                    return JSON.parse(option.dataset.presets || '{}');
+                } catch (error) {
+                    return {};
+                }
+            }
+
+            function getCustomSettings() {
+                try {
+                    return JSON.parse(form.dataset.customSettings || '{}') || {};
+                } catch (error) {
+                    return {};
+                }
+            }
+
+            function formatPresetName(value) {
+                return value
+                    .replace(/[-_]+/g, ' ')
+                    .replace(/\b\w/g, function (letter) {
+                        return letter.toUpperCase();
+                    });
+            }
+
+            function hideErrors() {
+                if (!errorBox) {
+                    return;
+                }
+
+                errorBox.classList.add('d-none');
+                errorBox.innerHTML = '';
+            }
+
+            function showErrors(errors) {
+                if (!errorBox) {
+                    return;
+                }
+
+                const messages = [];
+                Object.keys(errors || {}).forEach(function (key) {
+                    const value = errors[key];
+                    if (Array.isArray(value)) {
+                        messages.push.apply(messages, value);
+                    } else {
+                        messages.push(value);
+                    }
                 });
-        }
 
-        function renderPresets() {
-            const option = getSelectedThemeOption();
-            const presets = getPresets(option);
-            const previous = presetSelect.value || presetSelect.dataset.selectedPreset || 'default';
+                errorBox.innerHTML = messages.map(function (message) {
+                    return '<div>' + String(message) + '</div>';
+                }).join('');
+                errorBox.classList.remove('d-none');
+            }
 
-            versionInput.value = option.dataset.versionId || '';
-            presetSelect.innerHTML = '';
+            function renderPresets() {
+                const option = getSelectedThemeOption();
+                const presets = getPresets(option);
+                const previous = presetSelect.value || presetSelect.dataset.selectedPreset || 'default';
 
-            Object.keys(presets).forEach(function (presetKey) {
-                const presetOption = document.createElement('option');
-                presetOption.value = presetKey;
-                presetOption.textContent = formatPresetName(presetKey);
-                presetOption.selected = presetKey === previous;
-                presetSelect.appendChild(presetOption);
+                versionInput.value = option.dataset.versionId || '';
+                presetSelect.innerHTML = '';
+
+                Object.keys(presets).forEach(function (presetKey) {
+                    const presetOption = document.createElement('option');
+                    presetOption.value = presetKey;
+                    presetOption.textContent = formatPresetName(presetKey);
+                    presetOption.selected = presetKey === previous;
+                    presetSelect.appendChild(presetOption);
+                });
+
+                if (!presetSelect.value && presetSelect.options.length > 0) {
+                    presetSelect.options[0].selected = true;
+                }
+
+                applyPresetToControls(true);
+                updatePreview();
+            }
+
+            function applyPresetToControls(useSavedCustomSettings) {
+                const presets = getPresets(getSelectedThemeOption());
+                const preset = presets[presetSelect.value] || {};
+                const customSettings = useSavedCustomSettings ? getCustomSettings() : {};
+
+                primaryInput.value = customSettings.primary || preset.primary || '#2563eb';
+                backgroundInput.value = customSettings.background || preset.background || '#ffffff';
+                textInput.value = customSettings.text || preset.text || '#111827';
+                fontInput.value = customSettings.fontFamily || preset.fontFamily || 'Inter';
+            }
+
+            function updatePreview() {
+                const presets = getPresets(getSelectedThemeOption());
+                const preset = presets[presetSelect.value] || {};
+                const primary = primaryInput.value || preset.primary || '#2563eb';
+                const background = backgroundInput.value || preset.background || '#ffffff';
+                const text = textInput.value || preset.text || '#111827';
+                const buttonRadius = preset.buttonRadius || '8px';
+                const fontFamily = fontInput.value || preset.fontFamily || 'Inter';
+
+                preview.style.setProperty('--ll-primary', primary);
+                preview.style.setProperty('--ll-background', background);
+                preview.style.setProperty('--ll-text', text);
+                preview.style.setProperty('--ll-button-radius', buttonRadius);
+                preview.style.setProperty('--ll-font-family', '"' + fontFamily + '", system-ui, sans-serif');
+                previewHeading.textContent = getSelectedThemeOption().textContent.trim();
+                previewText.textContent = formatPresetName(presetSelect.value || 'default') + ' preset preview for your public profile.';
+            }
+
+            themeSelect.addEventListener('change', function () {
+                presetSelect.dataset.selectedPreset = 'default';
+                renderPresets();
             });
 
-            if (!presetSelect.value && presetSelect.options.length > 0) {
-                presetSelect.options[0].selected = true;
-            }
+            presetSelect.addEventListener('change', function () {
+                form.dataset.customSettings = '{}';
+                applyPresetToControls(false);
+                updatePreview();
+            });
 
-            updatePreview();
+            [primaryInput, backgroundInput, textInput, fontInput].forEach(function (input) {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                hideErrors();
+                saveButton.disabled = true;
+                saveButton.textContent = 'Saving...';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new FormData(form)
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            return response.json().then(function (data) {
+                                throw data;
+                            });
+                        }
+
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        form.dataset.customSettings = JSON.stringify(data.setting.custom_settings || {});
+
+                        if (window.bootstrap && document.getElementById('theme-saved-modal')) {
+                            bootstrap.Modal.getOrCreateInstance(document.getElementById('theme-saved-modal')).show();
+                        }
+                    })
+                    .catch(function (error) {
+                        showErrors(error.errors || { theme: 'Theme settings could not be saved.' });
+                    })
+                    .finally(function () {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Save theme settings';
+                    });
+            });
+
+            renderPresets();
         }
+    };
 
-        function updatePreview() {
-            const presets = getPresets(getSelectedThemeOption());
-            const preset = presets[presetSelect.value] || {};
-            const background = preset.background || '#ffffff';
-            const text = preset.text || '#111827';
-            const primary = preset.primary || '#2563eb';
-            const buttonRadius = preset.buttonRadius || '8px';
-
-            preview.style.setProperty('--ll-primary', primary);
-            preview.style.setProperty('--ll-background', background);
-            preview.style.setProperty('--ll-text', text);
-            preview.style.setProperty('--ll-button-radius', buttonRadius);
-            previewHeading.textContent = getSelectedThemeOption().textContent.trim();
-            previewText.textContent = formatPresetName(presetSelect.value) + ' preset preview for your public profile.';
-        }
-
-        themeSelect.addEventListener('change', renderPresets);
-        presetSelect.addEventListener('change', updatePreview);
-        renderPresets();
-    })();
+    window.LivelatchThemeEditor.init();
 </script>
-@endpush
 @endsection

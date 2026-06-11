@@ -5,17 +5,17 @@ The first browser-based theme settings flow introduces the new database-backed t
 ## What exists now
 
 - `GET /studio/theme` shows a simple theme settings form for signed-in users.
-- `POST /studio/theme` saves the selected theme version and preset to `user_theme_settings`.
+- `POST /studio/theme` saves the selected theme version, preset, and supported custom settings to `user_theme_settings`.
 - The page currently expects the seeded `livelatch-default` theme and its `v1.0.0` published version.
 - Presets are read from the selected `ThemeVersion` manifest.
-- A Studio-only preview panel uses the manifest preset values for background, text, primary color, and button radius.
-- Public profile rendering can resolve a user's saved theme setting through `ThemeService` and emit CSS variables for the selected preset.
+- A Studio-only preview panel uses the manifest preset values plus user edits for background, text, primary color, font family, and button radius.
+- Public profile rendering can resolve a user's saved theme setting through `ThemeService` and emit CSS variables for the selected preset and saved overrides.
 
-This is intentionally small. It proves the browser-to-controller-to-service-to-database path before adding S3 uploads, marketplace logic, color pickers, or advanced CSS editing.
+This is intentionally small. It proves the browser-to-controller-to-service-to-database path before adding S3 uploads, marketplace logic, or advanced CSS editing.
 
 ## Studio preview
 
-The `/studio/theme` page includes a preview panel that updates immediately when the preset dropdown changes. It does not save automatically.
+The `/studio/theme` page includes a preview panel that updates immediately when the preset dropdown, color inputs, or font family selector changes. It does not save automatically.
 
 The preview applies these CSS variables to a mock profile surface:
 
@@ -24,6 +24,7 @@ The preview applies these CSS variables to a mock profile surface:
 --ll-background
 --ll-text
 --ll-button-radius
+--ll-font-family
 ```
 
 The preview shows:
@@ -34,6 +35,19 @@ The preview shows:
 - sample link card
 
 This lets the user see the current preset before clicking save while keeping the saved public profile setting as the source of truth.
+
+## Default theme editing
+
+The current editor supports simple structured overrides for the seeded Livelatch Default theme:
+
+- primary color
+- background color
+- text color
+- font family
+
+Font choices are a curated set from [Google Fonts](https://fonts.google.com/). The selected family is stored in `user_theme_settings.custom_settings.fontFamily` and merged with the selected preset by `ThemeService::resolvePublicPreset()`.
+
+The theme page submits with `fetch()` and requests JSON from `POST /studio/theme`. A successful save opens a Studio modal instead of refreshing the page. The normal Blade redirect response remains available as a fallback if JavaScript is unavailable.
 
 ## Current route flow
 
@@ -55,6 +69,7 @@ POST /studio/theme
 -> confirm preset exists in ThemeVersion manifest
 -> ThemeService::saveUserSettings()
 -> user_theme_settings row updated
+-> JSON success response opens the saved modal
 ```
 
 ## Data dependencies
@@ -108,14 +123,15 @@ The selected preset is passed into `resources/views/linkstack/modules/theme.blad
 --ll-background
 --ll-text
 --ll-button-radius
+--ll-font-family
 ```
 
-Those variables are applied to the public page background, text, and LinkStack buttons while the legacy LinkStack theme CSS remains loaded.
+Those variables are applied to the public page background, text, font family, and LinkStack buttons while the legacy LinkStack theme CSS remains loaded.
 
 ## Next steps
 
 - Test the form with a signed-in user and confirm `user_theme_settings.preset` changes.
 - Test public profiles for users with and without saved theme settings.
 - Add S3-backed custom background uploads.
-- Add token controls for colors, typography, button radius, and background options.
+- Expand token controls for button radius and richer background options.
 - Add an element-scoped CSS editor after the structured preset flow is stable.
