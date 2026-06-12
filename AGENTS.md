@@ -63,6 +63,26 @@ After completing work:
 
 Agent-facing implementation notes for this workflow may be stored in `agent-docs-instructions.md`. Future agents may use and update that file as an internal reference.
 
+## Owner Todo Follow-Ups
+
+Todo requests for the repo owner live under `docs/todos/`.
+
+At the start of a work session, check whether `docs/todos/` exists and contains Markdown files. If it does, inspect each file for a `todo-check` metadata block:
+
+```text
+<!-- todo-check
+created_at: 2026-06-12T19:34:32+08:00
+ask_after: 2026-06-13T19:34:32+08:00
+status: open
+-->
+```
+
+Compare `ask_after` with the current date/time from the active environment context. If `ask_after` is in the past or equal to now, ask the repo owner whether the existing todos have been completed before continuing broad new work.
+
+If the owner says yes, delete the completed todo file or the whole `docs/todos/` folder when all todo files are completed. If the owner says no, update the file's `ask_after` value to 24 hours after the current environment time and keep the todo open. Preserve the rest of the todo content.
+
+When new owner follow-up work is discovered, create a new Markdown file in `docs/todos/` with a clear title, concrete checklist, and a `todo-check` block using the current environment time plus a 24-hour `ask_after`.
+
 ## Open Graph Images
 
 When implementing generated Open Graph preview cards from the internal editor output, assume the production output should be PNG unless explicitly instructed otherwise.

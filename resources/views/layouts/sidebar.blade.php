@@ -627,16 +627,15 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-hero {
             position: relative;
             overflow: hidden;
-            margin-top: 18px;
-            min-height: 246px;
-            border-radius: 32px;
-            padding: clamp(28px, 5vw, 56px);
-            color: #fff;
+            margin-top: 16px;
+            border-radius: 26px;
+            padding: clamp(18px, 3vw, 28px);
+            color: var(--ll-text);
             background:
-                radial-gradient(circle at 82% 18%, rgba(18, 214, 223, 0.56), transparent 24%),
-                radial-gradient(circle at 18% 10%, rgba(155, 92, 255, 0.78), transparent 26%),
-                linear-gradient(135deg, #0b041c 0%, #241064 45%, #6d28d9 100%);
-            box-shadow: var(--ll-shadow);
+                radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--ll-primary) 18%, transparent), transparent 30%),
+                linear-gradient(135deg, var(--ll-surface-solid), var(--ll-bg-soft));
+            border: 1px solid var(--ll-border);
+            box-shadow: var(--ll-shadow-soft);
             isolation: isolate;
         }
 
@@ -645,27 +644,22 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-            background-size: 44px 44px;
+                linear-gradient(color-mix(in srgb, var(--ll-text) 5%, transparent) 1px, transparent 1px),
+                linear-gradient(90deg, color-mix(in srgb, var(--ll-text) 5%, transparent) 1px, transparent 1px);
+            background-size: 36px 36px;
             mask-image: radial-gradient(circle at 55% 45%, black 0%, transparent 78%);
             z-index: -2;
         }
 
         .ll-hero::after {
-            content: "";
-            position: absolute;
-            width: 480px;
-            height: 480px;
-            right: -180px;
-            top: -170px;
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 64%);
-            z-index: -1;
+            display: none;
         }
 
         .ll-hero-content {
-            max-width: 780px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.95fr) minmax(340px, 1.05fr);
+            gap: clamp(16px, 3vw, 28px);
+            align-items: center;
             position: relative;
             z-index: 2;
         }
@@ -676,58 +670,123 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             align-items: center;
             gap: 8px;
             padding: 8px 12px;
-            border: 1px solid rgba(255,255,255,0.16);
+            border: 1px solid var(--ll-border);
             border-radius: 999px;
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(16px);
-            color: rgba(255,255,255,0.84);
+            background: color-mix(in srgb, var(--ll-primary) 9%, transparent);
+            color: var(--ll-primary);
             font-weight: 700;
             font-size: 0.82rem;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
 
         .ll-hero h1 {
-            color: #fff;
-            font-size: clamp(2.25rem, 7vw, 5rem);
+            color: var(--ll-text);
+            font-size: clamp(1.7rem, 4vw, 3.1rem);
             font-weight: 800;
-            letter-spacing: -0.075em;
-            line-height: 0.94;
+            line-height: 1;
             margin: 0;
         }
 
         .ll-hero p {
-            color: rgba(255,255,255,0.78);
-            margin: 16px 0 0;
-            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: var(--ll-muted);
+            margin: 10px 0 0;
+            font-size: 0.96rem;
             font-weight: 500;
             max-width: 560px;
         }
 
-        .ll-hero-actions {
-            display: flex;
-            flex-wrap: wrap;
+        .ll-hero-actions,
+        .ll-hero-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
-            margin-top: 24px;
         }
 
-        .ll-hero-button {
-            min-height: 46px;
-            padding: 0 18px;
-            border-radius: 999px;
+        .ll-hero-button,
+        .ll-hero-quick-link {
+            min-height: 92px;
+            padding: 14px;
+            border-radius: 18px;
             display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
             text-decoration: none;
             font-weight: 800;
-            color: #160c32;
-            background: #fff;
-            border: 1px solid rgba(255,255,255,0.26);
+            color: var(--ll-text);
+            background: var(--ll-surface-solid);
+            border: 1px solid var(--ll-border);
+            box-shadow: 0 10px 24px color-mix(in srgb, var(--ll-text) 7%, transparent);
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .ll-hero-button:hover,
+        .ll-hero-button:focus,
+        .ll-hero-quick-link:hover,
+        .ll-hero-quick-link:focus {
+            color: var(--ll-text);
+            border-color: color-mix(in srgb, var(--ll-primary) 38%, var(--ll-border));
+            background: color-mix(in srgb, var(--ll-primary) 7%, var(--ll-surface-solid));
+            transform: translateY(-2px);
+        }
+
+        .ll-hero-button i {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            font-size: 1.05rem;
+        }
+
+        .ll-hero-button span {
+            display: grid;
+            gap: 3px;
+        }
+
+        .ll-hero-button small {
+            color: var(--ll-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
         }
 
         .ll-hero-button.secondary {
+            color: var(--ll-text);
+            background: var(--ll-surface-solid);
+        }
+
+        .ll-hero-quick-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
             color: #fff;
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(12px);
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            font-size: 1.05rem;
+        }
+
+        .ll-hero-quick-link span:last-child {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .ll-hero-quick-link small {
+            color: var(--ll-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 991.98px) {
+            .ll-hero-content,
+            .ll-hero-actions,
+            .ll-hero-quick-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .ll-content {
@@ -1666,13 +1725,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             }
 
             .ll-hero {
-                min-height: 220px;
                 margin-top: 12px;
-                padding: 26px 22px;
-                border-radius: 26px;
+                padding: 18px;
+                border-radius: 22px;
             }
-
-            .ll-hero h1 { letter-spacing: -0.06em; }
 
             .ll-footer {
                 justify-content: center;
@@ -1910,8 +1966,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             <section class="ll-hero">
                 <div class="ll-hero-content">
                     <div class="ll-kicker">
-                        <i class="bi bi-stars"></i>
-                        Livelatch Studio
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        Quick actions
                     </div>
 
                     @if(!isset($usrhandl))
@@ -1920,23 +1976,48 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                         <h1>👋 {{ __('messages.Hi') }}, {{ '@'.$usrhandl }}</h1>
                     @endif
 
-                    <p>{{ __('messages.welcome', ['appName' => config('app.name')]) }}</p>
+                    <p>Jump into common Livelatch tasks without digging through the sidebar.</p>
 
                     <div class="ll-hero-actions">
                         <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                             <i class="bi bi-link-45deg"></i>
-                            {{ __('messages.Links') }}
+                            <span>
+                                {{ __('messages.Links') }}
+                                <small>Manage blocks</small>
+                            </span>
                         </a>
 
                         <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                             <i class="bi bi-person-badge"></i>
-                            {{ __('messages.Appearance') }}
+                            <span>
+                                {{ __('messages.Appearance') }}
+                                <small>Edit profile</small>
+                            </span>
+                        </a>
+
+                        <a href="{{ url('/studio/theme') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                            <i class="bi bi-stars"></i>
+                            <span>
+                                {{ __('messages.Themes') }}
+                                <small>Preview style</small>
+                            </span>
+                        </a>
+
+                        <a href="{{ $profileUrl }}" target="_blank" class="ll-hero-button secondary">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span>
+                                {{ __('messages.View Page') }}
+                                <small>Open public profile</small>
+                            </span>
                         </a>
 
                         @if(!isset($usrhandl))
                             <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                                 <i class="bi bi-at"></i>
-                                {{ __('messages.Set a handle') }}
+                                <span>
+                                    {{ __('messages.Set a handle') }}
+                                    <small>Required for sharing</small>
+                                </span>
                             </a>
                         @endif
                     </div>

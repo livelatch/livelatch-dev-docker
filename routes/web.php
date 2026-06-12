@@ -195,7 +195,33 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/billing/portal', [BillingController::class, 'portal'])
                 ->name('billing.portal');
 
-            Route::view('/studio/my-data', 'studio.account.my-data');
+            Route::get('/studio/my-data', function () {
+                $documents = collect([
+                    'privacy' => base_path('docs/compliance/privacy.md'),
+                    'tos' => base_path('docs/compliance/tos.md'),
+                ])->mapWithKeys(function (string $path, string $key) {
+                    $markdown = \Illuminate\Support\Facades\File::exists($path)
+                        ? \Illuminate\Support\Facades\File::get($path)
+                        : '# Missing document';
+
+                    return [$key => [
+                        'source_path' => $path,
+                        'updated_at' => \Illuminate\Support\Facades\File::exists($path)
+                            ? \Carbon\Carbon::createFromTimestamp(\Illuminate\Support\Facades\File::lastModified($path))
+                            : null,
+                        'html' => \Illuminate\Support\Str::markdown($markdown, [
+                            'html_input' => 'strip',
+                            'allow_unsafe_links' => false,
+                        ]),
+                    ]];
+                });
+
+                return view('studio.account.my-data', [
+                    'privacyDocument' => $documents['privacy'],
+                    'tosDocument' => $documents['tos'],
+                ]);
+            });
+            Route::view('/studio/latchid', 'studio.account.latchid');
             Route::get('/studio/docs', [DocumentationController::class, 'index'])
                 ->name('docs.index');
             Route::get('/studio/docs/article/{path}', [DocumentationController::class, 'article'])

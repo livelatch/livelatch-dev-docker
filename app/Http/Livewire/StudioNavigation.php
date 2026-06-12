@@ -106,17 +106,18 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [
-                        'label' => 'My Data',
+                        'label' => 'Manage My Data',
                         'icon' => 'bi bi-database-lock',
                         'url' => url('/studio/my-data'),
                         'active' => request()->is('studio/my-data'),
+                        'skeleton' => '#ll-page-skeleton',
                     ],
                     [
-                        'label' => 'Documentation',
-                        'icon' => 'bi bi-journal-richtext',
-                        'url' => url('/studio/docs'),
-                        'active' => request()->is('studio/docs*'),
-                        'badge' => 'New',
+                        'label' => 'LatchID',
+                        'icon' => 'bi bi-person-vcard-fill',
+                        'url' => url('/studio/latchid'),
+                        'active' => request()->is('studio/latchid'),
+                        'skeleton' => '#ll-card-grid-skeleton',
                     ],
                 ],
             ],
@@ -156,7 +157,7 @@ class StudioNavigation extends Component
         ];
 
         if (auth()->user()?->role === 'admin') {
-            array_splice($sections, 1, 0, [[
+            $sections[] = [
                 'key' => 'admin',
                 'label' => 'Admin',
                 'icon' => 'bi bi-shield-lock-fill',
@@ -190,6 +191,13 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [
+                        'label' => 'Documentation',
+                        'icon' => 'bi bi-journal-richtext',
+                        'url' => url('/studio/docs'),
+                        'active' => request()->is('studio/docs*'),
+                        'badge' => 'New',
+                    ],
+                    [
                         'label' => 'Dev Tools',
                         'icon' => 'bi bi-code-square',
                         'url' => url('admin/dev-tools'),
@@ -197,7 +205,7 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-page-skeleton',
                     ],
                 ],
-            ]]);
+            ];
         }
 
         return $sections;

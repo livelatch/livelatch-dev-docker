@@ -1,107 +1,203 @@
 @extends('layouts.sidebar')
 
 @section('content')
+<style data-ll-my-data-style>
+    .ll-data-page {
+        display: grid;
+        gap: 18px;
+    }
 
-<div class="container-fluid">
+    .ll-data-header,
+    .ll-data-card,
+    .ll-data-request {
+        border: 1px solid var(--ll-border);
+        border-radius: var(--ll-radius);
+        background: var(--ll-surface-solid);
+        box-shadow: var(--ll-shadow-soft);
+    }
 
-    {{-- Hero --}}
-    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
-        <div
-            style="
-                background:
-                radial-gradient(circle at top left, rgba(255,255,255,.15), transparent 35%),
-                linear-gradient(135deg,#6236ff 0%,#8b5cf6 50%,#3b82f6 100%);
-                min-height:220px;
-                position:relative;
-            "
-            class="card-body d-flex flex-column justify-content-center text-white">
+    .ll-data-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+        padding: clamp(18px, 3vw, 28px);
+    }
 
-            <span class="badge bg-light text-dark mb-3" style="width:max-content;">
-                Studio Preview
-            </span>
+    .ll-data-kicker {
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+        font-size: 0.78rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
 
-            <h1 class="fw-bold mb-2">
-                Hello World 👋
-            </h1>
+    .ll-data-header h2,
+    .ll-data-header p {
+        margin: 0;
+    }
 
-            <p class="mb-4 opacity-75 fs-5">
-                This is a placeholder Studio page for testing HTMX navigation,
-                dark mode, layouts, and future Livelatch features.
-            </p>
+    .ll-data-header p {
+        color: var(--ll-muted);
+        max-width: 720px;
+    }
 
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-light">
-                    Primary Action
-                </button>
+    .ll-data-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        align-items: start;
+    }
 
-                <button class="btn btn-outline-light">
-                    Secondary Action
-                </button>
+    .ll-data-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px;
+        border-bottom: 1px solid var(--ll-border);
+    }
+
+    .ll-data-card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .ll-data-card-header span {
+        color: var(--ll-muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .ll-data-prose {
+        padding: 18px;
+        color: var(--ll-text);
+    }
+
+    .ll-data-prose h1 {
+        font-size: 1.55rem;
+        margin: 0 0 12px;
+    }
+
+    .ll-data-prose h2 {
+        font-size: 1.08rem;
+        margin: 22px 0 8px;
+    }
+
+    .ll-data-prose p,
+    .ll-data-prose li {
+        color: var(--ll-muted);
+        line-height: 1.65;
+    }
+
+    .ll-data-prose ul {
+        padding-left: 1.25rem;
+    }
+
+    .ll-data-request {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px;
+        flex-wrap: wrap;
+    }
+
+    .ll-data-request h3,
+    .ll-data-request p {
+        margin: 0;
+    }
+
+    .ll-data-request p {
+        color: var(--ll-muted);
+        margin-top: 4px;
+    }
+
+    @media (max-width: 991.98px) {
+        .ll-data-header,
+        .ll-data-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container-fluid content-inner mt-n5 py-0">
+    <div class="ll-data-page">
+        <section class="ll-data-header">
+            <div>
+                <span class="ll-data-kicker">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    Compliance
+                </span>
+                <h2>Manage My Data</h2>
+                <p>Review how Livelatch expects to collect, use, and manage account data. These documents are draft operational boilerplate loaded from the compliance docs folder.</p>
             </div>
+            <a href="{{ url('/studio/latchid') }}" class="btn btn-primary">
+                <i class="bi bi-person-vcard-fill"></i>
+                Manage LatchID
+            </a>
+        </section>
 
-        </div>
-    </div>
-
-    {{-- Stats Row --}}
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Test Metric</small>
-                    <h2 class="mb-0">123</h2>
+        <div class="ll-data-grid">
+            <article class="ll-data-card">
+                <div class="ll-data-card-header">
+                    <h3>Privacy</h3>
+                    <span>{{ $privacyDocument['updated_at'] ? $privacyDocument['updated_at']->format('d M Y') : 'Draft' }}</span>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Another Metric</small>
-                    <h2 class="mb-0">456</h2>
+                <div class="ll-data-prose">
+                    {!! $privacyDocument['html'] !!}
                 </div>
-            </div>
-        </div>
+            </article>
 
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <small class="text-muted">Something Else</small>
-                    <h2 class="mb-0">789</h2>
+            <article class="ll-data-card">
+                <div class="ll-data-card-header">
+                    <h3>Terms</h3>
+                    <span>{{ $tosDocument['updated_at'] ? $tosDocument['updated_at']->format('d M Y') : 'Draft' }}</span>
                 </div>
+                <div class="ll-data-prose">
+                    {!! $tosDocument['html'] !!}
+                </div>
+            </article>
+        </div>
+
+        <section class="ll-data-request">
+            <div>
+                <h3>Request a copy of all held data</h3>
+                <p>If you want to request a copy of all data Livelatch holds about your account, press this button. This is a placeholder and will later send an automated email request.</p>
             </div>
-        </div>
+            <button type="button" class="btn btn-light" disabled>
+                <i class="bi bi-envelope-paper"></i>
+                Request data copy
+            </button>
+        </section>
 
+        <section class="ll-data-request">
+            <div>
+                <h3>Request account deletion</h3>
+                <p>If you want your Livelatch account reviewed for deletion, press this button. For now this is placeholder boilerplate and will later send an automated offboarding email request.</p>
+            </div>
+            <button type="button" class="btn btn-light" disabled>
+                <i class="bi bi-person-x"></i>
+                Request account deletion
+            </button>
+        </section>
+
+        <section class="ll-data-request">
+            <div>
+                <h3>View source</h3>
+                <p>Livelatch is built from a LinkStack fork. This placeholder will eventually redirect to the public GitHub source page for license and transparency review.</p>
+            </div>
+            <button type="button" class="btn btn-light" disabled>
+                <i class="bi bi-github"></i>
+                View source
+            </button>
+        </section>
     </div>
-
-    {{-- Main Content --}}
-    <div class="card">
-        <div class="card-body">
-
-            <h3 class="mb-3">
-                Content Area
-            </h3>
-
-            <p>
-                If you're seeing this page load without the sidebar refreshing,
-                HTMX navigation is working correctly.
-            </p>
-
-            <p>
-                This section can later become:
-            </p>
-
-            <ul>
-                <li>LatchDeck Dashboard</li>
-                <li>Subscription Management</li>
-                <li>Affiliate Analytics</li>
-                <li>Creator Program Applications</li>
-                <li>Notification Centre</li>
-            </ul>
-
-        </div>
-    </div>
-
 </div>
-
 @endsection
