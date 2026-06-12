@@ -37,70 +37,61 @@ class AdminController extends Controller
   //Statistics of the number of clicks and links
   public function index()
   {
-    $userId = Auth::user()->id;
     $littlelink_name = Auth::user()->littlelink_name;
-    $links = Link::where("user_id", $userId)->select("link")->count();
-    $clicks = Link::where("user_id", $userId)->sum("click_number");
 
-    $userNumber = User::count();
-    $siteLinks = Link::count();
-    $siteClicks = Link::sum("click_number");
+    $links = 18;
+    $clicks = 1246;
 
-    $users = User::select(
-      "id",
-      "name",
-      "email",
-      "created_at",
-      "updated_at",
-    )->get();
-    $lastMonthCount = $users
-      ->where("created_at", ">=", Carbon::now()->subDays(30))
-      ->count();
-    $lastWeekCount = $users
-      ->where("created_at", ">=", Carbon::now()->subDays(7))
-      ->count();
-    $last24HrsCount = $users
-      ->where("created_at", ">=", Carbon::now()->subHours(24))
-      ->count();
-    $updatedLast30DaysCount = $users
-      ->where("updated_at", ">=", Carbon::now()->subDays(30))
-      ->count();
-    $updatedLast7DaysCount = $users
-      ->where("updated_at", ">=", Carbon::now()->subDays(7))
-      ->count();
-    $updatedLast24HrsCount = $users
-      ->where("updated_at", ">=", Carbon::now()->subHours(24))
-      ->count();
-
-    $links = Link::where("user_id", $userId)->select("link")->count();
-    $clicks = Link::where("user_id", $userId)->sum("click_number");
-    $topLinks = Link::where("user_id", $userId)
-      ->orderby("click_number", "desc")
-      ->whereNotNull("link")
-      ->where("link", "<>", "")
-      ->take(5)
-      ->get();
+    $topLinks = collect([
+      [
+        "title" => "Discord Community",
+        "link" => "https://discord.com/invite/livelatch",
+        "click_number" => 412,
+      ],
+      [
+        "title" => "Creator Toolkit",
+        "link" => "https://livelatch.com/toolkit",
+        "click_number" => 293,
+      ],
+      [
+        "title" => "Latest Launch Video",
+        "link" => "https://youtube.com/watch?v=livelatch",
+        "click_number" => 248,
+      ],
+      [
+        "title" => "Sponsor Pack",
+        "link" => "https://livelatch.com/sponsor-pack",
+        "click_number" => 177,
+      ],
+      [
+        "title" => "Email Newsletter",
+        "link" => "mailto:hello@livelatch.com",
+        "click_number" => 116,
+      ],
+    ]);
 
     $pageStats = [
       "visitors" => [
-        "all" => visits("App\Models\User", $littlelink_name)->count(),
-        "day" => visits("App\Models\User", $littlelink_name)
-          ->period("day")
-          ->count(),
-        "week" => visits("App\Models\User", $littlelink_name)
-          ->period("week")
-          ->count(),
-        "month" => visits("App\Models\User", $littlelink_name)
-          ->period("month")
-          ->count(),
-        "year" => visits("App\Models\User", $littlelink_name)
-          ->period("year")
-          ->count(),
+        "all" => 7432,
+        "day" => 64,
+        "week" => 428,
+        "month" => 1830,
+        "year" => 7432,
       ],
-      "os" => visits("App\Models\User", $littlelink_name)->operatingSystems(),
-      "referers" => visits("App\Models\User", $littlelink_name)->refs(),
-      "countries" => visits("App\Models\User", $littlelink_name)->countries(),
     ];
+
+    $siteLinks = 1084;
+    $siteClicks = 48216;
+    $userNumber = 742;
+    $lastMonthCount = 82;
+    $lastWeekCount = 26;
+    $last24HrsCount = 7;
+    $updatedLast30DaysCount = 311;
+    $updatedLast7DaysCount = 102;
+    $updatedLast24HrsCount = 23;
+
+    $isSampleData = true;
+    $analyticsNotice = "Sample analytics data only — Latchalytics is coming soon.";
 
     return view("panel/index", [
       "lastMonthCount" => $lastMonthCount,
@@ -114,11 +105,11 @@ class AdminController extends Controller
       "clicks" => $clicks,
       "pageStats" => $pageStats,
       "littlelink_name" => $littlelink_name,
-      "links" => $links,
-      "clicks" => $clicks,
       "siteLinks" => $siteLinks,
       "siteClicks" => $siteClicks,
       "userNumber" => $userNumber,
+      "isSampleData" => $isSampleData,
+      "analyticsNotice" => $analyticsNotice,
     ]);
   }
 
