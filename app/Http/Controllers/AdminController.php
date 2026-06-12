@@ -148,7 +148,6 @@ class AdminController extends Controller
       "isSampleData" => $isSampleData,
       "analyticsNotice" => $analyticsNotice,
     ]);
->>>>>>> main
   }
 
   // Users page

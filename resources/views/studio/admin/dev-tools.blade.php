@@ -54,39 +54,6 @@
         gap: 14px;
     }
 
-    .ll-dev-guided {
-        border: 1px dashed var(--ll-border);
-        border-radius: 14px;
-        background: color-mix(in srgb, var(--ll-bg-soft) 82%, transparent);
-        padding: 12px;
-        display: grid;
-        gap: 10px;
-    }
-
-    .ll-dev-guided h4,
-    .ll-dev-guided p {
-        margin: 0;
-    }
-
-    .ll-dev-guided p {
-        color: var(--ll-muted);
-        font-size: 0.82rem;
-    }
-
-    .ll-dev-mode-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        width: fit-content;
-        padding: 5px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--ll-border);
-        background: color-mix(in srgb, var(--ll-bg-soft) 74%, transparent);
-        color: var(--ll-muted);
-        font-size: 0.78rem;
-        font-weight: 800;
-    }
-
     .ll-dev-control {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -272,50 +239,10 @@
             <div class="ll-dev-panel">
                 <div class="ll-dev-panel-header">
                     <h3>Live Tokens</h3>
-                    <p id="ll-dev-mode-help">Editing is isolated to the selected mode. Use copy tools if you want to mirror values.</p>
+                    <p id="ll-dev-mode-help">Editing the active mode also generates a matching opposite mode.</p>
                 </div>
                 <div class="ll-dev-panel-body">
                     <div class="ll-dev-controls" id="ll-dev-controls">
-                        <section class="ll-dev-guided">
-                            <h4>Guided identity setup</h4>
-                            <p>Set the 3 identity colours and primary font colours for light and dark, then apply a starter palette.</p>
-                            <div class="ll-dev-control">
-                                <label for="ll-dev-identity-primary">Identity Primary <span>Shared brand colour</span></label>
-                                <input id="ll-dev-identity-primary" type="color" data-guided-token="primary">
-                            </div>
-                            <div class="ll-dev-control">
-                                <label for="ll-dev-identity-secondary">Identity Secondary <span>Shared support colour</span></label>
-                                <input id="ll-dev-identity-secondary" type="color" data-guided-token="secondary">
-                            </div>
-                            <div class="ll-dev-control">
-                                <label for="ll-dev-identity-accent">Identity Accent <span>Shared highlight colour</span></label>
-                                <input id="ll-dev-identity-accent" type="color" data-guided-token="accent">
-                            </div>
-                            <div class="ll-dev-control">
-                                <label for="ll-dev-text-light">Light mode primary font <span>Maps to --ll-text (light)</span></label>
-                                <input id="ll-dev-text-light" type="color" data-token="--ll-text" data-mode="light">
-                            </div>
-                            <div class="ll-dev-control">
-                                <label for="ll-dev-text-dark">Dark mode primary font <span>Maps to --ll-text (dark)</span></label>
-                                <input id="ll-dev-text-dark" type="color" data-token="--ll-text" data-mode="dark">
-                            </div>
-                            <div class="ll-dev-actions">
-                                <button type="button" class="btn btn-light" id="ll-dev-apply-guided">
-                                    <i class="bi bi-magic"></i>
-                                    Apply guided starter palette
-                                </button>
-                                <button type="button" class="btn btn-light" id="ll-dev-copy-mode">
-                                    <i class="bi bi-arrow-left-right"></i>
-                                    Copy active mode to opposite
-                                </button>
-                            </div>
-                        </section>
-
-                        <span class="ll-dev-mode-badge" id="ll-dev-mode-badge">
-                            <i class="bi bi-sliders"></i>
-                            Editing light mode tokens
-                        </span>
-
                         <div class="ll-dev-control">
                             <label for="ll-dev-primary">Primary <span>--ll-primary</span></label>
                             <input id="ll-dev-primary" type="color" data-token="--ll-primary">
@@ -339,6 +266,10 @@
                         <div class="ll-dev-control">
                             <label for="ll-dev-surface">Surface <span>--ll-surface-solid</span></label>
                             <input id="ll-dev-surface" type="color" data-token="--ll-surface-solid">
+                        </div>
+                        <div class="ll-dev-control">
+                            <label for="ll-dev-text">Text <span>--ll-text</span></label>
+                            <input id="ll-dev-text" type="color" data-token="--ll-text">
                         </div>
                         <div class="ll-dev-control">
                             <label for="ll-dev-muted">Muted Text <span>--ll-muted</span></label>
@@ -444,21 +375,13 @@
         const docRoot = document.documentElement;
         const body = document.body;
         const controls = Array.from(root.querySelectorAll('[data-token]'));
-        const guidedInputs = {
-            primary: root.querySelector('[data-guided-token="primary"]'),
-            secondary: root.querySelector('[data-guided-token="secondary"]'),
-            accent: root.querySelector('[data-guided-token="accent"]'),
-        };
         const modeButtons = Array.from(root.querySelectorAll('[data-ll-dev-mode]'));
         const instructions = root.querySelector('#ll-dev-instructions');
         const generateButton = root.querySelector('#ll-dev-generate');
         const copyButton = root.querySelector('#ll-dev-copy');
         const resetButton = root.querySelector('#ll-dev-reset');
-        const guidedButton = root.querySelector('#ll-dev-apply-guided');
-        const copyModeButton = root.querySelector('#ll-dev-copy-mode');
         const copyStatus = root.querySelector('#ll-dev-copy-status');
         const modeHelp = root.querySelector('#ll-dev-mode-help');
-        const modeBadge = root.querySelector('#ll-dev-mode-badge');
         const temporaryStyleId = 'll-dev-tools-temporary-style';
         const colorTokens = [
             '--ll-primary',
@@ -476,6 +399,22 @@
             '--ll-dev-heading-weight',
             '--ll-dev-button-weight',
         ];
+        const lightnessTargets = {
+            light: {
+                '--ll-bg': 97,
+                '--ll-bg-soft': 100,
+                '--ll-surface-solid': 100,
+                '--ll-text': 12,
+                '--ll-muted': 45,
+            },
+            dark: {
+                '--ll-bg': 7,
+                '--ll-bg-soft': 10,
+                '--ll-surface-solid': 13,
+                '--ll-text': 96,
+                '--ll-muted': 72,
+            },
+        };
         const defaultValues = {
             '--ll-button-radius': '12px',
             '--ll-dev-heading-weight': '700',
@@ -524,6 +463,85 @@
 
         function rgbToHex(r, g, b) {
             return '#' + [r, g, b].map((part) => Math.max(0, Math.min(255, Math.round(part))).toString(16).padStart(2, '0')).join('');
+        }
+
+        function rgbToHsl({ r, g, b }) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h = 0;
+            let s = 0;
+            const l = (max + min) / 2;
+
+            if (max !== min) {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+                switch (max) {
+                    case r:
+                        h = (g - b) / d + (g < b ? 6 : 0);
+                        break;
+                    case g:
+                        h = (b - r) / d + 2;
+                        break;
+                    default:
+                        h = (r - g) / d + 4;
+                        break;
+                }
+
+                h /= 6;
+            }
+
+            return { h: h * 360, s: s * 100, l: l * 100 };
+        }
+
+        function hslToHex(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+
+            if (s === 0) {
+                const gray = l * 255;
+                return rgbToHex(gray, gray, gray);
+            }
+
+            const hueToRgb = (p, q, t) => {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1 / 6) return p + (q - p) * 6 * t;
+                if (t < 1 / 2) return q;
+                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            };
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+
+            return rgbToHex(
+                hueToRgb(p, q, h + 1 / 3) * 255,
+                hueToRgb(p, q, h) * 255,
+                hueToRgb(p, q, h - 1 / 3) * 255
+            );
+        }
+
+        function pairedColor(token, value, targetMode) {
+            const hsl = rgbToHsl(hexToRgb(value));
+
+            if (lightnessTargets[targetMode][token] !== undefined) {
+                const saturation = ['--ll-bg', '--ll-bg-soft', '--ll-surface-solid'].includes(token)
+                    ? Math.min(hsl.s, targetMode === 'dark' ? 45 : 28)
+                    : hsl.s;
+
+                return hslToHex(hsl.h, saturation, lightnessTargets[targetMode][token]);
+            }
+
+            const lightness = targetMode === 'dark'
+                ? Math.min(72, Math.max(48, hsl.l + 12))
+                : Math.min(64, Math.max(38, hsl.l - 8));
+
+            return hslToHex(hsl.h, hsl.s, lightness);
         }
 
         function numericValue(value, fallback) {
@@ -630,11 +648,7 @@
             });
 
             if (modeHelp) {
-                modeHelp.textContent = 'Editing ' + activeMode + ' mode only. Guided setup can seed both modes, and you can copy one mode into the other when needed.';
-            }
-
-            if (modeBadge) {
-                modeBadge.innerHTML = '<i class="bi bi-sliders"></i> Editing ' + activeMode + ' mode tokens';
+                modeHelp.textContent = 'Editing ' + activeMode + ' mode. The opposite mode is auto-generated and can be reviewed with the toggle.';
             }
         }
 
@@ -642,10 +656,11 @@
             const token = input.dataset.token;
             const unit = input.dataset.unit || '';
             const value = input.type === 'range' ? input.value + unit : input.value;
-            const targetMode = input.dataset.mode || activeMode;
 
             if (colorTokens.includes(token)) {
-                draftState[targetMode][token] = value;
+                const oppositeMode = activeMode === 'dark' ? 'light' : 'dark';
+                draftState[activeMode][token] = value;
+                draftState[oppositeMode][token] = pairedColor(token, value, oppositeMode);
             } else {
                 draftState.shared[token] = value;
             }
@@ -660,7 +675,7 @@
             controls.forEach((input) => {
                 const token = input.dataset.token;
                 const current = colorTokens.includes(token)
-                    ? draftState[input.dataset.mode || activeMode][token]
+                    ? draftState[activeMode][token]
                     : draftState.shared[token];
 
                 if (input.type === 'color') {
@@ -683,84 +698,13 @@
                 .join('\n');
         }
 
-        function blendHex(base, overlay, ratio) {
-            const clamped = Math.max(0, Math.min(1, ratio));
-            const first = hexToRgb(base);
-            const second = hexToRgb(overlay);
-
-            return rgbToHex(
-                first.r + (second.r - first.r) * clamped,
-                first.g + (second.g - first.g) * clamped,
-                first.b + (second.b - first.b) * clamped
-            );
-        }
-
-        function seedGuidedInputsFromDraft() {
-            if (guidedInputs.primary) {
-                guidedInputs.primary.value = normalizeHex(draftState.light['--ll-primary'], '#4f46e5');
-            }
-
-            if (guidedInputs.secondary) {
-                guidedInputs.secondary.value = normalizeHex(draftState.light['--ll-primary-2'], '#0ea5e9');
-            }
-
-            if (guidedInputs.accent) {
-                guidedInputs.accent.value = normalizeHex(draftState.light['--ll-primary-3'], '#f97316');
-            }
-        }
-
-        function applyGuidedPalette() {
-            const identityPrimary = normalizeHex(guidedInputs.primary?.value || '#4f46e5');
-            const identitySecondary = normalizeHex(guidedInputs.secondary?.value || '#0ea5e9');
-            const identityAccent = normalizeHex(guidedInputs.accent?.value || '#f97316');
-            const lightText = normalizeHex((root.querySelector('#ll-dev-text-light')?.value) || '#111827');
-            const darkText = normalizeHex((root.querySelector('#ll-dev-text-dark')?.value) || '#f8fafc');
-
-            ['light', 'dark'].forEach((mode) => {
-                draftState[mode]['--ll-primary'] = identityPrimary;
-                draftState[mode]['--ll-primary-2'] = identitySecondary;
-                draftState[mode]['--ll-primary-3'] = identityAccent;
-            });
-
-            draftState.light['--ll-bg'] = '#f5f7fc';
-            draftState.light['--ll-bg-soft'] = '#ffffff';
-            draftState.light['--ll-surface-solid'] = '#ffffff';
-            draftState.light['--ll-text'] = lightText;
-            draftState.light['--ll-muted'] = blendHex(lightText, draftState.light['--ll-bg'], 0.45);
-
-            draftState.dark['--ll-bg'] = '#0b1020';
-            draftState.dark['--ll-bg-soft'] = '#11172a';
-            draftState.dark['--ll-surface-solid'] = '#161d33';
-            draftState.dark['--ll-text'] = darkText;
-            draftState.dark['--ll-muted'] = blendHex(darkText, draftState.dark['--ll-bg'], 0.35);
-
-            applyDraftToDocument();
-            setControlValuesFromDraft(false);
-            buildInstructions();
-            syncModeButtons();
-            copyStatus.textContent = 'Guided starter palette applied. Fine-tune mode-specific colours as needed.';
-        }
-
-        function copyActiveModeToOpposite() {
-            const oppositeMode = activeMode === 'dark' ? 'light' : 'dark';
-            Object.entries(draftState[activeMode]).forEach(([token, value]) => {
-                draftState[oppositeMode][token] = value;
-            });
-
-            setControlValuesFromDraft(false);
-            applyDraftToDocument();
-            buildInstructions();
-            copyStatus.textContent = 'Copied ' + activeMode + ' mode values to ' + oppositeMode + ' mode.';
-        }
-
         function buildInstructions() {
             instructions.value = `Task: Apply the approved Livelatch Studio design token changes from the admin Dev Tools preview.
 
 Context:
 - The Dev Tools page is view-only and does not save anything.
 - The live preview was tested in /admin/dev-tools.
-- The preview has separate editable light and dark mode values (no auto-generation).
-- Identity colours and light/dark primary font colours were set through guided inputs before fine tuning.
+- The preview has separate light and dark mode colour values.
 - Update the real source carefully and keep the existing light/dark mode behavior intact.
 
 Primary target:
@@ -812,7 +756,6 @@ Implementation notes:
 
             applyDraftToDocument();
             setControlValuesFromDraft(false);
-            seedGuidedInputsFromDraft();
             buildInstructions();
             syncModeButtons();
             copyStatus.textContent = 'Preview reset to the values found when this page loaded.';
@@ -852,8 +795,6 @@ Implementation notes:
 
         generateButton?.addEventListener('click', buildInstructions);
         resetButton?.addEventListener('click', resetPreview);
-        guidedButton?.addEventListener('click', applyGuidedPalette);
-        copyModeButton?.addEventListener('click', copyActiveModeToOpposite);
         modeButtons.forEach((button) => {
             button.addEventListener('click', () => switchMode(button.dataset.llDevMode));
         });
@@ -871,7 +812,6 @@ Implementation notes:
         });
 
         captureOriginalState();
-        seedGuidedInputsFromDraft();
         setControlValuesFromDraft(true);
         applyDraftToDocument();
         buildInstructions();
