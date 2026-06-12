@@ -7,12 +7,31 @@ use Livewire\Component;
 
 class DashboardAnalytics extends Component
 {
+<<<<<<< HEAD
     public string $displayHandle = 'your-profile';
     public array $quickLinks = [];
     public array $overviewCards = [];
     public array $sampleActivity = [];
     public array $sampleTraffic = [];
     public array $sampleBreakdown = [];
+=======
+    public int $links = 0;
+    public int $clicks = 0;
+    public array $toplinks = [];
+    public array $pageStats = [];
+    public ?string $littlelinkName = null;
+    public int $siteLinks = 0;
+    public int $siteClicks = 0;
+    public int $userNumber = 0;
+    public int $lastMonthCount = 0;
+    public int $lastWeekCount = 0;
+    public int $last24HrsCount = 0;
+    public int $updatedLast30DaysCount = 0;
+    public int $updatedLast7DaysCount = 0;
+    public int $updatedLast24HrsCount = 0;
+    public bool $isSampleData = false;
+    public string $analyticsNotice = '';
+>>>>>>> main
 
     public function mount(): void
     {

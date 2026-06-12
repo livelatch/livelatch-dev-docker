@@ -10,6 +10,7 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ### 2026-06-12
 
+- Agent: Codex
 - Replaced the expanded Studio sidebar menu with a Livewire-powered icon section rail that is closed by default and reveals section links on click while preserving HTMX page loading.
 - Fixed the Livewire sidebar section toggle 500 by removing the component view's dependency on the layout-local `llHtmxAttrs()` helper and rendering HTMX attributes directly.
 - Removed Livewire AJAX from sidebar folder toggles so expanding menu sections is instant, animated, and does not interfere with HTMX page navigation.
@@ -32,15 +33,19 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Updated the Studio sidebar so Links is the single Navigation entry for link/block management, with old add-more saves returning to the combined Links page.
 - Updated the block system docs with the combined Links workflow, Sortable reorder endpoint, and live preview behavior.
 - Validation: ran PHP syntax, Blade cache, and `/studio/add-link` plus `/studio/links` route checks for the rebuilt block and links editors.
-- Agent: Bits Code
-- Replaced the dashboard route payload with a self-contained Livewire dashboard so `/dashboard` no longer depends on legacy `AdminController@index` analytics chains or `visits()` calls.
-- Rebuilt the dashboard screen to follow the newer Studio page pattern (hero + quick links + sample analytics cards/activity/traffic) so the post-login first page behaves consistently with newer pages like Manage My Data.
-- Expanded Admin Dev Tools with guided identity controls (3 brand colours + light/dark primary font colours), explicit per-mode token editing, and one-click utilities to seed or copy mode palettes.
-- Validation: ran `php -l app/Http/Livewire/DashboardAnalytics.php` and `php -l app/Http/Controllers/AdminController.php`; `php artisan view:cache` could not run in this sandbox because `vendor/autoload.php` is unavailable.
-- Agent: Bits Code
-- Added `docs/platform-runtime/studio-dashboard.md` documenting the new self-contained dashboard route/component flow, quick-link structure, token usage, and safe editing boundaries.
-- Updated `docs/platform-runtime/admin-dev-tools.md` to reflect the guided light/dark workflow, including 3 identity colours, explicit light/dark primary font colours, mode-copy behavior, and `data-mode` control guidance.
-- Validation: documentation-only follow-up; no new runtime behavior changed in this batch.
+- Agent: BitsAI
+- Switched `/dashboard` to a sample-data analytics payload in `AdminController::index()` so login redirect and HTMX dashboard rendering stay stable while native analytics is being rewired.
+- Added a dashboard disclaimer in the Livewire analytics view stating metrics are sample data and that Latchalytics is coming soon.
+- Added `docs/platform-runtime/dashboard-analytics-data.md` documenting how native clicks/views were gathered, what sample mode now provides, and the planned PostHog/Latchalytics service rewire.
+- Validation: ran `php -l app/Http/Controllers/AdminController.php`, `php -l app/Http/Livewire/DashboardAnalytics.php`, `php -l resources/views/panel/index.blade.php`, and `php -l resources/views/livewire/dashboard-analytics.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
+- Agent: BitsAI
+- Applied approved Studio design token values from Admin Dev Tools into `resources/views/layouts/sidebar.blade.php` for light and dark mode palettes, including new shared `--ll-button-radius` and approved heading/button weight tokens.
+- Updated Studio button radius usage so dashboard and layout button classes use `--ll-button-radius` while surface components continue using `--ll-radius`.
+- Updated `docs/platform-runtime/admin-dev-tools.md` with an approved-baseline note explaining how preview token values are promoted into the sidebar layout and how stable heading/button weight tokens are used.
+- Validation: ran `php -l resources/views/layouts/sidebar.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
+- Fixed a `/dashboard` 500 risk by hardening dashboard visit analytics so missing handles or visit-tracker failures now fall back to zeroed stats instead of crashing the page render.
+- Fixed Studio content overlap on pages using `content-inner mt-n5` by neutralizing the negative top margin inside `#ll-content` so top text no longer sits under the sticky top bar.
+- Validation: ran `php -l app/Http/Controllers/AdminController.php` and `php -l resources/views/layouts/sidebar.blade.php` and reviewed diffs for the dashboard stats guard and sidebar spacing rule.
 
 ### 2026-06-11
 

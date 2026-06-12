@@ -1,4 +1,50 @@
 <div class="container-fluid content-inner mt-n5 py-0 ll-dashboard">
+<<<<<<< HEAD
+=======
+    <section class="ll-hero ll-dashboard-hero">
+        <div class="ll-hero-content">
+            <div>
+                <div class="ll-kicker">
+                    <i class="bi bi-activity"></i>
+                    Dashboard
+                </div>
+
+                <h1>{{ $littlelinkName ? '@' . $littlelinkName : 'Your Livelatch' }}</h1>
+                <p>Review profile performance, jump into common tasks, and keep your creator presence moving.</p>
+            </div>
+
+            <div class="ll-hero-actions">
+                <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                    <i class="bi bi-link-45deg"></i>
+                    <span>{{ __('messages.Links') }}<small>Manage blocks</small></span>
+                </a>
+
+                <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                    <i class="bi bi-person-badge"></i>
+                    <span>{{ __('messages.Appearance') }}<small>Edit profile</small></span>
+                </a>
+
+                <a href="{{ url('/studio/theme') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                    <i class="bi bi-stars"></i>
+                    <span>{{ __('messages.Themes') }}<small>Preview style</small></span>
+                </a>
+
+                <a href="{{ url('/@' . $littlelinkName) }}" target="_blank" class="ll-hero-button secondary">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span>{{ __('messages.View Page') }}<small>Open public profile</small></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    @if($isSampleData)
+        <section class="ll-dashboard-card ll-dashboard-disclaimer" role="status" aria-live="polite">
+            <strong>Sample data active.</strong>
+            <span>{{ $analyticsNotice ?: 'Sample analytics data only — Latchalytics is coming soon.' }}</span>
+        </section>
+    @endif
+
+>>>>>>> main
     <style data-ll-dashboard-style>
         .ll-dashboard {
             display: grid;
@@ -114,6 +160,22 @@
             display: grid;
             grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
             gap: 18px;
+        }
+
+        .ll-dashboard-disclaimer {
+            display: grid;
+            gap: 4px;
+            border-left: 6px solid var(--ll-primary);
+        }
+
+        .ll-dashboard-disclaimer strong {
+            color: var(--ll-text);
+            font-size: 0.95rem;
+        }
+
+        .ll-dashboard-disclaimer span {
+            color: var(--ll-muted);
+            font-size: 0.88rem;
         }
 
         .ll-dashboard-card h3 {

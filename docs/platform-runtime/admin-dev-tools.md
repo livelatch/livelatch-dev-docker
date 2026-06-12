@@ -43,6 +43,23 @@ The current editor covers Studio-facing tokens such as:
 
 It also previews heading and button font-weight changes through temporary CSS rules.
 
+## Approved Studio Baseline Tokens
+
+When a draft is approved, token values are copied into the Studio layout source at:
+
+```text
+resources/views/layouts/sidebar.blade.php
+```
+
+The current approved implementation also keeps the preview weight controls as stable Studio tokens:
+
+```css
+--ll-dev-heading-weight
+--ll-dev-button-weight
+```
+
+Those values drive the default heading and button weights in the Studio shell.
+
 ## Light And Dark Mode
 
 The editor keeps separate colour drafts for light and dark mode. The mode toggle uses the same `data-ll-theme` attribute as the rest of the Studio layout, so the preview matches the real dashboard theme mechanism.

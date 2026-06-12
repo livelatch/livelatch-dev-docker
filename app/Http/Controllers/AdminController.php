@@ -37,7 +37,121 @@ class AdminController extends Controller
   //Statistics of the number of clicks and links
   public function index()
   {
+<<<<<<< HEAD
     return view("panel/index");
+=======
+    $littlelink_name = Auth::user()->littlelink_name;
+
+    $links = 18;
+    $clicks = 1246;
+
+    $topLinks = collect([
+      [
+        "title" => "Discord Community",
+        "link" => "https://discord.com/invite/livelatch",
+        "click_number" => 412,
+      ],
+      [
+        "title" => "Creator Toolkit",
+        "link" => "https://livelatch.com/toolkit",
+        "click_number" => 293,
+      ],
+      [
+        "title" => "Latest Launch Video",
+        "link" => "https://youtube.com/watch?v=livelatch",
+        "click_number" => 248,
+      ],
+      [
+        "title" => "Sponsor Pack",
+        "link" => "https://livelatch.com/sponsor-pack",
+        "click_number" => 177,
+      ],
+      [
+        "title" => "Email Newsletter",
+        "link" => "mailto:hello@livelatch.com",
+        "click_number" => 116,
+      ],
+    ]);
+
+    $pageStats = [
+      "visitors" => [
+        "all" => 7432,
+        "day" => 64,
+        "week" => 428,
+        "month" => 1830,
+        "year" => 7432,
+      ],
+    ];
+
+    $siteLinks = 1084;
+    $siteClicks = 48216;
+    $userNumber = 742;
+    $lastMonthCount = 82;
+    $lastWeekCount = 26;
+    $last24HrsCount = 7;
+    $updatedLast30DaysCount = 311;
+    $updatedLast7DaysCount = 102;
+    $updatedLast24HrsCount = 23;
+
+    $isSampleData = true;
+    $analyticsNotice = "Sample analytics data only — Latchalytics is coming soon.";
+        "all" => 0,
+        "day" => 0,
+        "week" => 0,
+        "month" => 0,
+        "year" => 0,
+      ],
+      "os" => [],
+      "referers" => [],
+      "countries" => [],
+    ];
+
+    if (!empty($littlelink_name)) {
+      try {
+        $visitorStats = visits("App\Models\User", $littlelink_name);
+        $pageStats = [
+          "visitors" => [
+            "all" => $visitorStats->count(),
+            "day" => visits("App\Models\User", $littlelink_name)
+              ->period("day")
+              ->count(),
+            "week" => visits("App\Models\User", $littlelink_name)
+              ->period("week")
+              ->count(),
+            "month" => visits("App\Models\User", $littlelink_name)
+              ->period("month")
+              ->count(),
+            "year" => visits("App\Models\User", $littlelink_name)
+              ->period("year")
+              ->count(),
+          ],
+          "os" => $visitorStats->operatingSystems(),
+          "referers" => $visitorStats->refs(),
+          "countries" => $visitorStats->countries(),
+        ];
+      } catch (\Throwable $exception) {
+      }
+    }
+
+    return view("panel/index", [
+      "lastMonthCount" => $lastMonthCount,
+      "lastWeekCount" => $lastWeekCount,
+      "last24HrsCount" => $last24HrsCount,
+      "updatedLast30DaysCount" => $updatedLast30DaysCount,
+      "updatedLast7DaysCount" => $updatedLast7DaysCount,
+      "updatedLast24HrsCount" => $updatedLast24HrsCount,
+      "toplinks" => $topLinks,
+      "links" => $links,
+      "clicks" => $clicks,
+      "pageStats" => $pageStats,
+      "littlelink_name" => $littlelink_name,
+      "siteLinks" => $siteLinks,
+      "siteClicks" => $siteClicks,
+      "userNumber" => $userNumber,
+      "isSampleData" => $isSampleData,
+      "analyticsNotice" => $analyticsNotice,
+    ]);
+>>>>>>> main
   }
 
   // Users page
