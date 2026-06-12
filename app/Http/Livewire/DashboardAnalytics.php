@@ -2,45 +2,84 @@
 
 namespace App\Http\Livewire;
 
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class DashboardAnalytics extends Component
 {
-    public int $links = 0;
-    public int $clicks = 0;
-    public array $toplinks = [];
-    public array $pageStats = [];
-    public ?string $littlelinkName = null;
-    public int $siteLinks = 0;
-    public int $siteClicks = 0;
-    public int $userNumber = 0;
-    public int $lastMonthCount = 0;
-    public int $lastWeekCount = 0;
-    public int $last24HrsCount = 0;
-    public int $updatedLast30DaysCount = 0;
-    public int $updatedLast7DaysCount = 0;
-    public int $updatedLast24HrsCount = 0;
+    public string $displayHandle = 'your-profile';
+    public array $quickLinks = [];
+    public array $overviewCards = [];
+    public array $sampleActivity = [];
+    public array $sampleTraffic = [];
+    public array $sampleBreakdown = [];
 
-    public function mount(array $metrics = [], $toplinks = [], $pageStats = []): void
+    public function mount(): void
     {
-        foreach ($metrics as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->{$key} = is_numeric($value) ? (int) $value : $value;
-            }
-        }
+        $user = Auth::user();
 
-        $this->toplinks = Collection::wrap($toplinks)
-            ->filter(fn ($link) => !in_array($link->name ?? '', ['phone', 'heading'], true) && (int) ($link->button_id ?? 0) !== 96)
-            ->map(fn ($link) => [
-                'title' => $link->title ?? 'Untitled link',
-                'link' => $link->link ?? '',
-                'click_number' => (int) ($link->click_number ?? 0),
-            ])
-            ->values()
-            ->all();
+        $this->displayHandle = $user?->littlelink_name ?: 'your-profile';
+        $this->quickLinks = [
+            [
+                'title' => 'Manage links',
+                'hint' => 'Create and reorder profile blocks.',
+                'url' => url('/studio/links'),
+                'icon' => 'bi bi-link-45deg',
+                'external' => false,
+            ],
+            [
+                'title' => 'Edit profile',
+                'hint' => 'Update profile details and hero content.',
+                'url' => url('/studio/page'),
+                'icon' => 'bi bi-person-badge',
+                'external' => false,
+            ],
+            [
+                'title' => 'Theme settings',
+                'hint' => 'Adjust light and dark mode design tokens.',
+                'url' => url('/studio/theme'),
+                'icon' => 'bi bi-stars',
+                'external' => false,
+            ],
+            [
+                'title' => 'View public page',
+                'hint' => 'Open how visitors see your profile.',
+                'url' => url('/@' . $this->displayHandle),
+                'icon' => 'bi bi-box-arrow-up-right',
+                'external' => true,
+            ],
+        ];
 
-        $this->pageStats = is_array($pageStats) ? $pageStats : [];
+        $this->overviewCards = [
+            ['label' => 'Profile views', 'value' => 1234, 'delta' => '+8.4%', 'icon' => 'bi bi-eye-fill'],
+            ['label' => 'Link clicks', 'value' => 842, 'delta' => '+5.1%', 'icon' => 'bi bi-cursor-fill'],
+            ['label' => 'CTR', 'value' => 68.2, 'suffix' => '%', 'delta' => '+1.7%', 'icon' => 'bi bi-graph-up-arrow'],
+            ['label' => 'Returning visitors', 'value' => 412, 'delta' => '+2.3%', 'icon' => 'bi bi-arrow-repeat'],
+        ];
+
+        $this->sampleActivity = [
+            ['title' => 'Pinned a new top link', 'meta' => '2h ago', 'state' => 'Updated'],
+            ['title' => 'Changed profile headline', 'meta' => 'Yesterday', 'state' => 'Edited'],
+            ['title' => 'Theme preview exported', 'meta' => '2 days ago', 'state' => 'Saved'],
+            ['title' => 'Synced social cards', 'meta' => '4 days ago', 'state' => 'Published'],
+        ];
+
+        $this->sampleTraffic = [
+            ['label' => 'Mon', 'value' => 62],
+            ['label' => 'Tue', 'value' => 71],
+            ['label' => 'Wed', 'value' => 66],
+            ['label' => 'Thu', 'value' => 79],
+            ['label' => 'Fri', 'value' => 84],
+            ['label' => 'Sat', 'value' => 57],
+            ['label' => 'Sun', 'value' => 49],
+        ];
+
+        $this->sampleBreakdown = [
+            ['label' => 'Instagram', 'value' => 38],
+            ['label' => 'TikTok', 'value' => 27],
+            ['label' => 'YouTube', 'value' => 21],
+            ['label' => 'Direct', 'value' => 14],
+        ];
     }
 
     public function render()

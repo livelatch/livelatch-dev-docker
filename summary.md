@@ -32,6 +32,11 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Updated the Studio sidebar so Links is the single Navigation entry for link/block management, with old add-more saves returning to the combined Links page.
 - Updated the block system docs with the combined Links workflow, Sortable reorder endpoint, and live preview behavior.
 - Validation: ran PHP syntax, Blade cache, and `/studio/add-link` plus `/studio/links` route checks for the rebuilt block and links editors.
+- Agent: Bits Code
+- Replaced the dashboard route payload with a self-contained Livewire dashboard so `/dashboard` no longer depends on legacy `AdminController@index` analytics chains or `visits()` calls.
+- Rebuilt the dashboard screen to follow the newer Studio page pattern (hero + quick links + sample analytics cards/activity/traffic) so the post-login first page behaves consistently with newer pages like Manage My Data.
+- Expanded Admin Dev Tools with guided identity controls (3 brand colours + light/dark primary font colours), explicit per-mode token editing, and one-click utilities to seed or copy mode palettes.
+- Validation: ran `php -l app/Http/Livewire/DashboardAnalytics.php` and `php -l app/Http/Controllers/AdminController.php`; `php artisan view:cache` could not run in this sandbox because `vendor/autoload.php` is unavailable.
 
 ### 2026-06-11
 
