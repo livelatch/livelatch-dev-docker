@@ -1,6 +1,9 @@
 @extends('layouts.sidebar')
 
 @section('content')
+<<<<<<< HEAD
+    <livewire:dashboard-analytics />
+=======
     <livewire:dashboard-analytics
         :metrics="[
             'links' => $links,
@@ -21,4 +24,5 @@
         :toplinks="$toplinks"
         :page-stats="$pageStats"
     />
+>>>>>>> main
 @endsection

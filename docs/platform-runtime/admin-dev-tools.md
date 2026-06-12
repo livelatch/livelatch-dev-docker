@@ -64,7 +64,20 @@ Those values drive the default heading and button weights in the Studio shell.
 
 The editor keeps separate colour drafts for light and dark mode. The mode toggle uses the same `data-ll-theme` attribute as the rest of the Studio layout, so the preview matches the real dashboard theme mechanism.
 
-When a colour is changed in the active mode, the opposite mode is auto-generated from the same hue with mode-appropriate lightness. For example, editing a dark-mode background creates a lighter matching background draft for light mode. Radius and font-weight controls are shared across both modes.
+The current version is explicit and guided:
+
+- Light and dark token values are edited independently.
+- The guided setup asks for 3 identity colours:
+  - Identity Primary
+  - Identity Secondary
+  - Identity Accent
+- The guided setup also asks for both primary font colours:
+  - Light mode primary font (`--ll-text` for light)
+  - Dark mode primary font (`--ll-text` for dark)
+- `Apply guided starter palette` seeds both modes from those identity values using a stable base palette.
+- `Copy active mode to opposite` mirrors one mode into the other on demand.
+
+This makes dark-mode drafting predictable instead of inferred.
 
 ## Generated Codex Instructions
 
@@ -82,8 +95,9 @@ To add another preview control:
 
 1. Add an input in `resources/views/studio/admin/dev-tools.blade.php` with `data-token`.
 2. Use `data-unit="px"` for pixel-based range controls.
-3. If the token needs extra selectors, update the temporary style block created by `ensureTemporaryStyle()`.
-4. Keep the tool view-only unless the product decision changes.
+3. Use `data-mode="light"` or `data-mode="dark"` when a token should target a specific mode only.
+4. If the token needs extra selectors, update the temporary style block created by `ensureTemporaryStyle()`.
+5. Keep the tool view-only unless the product decision changes.
 
 Useful references:
 
