@@ -8,6 +8,11 @@ class StudioNavigation extends Component
 {
     public ?string $openSection = null;
 
+    public function mount(): void
+    {
+        $this->openSection = $this->activeSectionKey();
+    }
+
     public function toggleSection(string $section): void
     {
         $this->openSection = $this->openSection === $section ? null : $section;
@@ -182,5 +187,18 @@ class StudioNavigation extends Component
         }
 
         return $sections;
+    }
+
+    private function activeSectionKey(): ?string
+    {
+        foreach ($this->sections() as $section) {
+            foreach ($section['items'] as $item) {
+                if ($item['active'] ?? false) {
+                    return $section['key'];
+                }
+            }
+        }
+
+        return null;
     }
 }

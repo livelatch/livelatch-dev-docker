@@ -25,7 +25,15 @@
                 <ul class="ll-nav-list ll-nav-panel" id="ll-nav-panel-{{ $section['key'] }}">
                     @foreach($section['items'] as $item)
                         <li>
-                            <a class="ll-nav-link {{ ($item['active'] ?? false) ? 'active' : '' }}" {!! llHtmxAttrs($item['url']) !!}>
+                            <a
+                                class="ll-nav-link {{ ($item['active'] ?? false) ? 'active' : '' }}"
+                                href="{{ $item['url'] }}"
+                                hx-get="{{ $item['url'] }}"
+                                hx-target="#ll-content"
+                                hx-select="#ll-content > *"
+                                hx-push-url="true"
+                                hx-swap="innerHTML"
+                            >
                                 <i class="{{ $item['icon'] }}"></i>
                                 <span>{{ $item['label'] }}</span>
                                 @if(!empty($item['badge']))
