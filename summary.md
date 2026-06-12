@@ -10,6 +10,7 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ### 2026-06-12
 
+- Agent: Codex
 - Replaced the expanded Studio sidebar menu with a Livewire-powered icon section rail that is closed by default and reveals section links on click while preserving HTMX page loading.
 - Fixed the Livewire sidebar section toggle 500 by removing the component view's dependency on the layout-local `llHtmxAttrs()` helper and rendering HTMX attributes directly.
 - Removed Livewire AJAX from sidebar folder toggles so expanding menu sections is instant, animated, and does not interfere with HTMX page navigation.
@@ -32,6 +33,11 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Updated the Studio sidebar so Links is the single Navigation entry for link/block management, with old add-more saves returning to the combined Links page.
 - Updated the block system docs with the combined Links workflow, Sortable reorder endpoint, and live preview behavior.
 - Validation: ran PHP syntax, Blade cache, and `/studio/add-link` plus `/studio/links` route checks for the rebuilt block and links editors.
+- Agent: BitsAI
+- Applied approved Studio design token values from Admin Dev Tools into `resources/views/layouts/sidebar.blade.php` for light and dark mode palettes, including new shared `--ll-button-radius` and approved heading/button weight tokens.
+- Updated Studio button radius usage so dashboard and layout button classes use `--ll-button-radius` while surface components continue using `--ll-radius`.
+- Updated `docs/platform-runtime/admin-dev-tools.md` with an approved-baseline note explaining how preview token values are promoted into the sidebar layout and how stable heading/button weight tokens are used.
+- Validation: ran `php -l resources/views/layouts/sidebar.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
 
 ### 2026-06-11
 

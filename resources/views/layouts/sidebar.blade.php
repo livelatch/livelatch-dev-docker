@@ -84,35 +84,41 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         :root {
             --ll-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            --ll-bg: #f7f7fb;
-            --ll-bg-soft: #ffffff;
+            --ll-bg: #ffffff;
+            --ll-bg-soft: #d1faff;
             --ll-surface: rgba(255, 255, 255, 0.78);
             --ll-surface-solid: #ffffff;
-            --ll-text: #120f2d;
+            --ll-text: #00073d;
             --ll-muted: #6b6885;
             --ll-border: rgba(18, 15, 45, 0.10);
             --ll-shadow: 0 24px 70px rgba(30, 16, 80, 0.10);
             --ll-shadow-soft: 0 12px 34px rgba(30, 16, 80, 0.08);
-            --ll-primary: #6236ff;
-            --ll-primary-2: #9b5cff;
-            --ll-primary-3: #12d6df;
+            --ll-primary: #0092ec;
+            --ll-primary-2: #0ce5de;
+            --ll-primary-3: #47f1ff;
             --ll-danger: #ef4444;
             --ll-success: #22c55e;
-            --ll-radius: 22px;
+            --ll-radius: 36px;
+            --ll-button-radius: 18px;
+            --ll-dev-heading-weight: 600;
+            --ll-dev-button-weight: 400;
             --ll-sidebar-width: 292px;
             --ll-topbar-height: 74px;
         }
 
         [data-ll-theme="dark"] {
-            --ll-bg: #070711;
-            --ll-bg-soft: #0d0d1b;
+            --ll-bg: #121212;
+            --ll-bg-soft: #0e2225;
             --ll-surface: rgba(16, 16, 31, 0.78);
-            --ll-surface-solid: #10101f;
-            --ll-text: #f7f5ff;
-            --ll-muted: #a7a2c7;
+            --ll-surface-solid: #ffffff;
+            --ll-text: #000421;
+            --ll-muted: #6b6885;
             --ll-border: rgba(255, 255, 255, 0.10);
             --ll-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
             --ll-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.22);
+            --ll-primary: #16a6ff;
+            --ll-primary-2: #25f4ee;
+            --ll-primary-3: #b3f9ff;
         }
 
         * { box-sizing: border-box; }
@@ -139,8 +145,17 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         h1, h2, h3, h4, h5, h6 {
             font-family: var(--ll-font);
-            font-weight: 700;
+            font-weight: var(--ll-dev-heading-weight, 700);
             color: var(--ll-text);
+        }
+
+        button,
+        .btn,
+        .ll-pill-button,
+        .ll-icon-button,
+        .ll-hero-button,
+        .ll-hero-quick-link {
+            font-weight: var(--ll-dev-button-weight, 700);
         }
 
         a { color: inherit; }
@@ -508,11 +523,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-pill-button {
             min-height: 42px;
             padding: 0 16px;
-            border-radius: 999px;
+            border-radius: var(--ll-button-radius, 999px);
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-weight: 700;
             text-decoration: none;
         }
 
@@ -526,7 +540,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-icon-button {
             width: 42px;
             height: 42px;
-            border-radius: 15px;
+            border-radius: var(--ll-button-radius, 15px);
             display: grid;
             place-items: center;
             position: relative;
@@ -706,13 +720,12 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-hero-quick-link {
             min-height: 92px;
             padding: 14px;
-            border-radius: 18px;
+            border-radius: var(--ll-button-radius, 18px);
             display: inline-flex;
             flex-direction: column;
             justify-content: space-between;
             gap: 12px;
             text-decoration: none;
-            font-weight: 800;
             color: var(--ll-text);
             background: var(--ll-surface-solid);
             border: 1px solid var(--ll-border);
@@ -1464,8 +1477,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         }
 
         #ll-content .btn {
-            border-radius: 14px;
-            font-weight: 700;
+            border-radius: var(--ll-button-radius, 14px);
+            font-weight: var(--ll-dev-button-weight, 700);
         }
 
         #ll-content .btn-primary,
