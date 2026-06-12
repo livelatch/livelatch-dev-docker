@@ -42,6 +42,7 @@ function llHtmxAttrs($url) {
 
     @include('layouts.analytics')
     @stack('sidebar-stylesheets')
+    @livewireStyles
     {{-- Legacy LinkStack notifications disabled. Livelatch notifications are rendered directly in this layout. --}}
 
     @php
@@ -268,6 +269,86 @@ function llHtmxAttrs($url) {
             text-transform: uppercase;
             letter-spacing: 0.11em;
             color: var(--ll-muted);
+        }
+
+        .ll-nav-rail {
+            display: grid;
+            gap: 8px;
+        }
+
+        .ll-nav-group {
+            border: 1px solid transparent;
+            border-radius: 18px;
+            transition: border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .ll-nav-group.is-open,
+        .ll-nav-group.is-active {
+            border-color: var(--ll-border);
+            background: rgba(98, 54, 255, 0.045);
+        }
+
+        .ll-nav-group-button {
+            width: 100%;
+            min-height: 54px;
+            border: 0;
+            border-radius: 17px;
+            padding: 8px 10px;
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) 18px;
+            align-items: center;
+            gap: 10px;
+            color: var(--ll-text);
+            background: transparent;
+            text-align: left;
+            font-weight: 800;
+            transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        }
+
+        .ll-nav-group-button:hover,
+        .ll-nav-group-button:focus {
+            background: rgba(98, 54, 255, 0.08);
+            color: var(--ll-text);
+        }
+
+        .ll-nav-group-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            color: var(--ll-primary);
+            background: rgba(98, 54, 255, 0.10);
+            font-size: 1.08rem;
+        }
+
+        .ll-nav-group.is-active .ll-nav-group-icon,
+        .ll-nav-group.is-open .ll-nav-group-icon {
+            color: #fff;
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            box-shadow: 0 12px 24px rgba(98, 54, 255, 0.24);
+        }
+
+        .ll-nav-group-label {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.92rem;
+        }
+
+        .ll-nav-group-chevron {
+            color: var(--ll-muted);
+            font-size: 0.78rem;
+            transition: transform 0.18s ease;
+        }
+
+        .ll-nav-group.is-open .ll-nav-group-chevron {
+            transform: rotate(90deg);
+        }
+
+        .ll-nav-panel {
+            padding: 0 8px 8px 60px;
         }
 
         .ll-nav-list {
@@ -937,8 +1018,12 @@ function llHtmxAttrs($url) {
         #ll-content .card,
         #ll-content .iq-card,
         #ll-content .card-body,
+        #ll-content .card-header,
+        #ll-content .card-footer,
         #ll-content .list-group-item,
         #ll-content .accordion-item,
+        #ll-content .accordion-button,
+        #ll-content .accordion-body,
         #ll-content .tab-content,
         #ll-content .tab-pane {
             color: var(--ll-text) !important;
@@ -1068,12 +1153,25 @@ function llHtmxAttrs($url) {
         }
 
         #ll-content .bg-white,
-        #ll-content .bg-light {
+        #ll-content .bg-light,
+        #ll-content .alert,
+        #ll-content .dropdown-menu,
+        #ll-content .pagination .page-link,
+        #ll-content .page-link,
+        #ll-content .list-group-item,
+        #ll-content .nav-tabs .nav-link,
+        #ll-content .nav-pills .nav-link:not(.active),
+        #ll-content .btn-light,
+        #ll-content .btn-soft-light {
             background: var(--ll-surface-solid) !important;
+            color: var(--ll-text) !important;
+            border-color: var(--ll-border) !important;
         }
 
         #ll-content .text-dark,
-        #ll-content .text-black {
+        #ll-content .text-black,
+        #ll-content .badge.bg-light,
+        #ll-content .badge.text-dark {
             color: var(--ll-text) !important;
         }
 
@@ -1104,6 +1202,8 @@ function llHtmxAttrs($url) {
 
         .dropdown-menu,
         .modal-content,
+        .modal-header,
+        .modal-footer,
         .offcanvas,
         .popover {
             color: var(--ll-text) !important;
@@ -1141,8 +1241,12 @@ function llHtmxAttrs($url) {
         [data-ll-theme="dark"] #ll-content .card,
         [data-ll-theme="dark"] #ll-content .iq-card,
         [data-ll-theme="dark"] #ll-content .card-body,
+        [data-ll-theme="dark"] #ll-content .card-header,
+        [data-ll-theme="dark"] #ll-content .card-footer,
         [data-ll-theme="dark"] #ll-content .list-group-item,
-        [data-ll-theme="dark"] #ll-content .accordion-item {
+        [data-ll-theme="dark"] #ll-content .accordion-item,
+        [data-ll-theme="dark"] #ll-content .accordion-button,
+        [data-ll-theme="dark"] #ll-content .accordion-body {
             color: var(--ll-text) !important;
             background: #10101f !important;
             border-color: rgba(255,255,255,0.10) !important;
@@ -1161,11 +1265,47 @@ function llHtmxAttrs($url) {
 
         [data-ll-theme="dark"] #ll-content .bg-white,
         [data-ll-theme="dark"] #ll-content .bg-light,
+        [data-ll-theme="dark"] #ll-content .alert,
+        [data-ll-theme="dark"] #ll-content .pagination .page-link,
+        [data-ll-theme="dark"] #ll-content .page-link,
+        [data-ll-theme="dark"] #ll-content .list-group-item,
+        [data-ll-theme="dark"] #ll-content .nav-tabs .nav-link,
+        [data-ll-theme="dark"] #ll-content .nav-pills .nav-link:not(.active),
+        [data-ll-theme="dark"] #ll-content .btn-light,
+        [data-ll-theme="dark"] #ll-content .btn-soft-light,
         [data-ll-theme="dark"] .dropdown-menu,
         [data-ll-theme="dark"] .modal-content,
+        [data-ll-theme="dark"] .modal-header,
+        [data-ll-theme="dark"] .modal-footer,
         [data-ll-theme="dark"] .offcanvas {
             background: #10101f !important;
             color: var(--ll-text) !important;
+            border-color: rgba(255,255,255,0.10) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .badge.bg-light,
+        [data-ll-theme="dark"] #ll-content .badge.text-dark {
+            color: var(--ll-text) !important;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.10) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .alert-success {
+            color: #bbf7d0 !important;
+            background: rgba(34, 197, 94, 0.12) !important;
+            border-color: rgba(34, 197, 94, 0.24) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .alert-danger {
+            color: #fecaca !important;
+            background: rgba(239, 68, 68, 0.12) !important;
+            border-color: rgba(239, 68, 68, 0.24) !important;
+        }
+
+        [data-ll-theme="dark"] #ll-content .alert-warning {
+            color: #fde68a !important;
+            background: rgba(245, 158, 11, 0.12) !important;
+            border-color: rgba(245, 158, 11, 0.24) !important;
         }
 
         [data-ll-theme="dark"] #ll-content .text-muted,
@@ -1305,154 +1445,7 @@ function llHtmxAttrs($url) {
             </div>
 
             <div class="ll-sidebar-body data-scrollbar">
-                <p class="ll-nav-section">{{ __('messages.Home') }}</p>
-                <ul class="ll-nav-list">
-                    <li>
-                        <a class="ll-nav-link {{ Request::segment(1) == 'dashboard' ? 'active' : '' }}" {!! llHtmxAttrs(route('panelIndex')) !!}>
-                            <i class="bi bi-grid-1x2-fill"></i>
-                            <span>{{ __('messages.Dashboard') }}</span>
-                        </a>
-                    </li>
-                </ul>
-
-                @if(auth()->user()->role == 'admin')
-                    <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llAdminMenu" aria-expanded="true" aria-controls="llAdminMenu">
-                        <span>Livelatch Administration</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </button>
-                    <ul class="ll-nav-list collapse show" id="llAdminMenu">
-                        <li>
-                            <a class="ll-nav-link {{ Request::segment(2) == 'config' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/config')) !!}>
-                                <i class="bi bi-sliders"></i>
-                                <span>{{ __('messages.Config') }}</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="ll-nav-link {{ Request::segment(2) == 'users' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/users/all')) !!}>
-                                <i class="bi bi-people-fill"></i>
-                                <span>{{ __('messages.Manage Users') }}</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="ll-nav-link {{ Request::segment(2) == 'pages' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/pages')) !!}>
-                                <i class="bi bi-collection-fill"></i>
-                                <span>{{ __('messages.Footer Pages') }}</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="ll-nav-link {{ Request::segment(2) == 'site' ? 'active' : '' }}" {!! llHtmxAttrs(url('admin/site')) !!}>
-                                <i class="bi bi-palette-fill"></i>
-                                <span>{{ __('messages.Site Customization') }}</span>
-                            </a>
-                        </li>
-                    </ul>
-                @endif
-
-                <p class="ll-nav-section">Navigation</p>
-                <ul class="ll-nav-list">
-                    <li>
-                        <a class="ll-nav-link {{ in_array(Request::segment(2), ['links', 'add-link']) ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/links')) !!}>
-                            <i class="bi bi-link-45deg"></i>
-                            <span>{{ __('messages.Links') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'page' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/page')) !!}>
-                            <i class="bi bi-person-badge-fill"></i>
-                            <span>{{ __('messages.Appearance') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'theme' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/theme')) !!}>
-                            <i class="bi bi-stars"></i>
-                            <span>{{ __('messages.Themes') }}</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llLatchDeckMenu" aria-expanded="true" aria-controls="llLatchDeckMenu">
-                    <span>LatchDeck Management</span>
-                    <i class="bi bi-chevron-down"></i>
-                </button>
-                <ul class="ll-nav-list collapse show" id="llLatchDeckMenu">
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck')) !!}>
-                            <i class="bi bi-grid-3x3-gap-fill"></i>
-                            <span>LatchDeck Overview</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/cards') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/cards')) !!}>
-                            <i class="bi bi-card-image"></i>
-                            <span>Cards</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/redemptions') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/redemptions')) !!}>
-                            <i class="bi bi-ticket-perforated-fill"></i>
-                            <span>Redemptions</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/latchdeck/settings') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/latchdeck/settings')) !!}>
-                            <i class="bi bi-sliders2"></i>
-                            <span>Deck Settings</span>
-                            <span class="ll-nav-badge">MVP</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llAccountMenu" aria-expanded="true" aria-controls="llAccountMenu">
-                    <span>Account Management</span>
-                    <i class="bi bi-chevron-down"></i>
-                </button>
-                <ul class="ll-nav-list collapse show" id="llAccountMenu">
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/subscription') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/subscription')) !!}>
-                            <i class="bi bi-credit-card-fill"></i>
-                            <span>My Subscription</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/my-data') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/my-data')) !!}>
-                            <i class="bi bi-database-lock"></i>
-                            <span>My Data</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/docs*') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/docs')) !!}>
-                            <i class="bi bi-journal-richtext"></i>
-                            <span>Documentation</span>
-                            <span class="ll-nav-badge">New</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <button class="ll-nav-section-button" type="button" data-bs-toggle="collapse" data-bs-target="#llGrowthMenu" aria-expanded="true" aria-controls="llGrowthMenu">
-                    <span>Growth & Community</span>
-                    <i class="bi bi-chevron-down"></i>
-                </button>
-                <ul class="ll-nav-list collapse show" id="llGrowthMenu">
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/feedback') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/feedback')) !!}>
-                            <i class="bi bi-chat-heart-fill"></i>
-                            <span>Provide Feedback</span>
-                            <span class="ll-nav-badge">Tally</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/affiliate-program') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/affiliate-program')) !!}>
-                            <i class="bi bi-diagram-3-fill"></i>
-                            <span>Affiliate Program</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::is('studio/creator-program') ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/creator-program')) !!}>
-                            <i class="bi bi-brush-fill"></i>
-                            <span>Creator Program</span>
-                        </a>
-                    </li>
-                </ul>
+                <livewire:studio-navigation />
             </div>
 
             <div class="ll-sidebar-footer">
@@ -1926,5 +1919,6 @@ function llHtmxAttrs($url) {
     </script>
 
     @stack('sidebar-scripts')
+    @livewireScripts
 </body>
 </html>
