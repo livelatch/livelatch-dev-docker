@@ -37,6 +37,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Rebuilt the dashboard screen to follow the newer Studio page pattern (hero + quick links + sample analytics cards/activity/traffic) so the post-login first page behaves consistently with newer pages like Manage My Data.
 - Expanded Admin Dev Tools with guided identity controls (3 brand colours + light/dark primary font colours), explicit per-mode token editing, and one-click utilities to seed or copy mode palettes.
 - Validation: ran `php -l app/Http/Livewire/DashboardAnalytics.php` and `php -l app/Http/Controllers/AdminController.php`; `php artisan view:cache` could not run in this sandbox because `vendor/autoload.php` is unavailable.
+- Agent: Bits Code
+- Added `docs/platform-runtime/studio-dashboard.md` documenting the new self-contained dashboard route/component flow, quick-link structure, token usage, and safe editing boundaries.
+- Updated `docs/platform-runtime/admin-dev-tools.md` to reflect the guided light/dark workflow, including 3 identity colours, explicit light/dark primary font colours, mode-copy behavior, and `data-mode` control guidance.
+- Validation: documentation-only follow-up; no new runtime behavior changed in this batch.
 
 ### 2026-06-11
 
