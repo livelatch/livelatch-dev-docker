@@ -34,6 +34,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Updated the block system docs with the combined Links workflow, Sortable reorder endpoint, and live preview behavior.
 - Validation: ran PHP syntax, Blade cache, and `/studio/add-link` plus `/studio/links` route checks for the rebuilt block and links editors.
 - Agent: BitsAI
+- Switched `/dashboard` to a sample-data analytics payload in `AdminController::index()` so login redirect and HTMX dashboard rendering stay stable while native analytics is being rewired.
+- Added a dashboard disclaimer in the Livewire analytics view stating metrics are sample data and that Latchalytics is coming soon.
+- Added `docs/platform-runtime/dashboard-analytics-data.md` documenting how native clicks/views were gathered, what sample mode now provides, and the planned PostHog/Latchalytics service rewire.
+- Validation: ran `php -l app/Http/Controllers/AdminController.php`, `php -l app/Http/Livewire/DashboardAnalytics.php`, `php -l resources/views/panel/index.blade.php`, and `php -l resources/views/livewire/dashboard-analytics.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
+- Agent: BitsAI
+- Applied approved Studio design token values from Admin Dev Tools into `resources/views/layouts/sidebar.blade.php` for light and dark mode palettes, including new shared `--ll-button-radius` and approved heading/button weight tokens.
+- Updated Studio button radius usage so dashboard and layout button classes use `--ll-button-radius` while surface components continue using `--ll-radius`.
+- Updated `docs/platform-runtime/admin-dev-tools.md` with an approved-baseline note explaining how preview token values are promoted into the sidebar layout and how stable heading/button weight tokens are used.
+- Validation: ran `php -l resources/views/layouts/sidebar.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
 - Fixed a `/dashboard` 500 risk by hardening dashboard visit analytics so missing handles or visit-tracker failures now fall back to zeroed stats instead of crashing the page render.
 - Fixed Studio content overlap on pages using `content-inner mt-n5` by neutralizing the negative top margin inside `#ll-content` so top text no longer sits under the sticky top bar.
 - Validation: ran `php -l app/Http/Controllers/AdminController.php` and `php -l resources/views/layouts/sidebar.blade.php` and reviewed diffs for the dashboard stats guard and sidebar spacing rule.
