@@ -31,7 +31,6 @@ class DashboardAnalytics extends Component
     public int $updatedLast24HrsCount = 0;
     public bool $isSampleData = false;
     public string $analyticsNotice = '';
->>>>>>> main
 
     public function mount(): void
     {

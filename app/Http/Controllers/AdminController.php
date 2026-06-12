@@ -37,9 +37,6 @@ class AdminController extends Controller
   //Statistics of the number of clicks and links
   public function index()
   {
-<<<<<<< HEAD
-    return view("panel/index");
-=======
     $littlelink_name = Auth::user()->littlelink_name;
 
     $links = 18;

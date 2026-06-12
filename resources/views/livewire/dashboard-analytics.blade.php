@@ -44,6 +44,9 @@
         </section>
     @endif
 
+<<<<<<< HEAD
+>>>>>>> main
+=======
 >>>>>>> main
     <style data-ll-dashboard-style>
         .ll-dashboard {
@@ -160,6 +163,22 @@
             display: grid;
             grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
             gap: 18px;
+        }
+
+        .ll-dashboard-disclaimer {
+            display: grid;
+            gap: 4px;
+            border-left: 6px solid var(--ll-primary);
+        }
+
+        .ll-dashboard-disclaimer strong {
+            color: var(--ll-text);
+            font-size: 0.95rem;
+        }
+
+        .ll-dashboard-disclaimer span {
+            color: var(--ll-muted);
+            font-size: 0.88rem;
         }
 
         .ll-dashboard-disclaimer {
