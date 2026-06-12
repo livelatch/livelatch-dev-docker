@@ -205,6 +205,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                 ->where('path', '.*')
                 ->name('docs.show');
             Route::view('/studio/feedback', 'studio.growth.feedback');
+            Route::view('/studio/socials', 'studio.community.socials');
             Route::view('/studio/affiliate-program', 'studio.growth.affiliate-program');
             Route::view('/studio/creator-program', 'studio.growth.creator-program');
 

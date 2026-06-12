@@ -6,18 +6,6 @@ use Livewire\Component;
 
 class StudioNavigation extends Component
 {
-    public ?string $openSection = null;
-
-    public function mount(): void
-    {
-        $this->openSection = $this->activeSectionKey();
-    }
-
-    public function toggleSection(string $section): void
-    {
-        $this->openSection = $this->openSection === $section ? null : $section;
-    }
-
     public function render()
     {
         return view('livewire.studio-navigation', [
@@ -125,10 +113,16 @@ class StudioNavigation extends Component
                 ],
             ],
             [
-                'key' => 'growth',
-                'label' => 'Growth',
-                'icon' => 'bi bi-rocket-takeoff-fill',
+                'key' => 'community',
+                'label' => 'Community',
+                'icon' => 'bi bi-people-fill',
                 'items' => [
+                    [
+                        'label' => 'Socials',
+                        'icon' => 'bi bi-share-fill',
+                        'url' => url('/studio/socials'),
+                        'active' => request()->is('studio/socials'),
+                    ],
                     [
                         'label' => 'Provide Feedback',
                         'icon' => 'bi bi-chat-heart-fill',
@@ -187,18 +181,5 @@ class StudioNavigation extends Component
         }
 
         return $sections;
-    }
-
-    private function activeSectionKey(): ?string
-    {
-        foreach ($this->sections() as $section) {
-            foreach ($section['items'] as $item) {
-                if ($item['active'] ?? false) {
-                    return $section['key'];
-                }
-            }
-        }
-
-        return null;
     }
 }

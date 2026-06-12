@@ -18,11 +18,13 @@ The sidebar menu is closed by default. Each top-level section is represented by 
 - Navigation
 - LatchDeck
 - Account
-- Growth
+- Community
 
 Clicking a section icon opens that section and reveals its links. Clicking the same section again closes it.
 
-The links still use the existing HTMX navigation attributes through `llHtmxAttrs()`, so page content continues to load into `#ll-content` without a full browser navigation.
+The section open/close interaction is handled by lightweight client-side JavaScript in `resources/views/layouts/sidebar.blade.php`. Livewire renders the menu structure, but it does not make a network request just to open a folder. This keeps the menu responsive and avoids interfering with HTMX link handling.
+
+The links still use HTMX navigation attributes, so page content continues to load into `#ll-content` without a full browser navigation.
 
 ## Editing Navigation
 
@@ -68,6 +70,17 @@ The navigation uses the sidebar design tokens in `resources/views/layouts/sideba
 ```
 
 Do not hard-code light backgrounds or text colors in the navigation component. Use the existing `ll-*` classes and CSS variables so light and dark mode stay consistent.
+
+## Community Socials
+
+The Community section includes:
+
+```text
+GET /studio/socials
+-> resources/views/studio/community/socials.blade.php
+```
+
+The first version links to the homepage for each supported social platform until official Livelatch profile URLs are ready.
 
 ## Validation
 

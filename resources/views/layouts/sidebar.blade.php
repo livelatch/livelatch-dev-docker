@@ -348,7 +348,30 @@ function llHtmxAttrs($url) {
         }
 
         .ll-nav-panel {
-            padding: 0 8px 8px 60px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0 8px 0 60px;
+            transform: translateY(-4px);
+            transition: max-height 0.22s ease, opacity 0.18s ease, padding 0.18s ease, transform 0.18s ease;
+        }
+
+        .ll-nav-group.is-open .ll-nav-panel {
+            max-height: 360px;
+            opacity: 1;
+            padding-bottom: 8px;
+            transform: translateY(0);
+        }
+
+        .ll-nav-panel .ll-nav-link {
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: opacity 0.16s ease, transform 0.16s ease, background 0.18s ease, color 0.18s ease;
+        }
+
+        .ll-nav-group.is-open .ll-nav-panel .ll-nav-link {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .ll-nav-list {
@@ -1831,9 +1854,46 @@ function llHtmxAttrs($url) {
                 });
             }
 
+            function initStudioNavigation() {
+                const nav = document.querySelector('.ll-nav-rail');
+
+                if (!nav || nav.dataset.llNavInitialized === 'true') {
+                    return;
+                }
+
+                nav.dataset.llNavInitialized = 'true';
+
+                nav.querySelectorAll('[data-ll-nav-toggle]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const group = button.closest('[data-ll-nav-group]');
+
+                        if (!group) {
+                            return;
+                        }
+
+                        const shouldOpen = !group.classList.contains('is-open');
+
+                        nav.querySelectorAll('[data-ll-nav-group]').forEach(otherGroup => {
+                            otherGroup.classList.remove('is-open');
+                            otherGroup.querySelector('[data-ll-nav-toggle]')?.setAttribute('aria-expanded', 'false');
+                        });
+
+                        if (shouldOpen) {
+                            group.classList.add('is-open');
+                            button.setAttribute('aria-expanded', 'true');
+                        }
+                    });
+                });
+
+                if (window.htmx) {
+                    window.htmx.process(nav);
+                }
+            }
+
             setTheme(initialTheme);
             setActiveNavFromUrl(window.location.href);
             polishInjectedContent();
+            initStudioNavigation();
 
             document.querySelectorAll('[data-theme-choice]').forEach(button => {
                 button.addEventListener('click', () => setTheme(button.dataset.themeChoice));
@@ -1879,6 +1939,7 @@ function llHtmxAttrs($url) {
                     }, 220);
 
                     polishInjectedContent();
+                    initStudioNavigation();
                     setActiveNavFromUrl(window.location.href);
                     closeMobileSidebar();
                 }
