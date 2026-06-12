@@ -4,15 +4,22 @@ Livelatch uses the inherited [LinkStack](https://linkstack.org/) block model for
 
 ## Current Studio Flow
 
-The add-block page is:
+Blocks are added from the combined Links manager:
 
 ```text
-GET /studio/add-link
--> UserController::AddUpdateLink()
--> resources/views/studio/edit-link.blade.php
+GET /studio/links
+-> UserController::showLinks()
+-> resources/views/studio/links.blade.php
 ```
 
-The page now shows an inline block library instead of the older modal picker. This avoids the dashboard modal backdrop issue and makes block selection searchable.
+This screen shows:
+
+- the current link/block list
+- drag-and-drop rearranging
+- an add-block section
+- a phone-sized live preview of the public profile
+
+The older add-only modal flow has been replaced in the sidebar by the combined Links page. The old `/studio/add-link` route may still exist for compatibility, but normal navigation should point users to `/studio/links`.
 
 When a user selects a block, the page loads the matching settings form from:
 
@@ -22,7 +29,7 @@ GET /studio/linkparamform_part/{typename}/{linkid}
 -> blocks/{typename}/form.blade.php
 ```
 
-Saving posts to:
+Saving a new block posts to:
 
 ```text
 POST /studio/edit-link
@@ -41,7 +48,30 @@ and calls:
 handleLinkType($request, $linkType)
 ```
 
-The handler returns validation rules and the prepared link data.
+The handler returns validation rules and the prepared link data. After saving, the user returns to `/studio/links`, where the new item appears in the current links list and can be rearranged.
+
+## Rearranging Blocks
+
+The current links list on `/studio/links` uses [SortableJS](https://sortablejs.github.io/Sortable/) through the bundled `assets/js/Sortable.min.js` file.
+
+When a user drags items, the page posts the new order to:
+
+```text
+POST /studio/sort-link
+-> UserController::sortLinks()
+```
+
+The `links.order` field is updated and the phone preview is refreshed.
+
+## Live Preview
+
+The combined Links manager embeds the public profile in a phone-shaped iframe:
+
+```text
+/@{littlelink_name}
+```
+
+The preview is read-only. It is refreshed after successful reorder actions and can also be refreshed manually from the preview panel.
 
 ## Block Folder Shape
 

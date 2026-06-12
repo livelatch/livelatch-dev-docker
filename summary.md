@@ -13,7 +13,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Rebuilt the Studio add/edit block page to replace the old modal picker with an inline searchable block library and settings panel, avoiding the dashboard backdrop conflict.
 - Moved block picker behavior into the swapped page content with plain JavaScript so it initializes correctly when loaded through the Studio sidebar.
 - Added `docs/blocks/block-system.md` documenting the current block architecture and how to edit, add, remove, and validate blocks.
-- Validation: ran PHP syntax, Blade cache, and `/studio/add-link` route checks for the rebuilt block editor.
+- Combined the Studio Links and Add Link navigation into one `/studio/links` manager with current links, drag-and-drop rearranging, inline add-block controls, and a phone-sized public profile preview.
+- Updated the Studio sidebar so Links is the single Navigation entry for link/block management, with old add-more saves returning to the combined Links page.
+- Updated the block system docs with the combined Links workflow, Sortable reorder endpoint, and live preview behavior.
+- Validation: ran PHP syntax, Blade cache, and `/studio/add-link` plus `/studio/links` route checks for the rebuilt block and links editors.
 
 ### 2026-06-11
 

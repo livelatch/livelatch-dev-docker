@@ -323,7 +323,7 @@ class UserController extends Controller
         }
 
         // Step 8: Redirect
-        $redirectUrl = $request->input('param') == 'add_more' ? 'studio/add-link' : 'studio/links';
+        $redirectUrl = $request->input('param') == 'add_more' ? 'studio/links#add-block' : 'studio/links';
         return Redirect($redirectUrl)->with('success', $message);
     }
     
@@ -452,6 +452,9 @@ class UserController extends Controller
         $data['pagePage'] = 10;
         
         $data['links'] = Link::select()->where('user_id', $userId)->orderBy('up_link', 'asc')->orderBy('order', 'asc')->paginate(99999);
+        $data['LinkTypes'] = LinkType::get();
+        $data['LinkID'] = 0;
+        $data['typename'] = 'link';
         return view('studio/links', $data);
     }
 

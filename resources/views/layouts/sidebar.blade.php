@@ -1313,12 +1313,6 @@ function llHtmxAttrs($url) {
                             <span>{{ __('messages.Dashboard') }}</span>
                         </a>
                     </li>
-                    <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'add-link' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/add-link')) !!}>
-                            <i class="bi bi-plus-square-fill"></i>
-                            <span>{{ __('messages.Add Link') }}</span>
-                        </a>
-                    </li>
                 </ul>
 
                 @if(auth()->user()->role == 'admin')
@@ -1354,10 +1348,10 @@ function llHtmxAttrs($url) {
                     </ul>
                 @endif
 
-                <p class="ll-nav-section">{{ __('messages.Personalization') }}</p>
+                <p class="ll-nav-section">Navigation</p>
                 <ul class="ll-nav-list">
                     <li>
-                        <a class="ll-nav-link {{ Request::segment(2) == 'links' ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/links')) !!}>
+                        <a class="ll-nav-link {{ in_array(Request::segment(2), ['links', 'add-link']) ? 'active' : '' }}" {!! llHtmxAttrs(url('/studio/links')) !!}>
                             <i class="bi bi-link-45deg"></i>
                             <span>{{ __('messages.Links') }}</span>
                         </a>
