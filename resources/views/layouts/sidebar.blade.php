@@ -1344,6 +1344,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             min-width: 0;
         }
 
+        #ll-content .content-inner.mt-n5 {
+            margin-top: 0 !important;
+        }
+
         #ll-content .card,
         #ll-content .iq-card,
         #ll-content .card-body,

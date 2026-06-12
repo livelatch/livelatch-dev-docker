@@ -19,6 +19,7 @@ Maintain the current `summary.md` format:
 
 - keep **Recent Changes** at the top
 - use `### YYYY-MM-DD` date headings
+- for each new agent-authored batch under a date, start with an `Agent:` bullet before change bullets (for example: `- Agent: Codex` or `- Agent: BitsAI`)
 - write short bullets under each date
 - keep the fork-history section separate from recent work
 - when adding commit-history details, list exact commit hashes only for the fork-specific range being discussed
