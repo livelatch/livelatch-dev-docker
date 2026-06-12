@@ -43,6 +43,9 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Updated Studio button radius usage so dashboard and layout button classes use `--ll-button-radius` while surface components continue using `--ll-radius`.
 - Updated `docs/platform-runtime/admin-dev-tools.md` with an approved-baseline note explaining how preview token values are promoted into the sidebar layout and how stable heading/button weight tokens are used.
 - Validation: ran `php -l resources/views/layouts/sidebar.blade.php`; attempted `php artisan view:cache` but it failed in this sandbox because `vendor/autoload.php` is missing.
+- Fixed a `/dashboard` 500 risk by hardening dashboard visit analytics so missing handles or visit-tracker failures now fall back to zeroed stats instead of crashing the page render.
+- Fixed Studio content overlap on pages using `content-inner mt-n5` by neutralizing the negative top margin inside `#ll-content` so top text no longer sits under the sticky top bar.
+- Validation: ran `php -l app/Http/Controllers/AdminController.php` and `php -l resources/views/layouts/sidebar.blade.php` and reviewed diffs for the dashboard stats guard and sidebar spacing rule.
 
 ### 2026-06-11
 

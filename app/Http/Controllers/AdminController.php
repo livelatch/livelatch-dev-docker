@@ -92,6 +92,43 @@ class AdminController extends Controller
 
     $isSampleData = true;
     $analyticsNotice = "Sample analytics data only — Latchalytics is coming soon.";
+        "all" => 0,
+        "day" => 0,
+        "week" => 0,
+        "month" => 0,
+        "year" => 0,
+      ],
+      "os" => [],
+      "referers" => [],
+      "countries" => [],
+    ];
+
+    if (!empty($littlelink_name)) {
+      try {
+        $visitorStats = visits("App\Models\User", $littlelink_name);
+        $pageStats = [
+          "visitors" => [
+            "all" => $visitorStats->count(),
+            "day" => visits("App\Models\User", $littlelink_name)
+              ->period("day")
+              ->count(),
+            "week" => visits("App\Models\User", $littlelink_name)
+              ->period("week")
+              ->count(),
+            "month" => visits("App\Models\User", $littlelink_name)
+              ->period("month")
+              ->count(),
+            "year" => visits("App\Models\User", $littlelink_name)
+              ->period("year")
+              ->count(),
+          ],
+          "os" => $visitorStats->operatingSystems(),
+          "referers" => $visitorStats->refs(),
+          "countries" => $visitorStats->countries(),
+        ];
+      } catch (\Throwable $exception) {
+      }
+    }
 
     return view("panel/index", [
       "lastMonthCount" => $lastMonthCount,
