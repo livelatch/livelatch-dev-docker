@@ -83,24 +83,36 @@ class AdminController extends Controller
 
     $pageStats = [
       "visitors" => [
-        "all" => visits("App\Models\User", $littlelink_name)->count(),
-        "day" => visits("App\Models\User", $littlelink_name)
-          ->period("day")
-          ->count(),
-        "week" => visits("App\Models\User", $littlelink_name)
-          ->period("week")
-          ->count(),
-        "month" => visits("App\Models\User", $littlelink_name)
-          ->period("month")
-          ->count(),
-        "year" => visits("App\Models\User", $littlelink_name)
-          ->period("year")
-          ->count(),
+        "all" => 0,
+        "day" => 0,
+        "week" => 0,
+        "month" => 0,
+        "year" => 0,
       ],
-      "os" => visits("App\Models\User", $littlelink_name)->operatingSystems(),
-      "referers" => visits("App\Models\User", $littlelink_name)->refs(),
-      "countries" => visits("App\Models\User", $littlelink_name)->countries(),
     ];
+
+    if (!empty($littlelink_name)) {
+      try {
+        $pageStats = [
+          "visitors" => [
+            "all" => visits("App\Models\User", $littlelink_name)->count(),
+            "day" => visits("App\Models\User", $littlelink_name)
+              ->period("day")
+              ->count(),
+            "week" => visits("App\Models\User", $littlelink_name)
+              ->period("week")
+              ->count(),
+            "month" => visits("App\Models\User", $littlelink_name)
+              ->period("month")
+              ->count(),
+            "year" => visits("App\Models\User", $littlelink_name)
+              ->period("year")
+              ->count(),
+          ],
+        ];
+      } catch (\Throwable $exception) {
+      }
+    }
 
     return view("panel/index", [
       "lastMonthCount" => $lastMonthCount,
