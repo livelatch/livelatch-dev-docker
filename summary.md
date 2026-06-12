@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-12
+
+- Rebuilt the Studio add/edit block page to replace the old modal picker with an inline searchable block library and settings panel, avoiding the dashboard backdrop conflict.
+- Moved block picker behavior into the swapped page content with plain JavaScript so it initializes correctly when loaded through the Studio sidebar.
+- Added `docs/blocks/block-system.md` documenting the current block architecture and how to edit, add, remove, and validate blocks.
+- Validation: ran PHP syntax, Blade cache, and `/studio/add-link` route checks for the rebuilt block editor.
+
 ### 2026-06-11
 
 - Added the first browser-based MVP theme settings flow for `/studio/theme`, routing GET/POST requests to a new `Studio\ThemeController` backed by `ThemeService` and `user_theme_settings`.
