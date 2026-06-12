@@ -423,12 +423,14 @@
         const originalBodyTheme = body.getAttribute('data-ll-theme') || 'light';
         const originalStorageTheme = localStorage.getItem('livelatch-theme');
         const originalInlineValues = {};
+        const originalBodyInlineValues = {};
         const originalState = { light: {}, dark: {}, shared: {} };
         const draftState = { light: {}, dark: {}, shared: {} };
         let activeMode = originalBodyTheme === 'dark' ? 'dark' : 'light';
 
         function computedToken(token) {
-            return getComputedStyle(docRoot).getPropertyValue(token).trim();
+            return getComputedStyle(body).getPropertyValue(token).trim()
+                || getComputedStyle(docRoot).getPropertyValue(token).trim();
         }
 
         function normalizeHex(value, fallback = '#000000') {
@@ -580,6 +582,7 @@
 
             colorTokens.concat(sharedTokens).forEach((token) => {
                 originalInlineValues[token] = docRoot.style.getPropertyValue(token);
+                originalBodyInlineValues[token] = body.style.getPropertyValue(token);
             });
 
             sharedTokens.forEach((token) => {
@@ -631,11 +634,13 @@
         function applyDraftToDocument() {
             Object.entries(draftState[activeMode]).forEach(([token, value]) => {
                 docRoot.style.setProperty(token, value);
+                body.style.setProperty(token, value);
             });
 
             Object.entries(draftState.shared).forEach(([token, value]) => {
                 if (value) {
                     docRoot.style.setProperty(token, value);
+                    body.style.setProperty(token, value);
                 }
             });
 
@@ -767,6 +772,12 @@ Implementation notes:
                     docRoot.style.setProperty(token, originalInlineValues[token]);
                 } else {
                     docRoot.style.removeProperty(token);
+                }
+
+                if (originalBodyInlineValues[token]) {
+                    body.style.setProperty(token, originalBodyInlineValues[token]);
+                } else {
+                    body.style.removeProperty(token);
                 }
             });
 
