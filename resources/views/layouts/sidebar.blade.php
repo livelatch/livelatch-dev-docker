@@ -25,8 +25,8 @@ function llActive($segment, $value) {
     return Request::segment($segment) == $value ? 'active' : '';
 }
 
-function llHtmxAttrs($url) {
-    return 'href="' . e($url) . '" hx-get="' . e($url) . '" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML"';
+function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
+    return 'href="' . e($url) . '" hx-get="' . e($url) . '" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="' . e($indicator) . '"';
 }
 @endphp
 <!doctype html>
@@ -732,6 +732,219 @@ function llHtmxAttrs($url) {
 
         .ll-content {
             padding: 22px 0 30px;
+        }
+
+        .ll-content-stage {
+            position: relative;
+        }
+
+        .htmx-indicator {
+            display: none;
+        }
+
+        .htmx-request.htmx-indicator,
+        .htmx-request .htmx-indicator {
+            display: block;
+        }
+
+        .ll-content-skeleton {
+            position: absolute;
+            inset: 22px 0 auto;
+            z-index: 20;
+            pointer-events: none;
+            padding: 0 clamp(14px, 1.5vw, 22px);
+        }
+
+        .ll-content-skeleton-shell {
+            width: 100%;
+            padding: clamp(18px, 2vw, 26px);
+            border: 1px solid var(--ll-border);
+            border-radius: var(--ll-button-radius, var(--ll-radius));
+            background:
+                linear-gradient(
+                    180deg,
+                    color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 92%, transparent),
+                    color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 82%, var(--ll-text, #111827))
+                );
+            box-shadow: var(--ll-shadow-soft);
+            backdrop-filter: blur(18px);
+        }
+
+        .ll-skeleton {
+            background: color-mix(in srgb, var(--ll-text, #ffffff) 10%, transparent);
+            border-radius: var(--ll-button-radius, 12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ll-skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(
+                90deg,
+                transparent,
+                color-mix(in srgb, var(--ll-primary, #8b5cf6) 18%, transparent),
+                transparent
+            );
+            animation: ll-skeleton-shimmer 1.4s infinite;
+        }
+
+        @keyframes ll-skeleton-shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .ll-skeleton-page,
+        .ll-skeleton-card-grid,
+        .ll-skeleton-table-wrap,
+        .ll-skeleton-profile {
+            display: grid;
+            gap: 16px;
+        }
+
+        .ll-skeleton-kicker {
+            width: 110px;
+            height: 16px;
+        }
+
+        .ll-skeleton-heading {
+            width: min(360px, 70%);
+            height: 34px;
+        }
+
+        .ll-skeleton-line {
+            width: 68%;
+            height: 14px;
+        }
+
+        .ll-skeleton-line-wide {
+            width: 92%;
+        }
+
+        .ll-skeleton-line-mid {
+            width: 48%;
+        }
+
+        .ll-skeleton-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ll-skeleton-pill {
+            width: 144px;
+            height: 42px;
+            border-radius: 999px;
+        }
+
+        .ll-skeleton-pill-short {
+            width: 96px;
+        }
+
+        .ll-skeleton-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .ll-skeleton-panel,
+        .ll-skeleton-card,
+        .ll-skeleton-table,
+        .ll-skeleton-profile-main,
+        .ll-skeleton-profile-link {
+            border: 1px solid var(--ll-border);
+            border-radius: var(--ll-button-radius, var(--ll-radius));
+            background: color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 88%, var(--ll-text, #111827));
+        }
+
+        .ll-skeleton-panel,
+        .ll-skeleton-card,
+        .ll-skeleton-profile-main {
+            display: grid;
+            gap: 14px;
+            padding: 18px;
+        }
+
+        .ll-skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .ll-skeleton-card-media {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+        }
+
+        .ll-skeleton-table {
+            overflow: hidden;
+        }
+
+        .ll-skeleton-table-row {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr 110px;
+            gap: 16px;
+            align-items: center;
+            padding: 16px 18px;
+            border-top: 1px solid var(--ll-border);
+        }
+
+        .ll-skeleton-table-row:first-child {
+            border-top: 0;
+        }
+
+        .ll-skeleton-table-head {
+            background: color-mix(in srgb, var(--ll-primary, #8b5cf6) 8%, transparent);
+        }
+
+        .ll-skeleton-profile {
+            max-width: 430px;
+            margin: 0 auto;
+        }
+
+        .ll-skeleton-profile-main {
+            justify-items: center;
+            text-align: center;
+        }
+
+        .ll-skeleton-avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+        }
+
+        .ll-skeleton-profile-links {
+            display: grid;
+            gap: 12px;
+        }
+
+        .ll-skeleton-profile-link {
+            display: grid;
+            grid-template-columns: 30px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 14px 16px;
+        }
+
+        .ll-skeleton-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 767.98px) {
+            .ll-skeleton-layout,
+            .ll-skeleton-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ll-skeleton-table-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
 
         .ll-content.htmx-swapping {
@@ -1676,18 +1889,18 @@ function llHtmxAttrs($url) {
                     <p>{{ __('messages.welcome', ['appName' => config('app.name')]) }}</p>
 
                     <div class="ll-hero-actions">
-                        <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
+                        <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                             <i class="bi bi-link-45deg"></i>
                             {{ __('messages.Links') }}
                         </a>
 
-                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
+                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                             <i class="bi bi-person-badge"></i>
                             {{ __('messages.Appearance') }}
                         </a>
 
                         @if(!isset($usrhandl))
-                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
+                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                                 <i class="bi bi-at"></i>
                                 {{ __('messages.Set a handle') }}
                             </a>
@@ -1696,9 +1909,32 @@ function llHtmxAttrs($url) {
                 </div>
             </section>
 
-            <section id="ll-content" class="ll-content">
-                @yield('content')
-            </section>
+            <div class="ll-content-stage">
+                <div id="ll-page-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
+                    <div class="ll-content-skeleton-shell">
+                        @include('components.skeleton.page')
+                    </div>
+                </div>
+                <div id="ll-card-grid-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
+                    <div class="ll-content-skeleton-shell">
+                        @include('components.skeleton.card-grid')
+                    </div>
+                </div>
+                <div id="ll-table-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
+                    <div class="ll-content-skeleton-shell">
+                        @include('components.skeleton.table')
+                    </div>
+                </div>
+                <div id="ll-profile-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
+                    <div class="ll-content-skeleton-shell">
+                        @include('components.skeleton.profile')
+                    </div>
+                </div>
+
+                <section id="ll-content" class="ll-content" aria-live="polite" aria-busy="false">
+                    @yield('content')
+                </section>
+            </div>
 
             <footer class="ll-footer">
                 <ul class="list-inline mb-0 p-0">
@@ -1752,11 +1988,11 @@ function llHtmxAttrs($url) {
             <hr class="my-4">
 
             <h5 class="mb-3">{{ __('messages.Profile') }}</h5>
-            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
+            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                 <i class="bi bi-person-fill"></i>
                 {{ __('messages.Profile') }}
             </a>
-            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center" hx-get="{{ url('/studio/profile') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
+            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center" hx-get="{{ url('/studio/profile') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                 <i class="bi bi-gear-fill"></i>
                 {{ __('messages.Settings') }}
             </a>
@@ -1913,6 +2149,11 @@ function llHtmxAttrs($url) {
 
             document.body.addEventListener('htmx:beforeRequest', function (event) {
                 const clickedLink = event.detail.elt;
+                const content = document.getElementById('ll-content');
+
+                if (clickedLink && clickedLink.getAttribute('hx-target') === '#ll-content' && content) {
+                    content.setAttribute('aria-busy', 'true');
+                }
 
                 if (clickedLink && clickedLink.classList.contains('ll-nav-link')) {
                     document.querySelectorAll('.ll-nav-link').forEach(link => {
@@ -1933,6 +2174,7 @@ function llHtmxAttrs($url) {
                 if (event.detail.target && event.detail.target.id === 'll-content') {
                     event.detail.target.classList.remove('htmx-swapping');
                     event.detail.target.classList.add('htmx-settling');
+                    event.detail.target.setAttribute('aria-busy', 'false');
 
                     setTimeout(() => {
                         event.detail.target.classList.remove('htmx-settling');
@@ -1946,6 +2188,12 @@ function llHtmxAttrs($url) {
             });
 
             document.body.addEventListener('htmx:responseError', function () {
+                const content = document.getElementById('ll-content');
+
+                if (content) {
+                    content.setAttribute('aria-busy', 'false');
+                }
+
                 document.querySelectorAll('.ll-nav-link').forEach(link => link.classList.remove('is-loading'));
             });
 

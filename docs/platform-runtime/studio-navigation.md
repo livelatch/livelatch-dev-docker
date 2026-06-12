@@ -26,6 +26,8 @@ The section open/close interaction is handled by lightweight client-side JavaScr
 
 The links still use HTMX navigation attributes, so page content continues to load into `#ll-content` without a full browser navigation.
 
+HTMX links also set `hx-indicator` so the persistent layout can show the right skeleton loader while the next screen is loading. See `docs/platform-runtime/htmx-skeleton-loaders.md` for the reusable skeleton partials and indicator conventions.
+
 ## Editing Navigation
 
 To add, remove, or rename sidebar sections and links, edit:
@@ -47,6 +49,7 @@ Each section has:
             'icon' => 'bi bi-link-45deg',
             'url' => url('/studio/links'),
             'active' => request()->segment(2) === 'links',
+            'skeleton' => '#ll-profile-skeleton',
         ],
     ],
 ]

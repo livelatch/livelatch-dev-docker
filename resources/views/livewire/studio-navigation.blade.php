@@ -32,6 +32,7 @@
                             hx-select="#ll-content > *"
                             hx-push-url="true"
                             hx-swap="innerHTML"
+                            hx-indicator="{{ $item['skeleton'] ?? '#ll-page-skeleton' }}"
                         >
                             <i class="{{ $item['icon'] }}"></i>
                             <span>{{ $item['label'] }}</span>
