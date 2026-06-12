@@ -89,13 +89,17 @@ class AdminController extends Controller
         "month" => 0,
         "year" => 0,
       ],
+      "os" => [],
+      "referers" => [],
+      "countries" => [],
     ];
 
     if (!empty($littlelink_name)) {
       try {
+        $visitorStats = visits("App\Models\User", $littlelink_name);
         $pageStats = [
           "visitors" => [
-            "all" => visits("App\Models\User", $littlelink_name)->count(),
+            "all" => $visitorStats->count(),
             "day" => visits("App\Models\User", $littlelink_name)
               ->period("day")
               ->count(),
@@ -109,6 +113,9 @@ class AdminController extends Controller
               ->period("year")
               ->count(),
           ],
+          "os" => $visitorStats->operatingSystems(),
+          "referers" => $visitorStats->refs(),
+          "countries" => $visitorStats->countries(),
         ];
       } catch (\Throwable $exception) {
       }
