@@ -189,6 +189,13 @@ class StudioNavigation extends Component
                         'active' => request()->segment(2) === 'site',
                         'skeleton' => '#ll-table-skeleton',
                     ],
+                    [
+                        'label' => 'Dev Tools',
+                        'icon' => 'bi bi-code-square',
+                        'url' => url('admin/dev-tools'),
+                        'active' => request()->segment(2) === 'dev-tools',
+                        'skeleton' => '#ll-page-skeleton',
+                    ],
                 ],
             ]]);
         }

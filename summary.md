@@ -17,6 +17,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Added global sidebar layout theme rules for additional Bootstrap surfaces including alerts, pagination, list groups, `btn-light`, and light badges to reduce light/dark mode mismatches across Studio pages.
 - Added `docs/platform-runtime/studio-navigation.md` documenting how the Livewire navigation is structured, edited, and validated.
 - Added reusable HTMX skeleton loader partials for page, card-grid, table, and profile screen transitions, wired Studio navigation indicators to the appropriate skeletons, and documented the pattern in `docs/platform-runtime/htmx-skeleton-loaders.md`.
+- Updated HTMX skeleton transitions so screen navigation hides the old `#ll-content` while the selected skeleton is showing instead of layering the skeleton over visible content.
+- Added a universal reduced-motion-aware fade-and-settle transition for HTMX-loaded Studio content after skeleton loading completes.
+- Added an admin-only `/admin/dev-tools` Studio screen for live, view-only design-token experiments with generated Codex instructions for applying approved CSS changes later.
+- Extended Admin Dev Tools with light/dark mode-aware colour drafts, automatic opposite-mode colour pairing, preview toggles, and cleanup for temporary browser-only CSS values.
 - Rebuilt the Studio add/edit block page to replace the old modal picker with an inline searchable block library and settings panel, avoiding the dashboard backdrop conflict.
 - Moved block picker behavior into the swapped page content with plain JavaScript so it initializes correctly when loaded through the Studio sidebar.
 - Added `docs/blocks/block-system.md` documenting the current block architecture and how to edit, add, remove, and validate blocks.

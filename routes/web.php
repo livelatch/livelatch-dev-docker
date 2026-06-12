@@ -264,6 +264,7 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::post('/admin/env', [AdminController::class, 'editENV'])->name('editENV');
         Route::get('/admin/site', [AdminController::class, 'showSite'])->name('showSite');
         Route::post('/admin/site', [AdminController::class, 'editSite'])->name('editSite');
+        Route::view('/admin/dev-tools', 'studio.admin.dev-tools')->name('admin.dev-tools');
         Route::get('/admin/site/delavatar', [AdminController::class, 'delAvatar'])->name('delAvatar');
         Route::get('/admin/site/delfavicon', [AdminController::class, 'delFavicon'])->name('delFavicon');
         Route::get('/admin/phpinfo', [AdminController::class, 'phpinfo'])->name('phpinfo');

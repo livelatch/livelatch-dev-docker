@@ -2,7 +2,7 @@
 
 Livelatch Studio uses [HTMX](https://htmx.org/) to swap dashboard screens into the persistent sidebar layout without a full page reload. Screen-level transitions now use themed skeleton loaders instead of a generic spinner.
 
-HTMX supports this through [`hx-indicator`](https://htmx.org/attributes/hx-indicator/). During a request, HTMX adds the `htmx-request` class to the configured indicator element. The Studio layout uses that class to reveal the right skeleton overlay while keeping the previous screen in place until the new screen is ready.
+HTMX supports this through [`hx-indicator`](https://htmx.org/attributes/hx-indicator/). During a request, HTMX adds the `htmx-request` class to the configured indicator element. The Studio layout uses that class to reveal the right skeleton, while `#ll-content[aria-busy="true"]` hides the previous screen until the new screen is ready.
 
 ## Shared Partials
 
@@ -51,7 +51,7 @@ The main shell keeps all skeleton indicators beside the content target:
 </section>
 ```
 
-`#ll-content` remains the only screen swap target. The skeleton is an overlay, so the old content stays visible underneath until the new response swaps in.
+`#ll-content` remains the only screen swap target. The skeleton sits in the content stage while the old content is visually hidden during screen navigation, then the new response swaps in with a short universal fade-and-settle transition. The transition respects `prefers-reduced-motion`.
 
 ## Navigation Metadata
 

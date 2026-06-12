@@ -732,10 +732,14 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-content {
             padding: 22px 0 30px;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
         .ll-content-stage {
             position: relative;
+            min-height: 420px;
         }
 
         .htmx-indicator {
@@ -948,13 +952,43 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         }
 
         .ll-content.htmx-swapping {
-            opacity: 0.4;
+            opacity: 0;
             transition: opacity 0.18s ease;
+        }
+
+        .ll-content[aria-busy="true"] {
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 0.12s ease;
         }
 
         .ll-content.htmx-settling {
             opacity: 1;
-            transition: opacity 0.18s ease;
+            transform: translateY(0);
+            animation: ll-content-enter 0.24s ease both;
+        }
+
+        @keyframes ll-content-enter {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ll-content,
+            .ll-content[aria-busy="true"],
+            .ll-content.htmx-settling {
+                animation: none;
+                transform: none;
+                transition: none;
+            }
         }
 
         .ll-content > .container-fluid,

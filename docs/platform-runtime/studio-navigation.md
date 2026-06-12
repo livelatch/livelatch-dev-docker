@@ -85,6 +85,17 @@ GET /studio/socials
 
 The first version links to the homepage for each supported social platform until official Livelatch profile URLs are ready.
 
+## Admin Dev Tools
+
+Admin users see a Dev Tools entry under the Admin sidebar section:
+
+```text
+GET /admin/dev-tools
+-> resources/views/studio/admin/dev-tools.blade.php
+```
+
+The screen is a view-only live design-token editor that can generate Codex instructions for applying approved CSS changes. See `docs/platform-runtime/admin-dev-tools.md`.
+
 ## Validation
 
 After editing the navigation component or layout, run:
