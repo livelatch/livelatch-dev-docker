@@ -11,14 +11,13 @@ Livewire is provided by [Laravel Livewire](https://livewire.laravel.com/) and is
 
 ## Behavior
 
-The sidebar menu is closed by default. Each top-level section is represented by an icon-led button:
+The Dashboard link sits at the top of the sidebar as a direct navigation item. The remaining sidebar menu sections are closed by default and represented by icon-led buttons:
 
-- Home
-- Admin, for administrator users only
-- Navigation
+- MyLivelatch
 - LatchDeck
 - Account
 - Community
+- Admin, for administrator users only, shown at the bottom
 
 Clicking a section icon opens that section and reveals its links. Clicking the same section again closes it.
 
@@ -56,6 +55,8 @@ Each section has:
 ```
 
 Use [Bootstrap Icons](https://icons.getbootstrap.com/) class names for section and item icons.
+
+Set `'single' => true` on a section when it should render as a direct top-level link instead of a collapsible folder. Dashboard uses this pattern.
 
 ## Theme Support
 
@@ -95,6 +96,8 @@ GET /admin/dev-tools
 ```
 
 The screen is a view-only live design-token editor that can generate Codex instructions for applying approved CSS changes. See `docs/platform-runtime/admin-dev-tools.md`.
+
+Legacy LinkStack admin entries for Config, Footer Pages, and Site Customization are intentionally hidden from the Studio sidebar while Livelatch uses newer configuration and theme workflows.
 
 ## Validation
 

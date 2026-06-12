@@ -1,9 +1,29 @@
 <nav class="ll-nav-rail" aria-label="Studio navigation" wire:ignore>
     @foreach($sections as $section)
         @php
-            $sectionIsActive = collect($section['items'])->contains(fn ($item) => $item['active'] ?? false);
+            $sectionIsSingle = $section['single'] ?? false;
+            $sectionIsActive = $sectionIsSingle
+                ? ($section['active'] ?? false)
+                : collect($section['items'])->contains(fn ($item) => $item['active'] ?? false);
             $sectionIsOpen = $sectionIsActive;
         @endphp
+
+        @if($sectionIsSingle)
+            <a
+                class="ll-nav-link ll-nav-single {{ $sectionIsActive ? 'active' : '' }}"
+                href="{{ $section['url'] }}"
+                hx-get="{{ $section['url'] }}"
+                hx-target="#ll-content"
+                hx-select="#ll-content > *"
+                hx-push-url="true"
+                hx-swap="innerHTML"
+                hx-indicator="{{ $section['skeleton'] ?? '#ll-page-skeleton' }}"
+            >
+                <i class="{{ $section['icon'] }}"></i>
+                <span>{{ $section['label'] }}</span>
+            </a>
+            @continue
+        @endif
 
         <div class="ll-nav-group {{ $sectionIsOpen ? 'is-open' : '' }} {{ $sectionIsActive ? 'is-active' : '' }}" data-ll-nav-group>
             <button

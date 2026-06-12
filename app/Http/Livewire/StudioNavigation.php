@@ -17,21 +17,17 @@ class StudioNavigation extends Component
     {
         $sections = [
             [
-                'key' => 'home',
-                'label' => __('messages.Home'),
+                'key' => 'dashboard',
+                'label' => __('messages.Dashboard'),
                 'icon' => 'bi bi-grid-1x2-fill',
-                'items' => [
-                    [
-                        'label' => __('messages.Dashboard'),
-                        'icon' => 'bi bi-grid-1x2-fill',
-                        'url' => route('panelIndex'),
-                        'active' => request()->segment(1) === 'dashboard',
-                    ],
-                ],
+                'url' => route('panelIndex'),
+                'active' => request()->segment(1) === 'dashboard',
+                'skeleton' => '#ll-page-skeleton',
+                'single' => true,
             ],
             [
                 'key' => 'navigation',
-                'label' => 'Navigation',
+                'label' => 'MyLivelatch',
                 'icon' => 'bi bi-compass-fill',
                 'items' => [
                     [
@@ -163,31 +159,10 @@ class StudioNavigation extends Component
                 'icon' => 'bi bi-shield-lock-fill',
                 'items' => [
                     [
-                        'label' => __('messages.Config'),
-                        'icon' => 'bi bi-sliders',
-                        'url' => url('admin/config'),
-                        'active' => request()->segment(2) === 'config',
-                        'skeleton' => '#ll-table-skeleton',
-                    ],
-                    [
                         'label' => __('messages.Manage Users'),
                         'icon' => 'bi bi-people-fill',
                         'url' => url('admin/users/all'),
                         'active' => request()->segment(2) === 'users',
-                        'skeleton' => '#ll-table-skeleton',
-                    ],
-                    [
-                        'label' => __('messages.Footer Pages'),
-                        'icon' => 'bi bi-collection-fill',
-                        'url' => url('admin/pages'),
-                        'active' => request()->segment(2) === 'pages',
-                        'skeleton' => '#ll-table-skeleton',
-                    ],
-                    [
-                        'label' => __('messages.Site Customization'),
-                        'icon' => 'bi bi-palette-fill',
-                        'url' => url('admin/site'),
-                        'active' => request()->segment(2) === 'site',
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [

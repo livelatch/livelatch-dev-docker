@@ -23,6 +23,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Extended Admin Dev Tools with light/dark mode-aware colour drafts, automatic opposite-mode colour pairing, preview toggles, and cleanup for temporary browser-only CSS values.
 - Added Manage My Data compliance rendering from `docs/compliance/privacy.md` and `docs/compliance/tos.md`, plus placeholder data export, account deletion, and source-view actions.
 - Added a `docs/todos/` owner follow-up workflow to `AGENTS.md` with 24-hour `ask_after` metadata and created the initial data collection logic todo.
+- Reworked Studio navigation so Dashboard is a direct top-level link, renamed Navigation to MyLivelatch, kept Admin at the bottom, and hid legacy Config, Footer Pages, and Site Customization entries.
+- Rebuilt the dashboard as a Livewire analytics screen with a dashboard-only quick-action hero, metric cards, top links, visit windows, and admin analytics panels.
 - Rebuilt the Studio add/edit block page to replace the old modal picker with an inline searchable block library and settings panel, avoiding the dashboard backdrop conflict.
 - Moved block picker behavior into the swapped page content with plain JavaScript so it initializes correctly when loaded through the Studio sidebar.
 - Added `docs/blocks/block-system.md` documenting the current block architecture and how to edit, add, remove, and validate blocks.

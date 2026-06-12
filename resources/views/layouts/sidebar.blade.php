@@ -1963,6 +1963,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                 </div>
             </nav>
 
+            {{-- Dashboard hero lives in the dashboard content view. --}}
+            @if(false)
             <section class="ll-hero">
                 <div class="ll-hero-content">
                     <div class="ll-kicker">
@@ -2023,6 +2025,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                     </div>
                 </div>
             </section>
+
+            @endif
 
             <div class="ll-content-stage">
                 <div id="ll-page-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
