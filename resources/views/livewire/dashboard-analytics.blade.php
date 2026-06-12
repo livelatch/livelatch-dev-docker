@@ -35,6 +35,13 @@
         </div>
     </section>
 
+    @if($isSampleData)
+        <section class="ll-dashboard-card ll-dashboard-disclaimer" role="status" aria-live="polite">
+            <strong>Sample data active.</strong>
+            <span>{{ $analyticsNotice ?: 'Sample analytics data only — Latchalytics is coming soon.' }}</span>
+        </section>
+    @endif
+
     <style data-ll-dashboard-style>
         .ll-dashboard {
             display: grid;
@@ -93,6 +100,22 @@
             grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
             gap: 18px;
             align-items: start;
+        }
+
+        .ll-dashboard-disclaimer {
+            display: grid;
+            gap: 4px;
+            border-left: 6px solid var(--ll-primary);
+        }
+
+        .ll-dashboard-disclaimer strong {
+            color: var(--ll-text);
+            font-size: 0.95rem;
+        }
+
+        .ll-dashboard-disclaimer span {
+            color: var(--ll-muted);
+            font-size: 0.88rem;
         }
 
         .ll-dashboard-card h3 {

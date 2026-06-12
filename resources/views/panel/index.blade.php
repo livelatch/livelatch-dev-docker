@@ -15,6 +15,8 @@
             'updatedLast30DaysCount' => $updatedLast30DaysCount,
             'updatedLast7DaysCount' => $updatedLast7DaysCount,
             'updatedLast24HrsCount' => $updatedLast24HrsCount,
+            'isSampleData' => $isSampleData,
+            'analyticsNotice' => $analyticsNotice,
         ]"
         :toplinks="$toplinks"
         :page-stats="$pageStats"
