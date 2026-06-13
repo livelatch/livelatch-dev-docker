@@ -23,6 +23,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Validation: ran `php -l resources/views/studio/account/latchid.blade.php` and `php artisan view:cache`.
 - Enabled the TikTok LatchID account card after Supabase Login Kit setup by allowing `/callback/tiktok`, accepting `tiktok` in the LatchID session bridge, requesting `user.info.basic`, and documenting the TikTok redirect/scope requirements.
 - Validation: ran PHP syntax checks for routes, the LatchID controller, and the LatchID account view; ran `php artisan view:cache` and `php artisan route:list --path=callback`.
+- Updated the TikTok account connection to call Supabase provider `tiktok-loginkit` while normalizing the local Livelatch `social_accounts.provider_name` value back to `tiktok`.
+- Validation: ran PHP syntax checks for the LatchID controller and account view; ran `php artisan view:cache`.
 
 ### 2026-06-12
 

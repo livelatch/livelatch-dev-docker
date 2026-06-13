@@ -30,7 +30,7 @@ class LatchIdSessionController extends Controller
             'avatar_url' => ['nullable', 'url', 'max:2048'],
             'access_token' => ['required', 'string'],
             'redirect_to' => ['nullable', 'string', 'max:2048'],
-            'oauth_provider' => ['nullable', 'string', 'in:google,discord,youtube,tiktok'],
+            'oauth_provider' => ['nullable', 'string', 'in:google,discord,youtube,tiktok,tiktok-loginkit'],
             'provider_token' => ['nullable', 'string'],
             'provider_refresh_token' => ['nullable', 'string'],
             'provider_expires_at' => ['nullable', 'integer'],
@@ -240,7 +240,7 @@ class LatchIdSessionController extends Controller
 
     private function syncRequestedProviderConnection(User $user, array $supabaseUser, array $validated): void
     {
-        $connectionProvider = (string) ($validated['oauth_provider'] ?? '');
+        $connectionProvider = $this->normalizeConnectionProvider((string) ($validated['oauth_provider'] ?? ''));
 
         if ($connectionProvider === '') {
             return;
@@ -298,6 +298,11 @@ class LatchIdSessionController extends Controller
             'provider_name' => $connectionProvider,
             'provider_id' => $accountProviderId,
         ], $values);
+    }
+
+    private function normalizeConnectionProvider(string $provider): string
+    {
+        return $provider === 'tiktok-loginkit' ? 'tiktok' : $provider;
     }
 
     private function primaryIdentity(array $supabaseUser): array

@@ -278,7 +278,15 @@
             }
 
             function oauthProvider(provider) {
-                return provider === 'youtube' ? 'google' : provider;
+                if (provider === 'youtube') {
+                    return 'google';
+                }
+
+                if (provider === 'tiktok') {
+                    return 'tiktok-loginkit';
+                }
+
+                return provider;
             }
 
             function oauthOptions(provider, redirectTo) {
