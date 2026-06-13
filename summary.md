@@ -11,6 +11,12 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 ### 2026-06-13
 
 - Agent: Codex
+- Expanded `docs/livelatch-meta/agent-summary.md` so it now mirrors every dated section in `summary.md` instead of only summarizing the latest day.
+- Validation: updated the documentation companion page only; no runtime code changed.
+- Agent: Codex
+- Rewrote the root `README.md` to reflect the current Livelatch stack and project direction, keeping the license/FOSSA badges while adding high-level setup guidance for Laravel, PostgreSQL, Supabase, Stripe, HTMX/Livewire, storage, mail, and the external services used or planned by the project.
+- Validation: updated the repository overview documentation only; no runtime code changed.
+- Agent: Codex
 - Added `docs/livelatch-meta/agent-summary.md` as a readable companion to `summary.md`, plus an admin-facing `/admin/development-timeline` page that presents the fork history, core stack, and a clickable pitch-deck-style timeline.
 - Wired the development timeline into the admin navigation and added lightweight interaction so the active milestone and stack summary update when a user clicks through the timeline.
 - Validation: ran `php -l routes\web.php`, `php -l app\Http\Livewire\StudioNavigation.php`, and `php artisan view:cache`.
