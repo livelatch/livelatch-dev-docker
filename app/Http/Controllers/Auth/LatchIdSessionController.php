@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\SocialAccount;
 use App\Models\User;
 use App\Models\UserBilling;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class LatchIdSessionController extends Controller
             'name' => ['nullable', 'string', 'max:255'],
             'avatar_url' => ['nullable', 'url', 'max:2048'],
             'access_token' => ['required', 'string'],
+            'redirect_to' => ['nullable', 'string', 'max:2048'],
         ]);
 
         $supabaseUser = $this->verifySupabaseUser($validated['access_token']);
@@ -40,8 +42,44 @@ class LatchIdSessionController extends Controller
             ]);
         }
 
-        $user = DB::transaction(function () use ($validated, $requestEmail) {
+        $redirectTo = $this->resolveRedirectTo($request, $validated['redirect_to'] ?? null);
+        $currentUser = Auth::user();
+
+        $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser) {
             $user = User::where('supabase_user_id', $validated['supabase_user_id'])->first();
+
+            if ($currentUser) {
+                if ($user && $user->isNot($currentUser)) {
+                    throw ValidationException::withMessages([
+                        'supabase_user_id' => 'This LatchID account is already linked to another Livelatch user.',
+                    ]);
+                }
+
+                $emailOwner = User::where('email', $requestEmail)
+                    ->where('id', '!=', $currentUser->id)
+                    ->first();
+
+                if ($emailOwner) {
+                    throw ValidationException::withMessages([
+                        'email' => 'This LatchID email is already used by another Livelatch account.',
+                    ]);
+                }
+
+                if (!empty($currentUser->supabase_user_id) && $currentUser->supabase_user_id !== $validated['supabase_user_id']) {
+                    throw ValidationException::withMessages([
+                        'supabase_user_id' => 'This Livelatch account is already linked to a different LatchID account.',
+                    ]);
+                }
+
+                if (empty($currentUser->supabase_user_id)) {
+                    $currentUser->supabase_user_id = $validated['supabase_user_id'];
+                    $currentUser->save();
+                }
+
+                $this->syncSocialAccounts($currentUser, $supabaseUser);
+
+                return $currentUser;
+            }
 
             if (!$user) {
                 $user = User::where('email', $requestEmail)->first();
@@ -119,6 +157,8 @@ class LatchIdSessionController extends Controller
                 ]);
             }
 
+            $this->syncSocialAccounts($user, $supabaseUser);
+
             return $user;
         });
 
@@ -127,8 +167,68 @@ class LatchIdSessionController extends Controller
 
         return response()->json([
             'success' => true,
-            'redirect' => url('/dashboard'),
+            'redirect' => $redirectTo,
         ]);
+    }
+
+    private function resolveRedirectTo(Request $request, ?string $redirectTo): string
+    {
+        $fallback = url('/dashboard');
+        $redirectTo = trim((string) $redirectTo);
+
+        if ($redirectTo === '') {
+            return $fallback;
+        }
+
+        $decoded = urldecode($redirectTo);
+
+        if (
+            !Str::startsWith($decoded, '/') ||
+            Str::startsWith($decoded, '//') ||
+            Str::contains($decoded, ["\r", "\n", '\\'])
+        ) {
+            return $fallback;
+        }
+
+        return url($decoded);
+    }
+
+    private function syncSocialAccounts(User $user, array $supabaseUser): void
+    {
+        foreach (($supabaseUser['identities'] ?? []) as $identity) {
+            $provider = (string) ($identity['provider'] ?? '');
+            $identityData = $identity['identity_data'] ?? [];
+            $providerId = (string) (
+                $identity['provider_id']
+                ?? $identityData['provider_id']
+                ?? $identityData['sub']
+                ?? $identityData['id']
+                ?? $identity['identity_id']
+                ?? ''
+            );
+
+            if ($provider === '' || $providerId === '') {
+                continue;
+            }
+
+            $account = SocialAccount::where([
+                'provider_name' => $provider,
+                'provider_id' => $providerId,
+            ])->first();
+
+            if ($account && (int) $account->user_id !== (int) $user->id) {
+                throw ValidationException::withMessages([
+                    'supabase_user_id' => 'This provider identity is already linked to another Livelatch account.',
+                ]);
+            }
+
+            SocialAccount::firstOrCreate([
+                'provider_name' => $provider,
+                'provider_id' => $providerId,
+            ], [
+                'user_id' => $user->id,
+            ]);
+        }
     }
 
     private function verifySupabaseUser(string $accessToken): array

@@ -2,13 +2,19 @@
 
 @section('content')
 @php
+    $user = auth()->user();
+    $linkedProviders = $user
+        ? $user->socialAccounts()->pluck('provider_name')->map(fn ($provider) => strtolower($provider))->all()
+        : [];
+    $hasLatchId = $user && filled($user->supabase_user_id);
+    $latchIdConfigured = filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'));
     $connections = [
-        ['name' => 'Google', 'icon' => 'bi bi-google', 'status' => 'Connected through LatchID sign-in'],
-        ['name' => 'Discord', 'icon' => 'bi bi-discord', 'status' => 'Coming soon'],
-        ['name' => 'TikTok', 'icon' => 'bi bi-tiktok', 'status' => 'Coming soon'],
-        ['name' => 'Instagram', 'icon' => 'bi bi-instagram', 'status' => 'Coming soon'],
-        ['name' => 'YouTube', 'icon' => 'bi bi-youtube', 'status' => 'Coming soon'],
-        ['name' => 'X', 'icon' => 'bi bi-twitter-x', 'status' => 'Coming soon'],
+        ['name' => 'Google', 'provider' => 'google', 'icon' => 'bi bi-google', 'enabled' => false],
+        ['name' => 'Discord', 'provider' => 'discord', 'icon' => 'bi bi-discord', 'enabled' => true],
+        ['name' => 'TikTok', 'provider' => 'tiktok', 'icon' => 'bi bi-tiktok', 'enabled' => false],
+        ['name' => 'Instagram', 'provider' => 'instagram', 'icon' => 'bi bi-instagram', 'enabled' => false],
+        ['name' => 'YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-youtube', 'enabled' => false],
+        ['name' => 'X', 'provider' => 'x', 'icon' => 'bi bi-twitter-x', 'enabled' => false],
     ];
 @endphp
 
@@ -104,6 +110,24 @@
         background: color-mix(in srgb, var(--ll-primary) 7%, transparent);
     }
 
+    .ll-latchid-status {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        color: var(--ll-muted);
+        background: color-mix(in srgb, var(--ll-text) 7%, transparent);
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .ll-latchid-status.is-connected {
+        color: #0f5132;
+        background: rgba(25, 135, 84, 0.16);
+    }
+
     @media (max-width: 767.98px) {
         .ll-latchid-hero {
             grid-template-columns: 1fr;
@@ -113,6 +137,13 @@
 
 <div class="container-fluid content-inner mt-n5 py-0">
     <div class="ll-latchid-page">
+        @if(request('latchid') === 'linked')
+            <div class="alert alert-success mb-0">
+                LatchID connection updated.
+            </div>
+        @endif
+        <div class="alert alert-danger mb-0 d-none" data-latchid-link-error role="alert"></div>
+
         <section class="ll-latchid-hero">
             <div class="d-flex align-items-center gap-3">
                 <span class="ll-latchid-mark">
@@ -120,17 +151,26 @@
                 </span>
                 <div>
                     <h2>LatchID</h2>
-                    <p>Manage social connections that will eventually sync through Supabase-backed LatchID identity services.</p>
+                    <p>Manage social connections backed by Supabase identity services. Discord can now be linked for login and account recovery paths.</p>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" disabled>
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-latchid-connect="discord"
+                @disabled(!$latchIdConfigured)
+            >
                 <i class="bi bi-plus-circle"></i>
-                Connect account
+                Connect Discord
             </button>
         </section>
 
         <section class="ll-latchid-grid">
             @foreach($connections as $connection)
+                @php
+                    $isConnected = in_array($connection['provider'], $linkedProviders, true)
+                        || ($connection['provider'] === 'google' && $hasLatchId && empty($linkedProviders));
+                @endphp
                 <article class="ll-latchid-card">
                     <div class="ll-latchid-card-top">
                         <span class="ll-latchid-icon">
@@ -138,19 +178,144 @@
                         </span>
                         <div>
                             <h3>{{ $connection['name'] }}</h3>
-                            <p>{{ $connection['status'] }}</p>
+                            <p>
+                                @if($connection['enabled'])
+                                    Link this provider to LatchID for future sign-in options.
+                                @else
+                                    Future LatchID connection.
+                                @endif
+                            </p>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-light w-100" disabled>
-                        Manage connection
-                    </button>
+                    <span class="ll-latchid-status @if($isConnected) is-connected @endif">
+                        <i class="bi @if($isConnected) bi-check-circle-fill @else bi-clock @endif"></i>
+                        @if($isConnected)
+                            Connected
+                        @elseif($connection['enabled'])
+                            Available
+                        @else
+                            Coming soon
+                        @endif
+                    </span>
+                    @if($connection['enabled'])
+                        <button
+                            type="button"
+                            class="btn btn-light w-100"
+                            data-latchid-connect="{{ $connection['provider'] }}"
+                            @disabled(!$latchIdConfigured)
+                        >
+                            @if($isConnected)
+                                Reconnect {{ $connection['name'] }}
+                            @else
+                                Connect {{ $connection['name'] }}
+                            @endif
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-light w-100" disabled>
+                            Manage connection
+                        </button>
+                    @endif
                 </article>
             @endforeach
         </section>
 
         <div class="ll-latchid-note">
-            LatchID social connection management is a placeholder in this release. The future implementation should call Supabase-backed identity and connection tables, support disconnect flows, and record consent or sync status where required.
+            Discord uses Supabase Auth as the provider connection layer for LatchID. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
         </div>
     </div>
 </div>
+
+@if($latchIdConfigured)
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            var config = {
+                supabaseUrl: @json(config('services.supabase.url')),
+                supabaseAnonKey: @json(config('services.supabase.anon_key')),
+                callbackBaseUrl: @json(url('/callback')),
+                returnPath: '/studio/latchid?latchid=linked'
+            };
+
+            function showError(message) {
+                var box = document.querySelector('[data-latchid-link-error]');
+
+                if (!box) {
+                    return;
+                }
+
+                box.textContent = message;
+                box.classList.remove('d-none');
+            }
+
+            function client() {
+                if (!window.supabase || !window.supabase.createClient) {
+                    throw new Error('Supabase browser client failed to load.');
+                }
+
+                return window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+                    auth: {
+                        detectSessionInUrl: false,
+                        persistSession: true,
+                        autoRefreshToken: true
+                    }
+                });
+            }
+
+            function callbackUrl(provider) {
+                return config.callbackBaseUrl
+                    + '/' + encodeURIComponent(provider)
+                    + '?redirect_to=' + encodeURIComponent(config.returnPath);
+            }
+
+            document.addEventListener('click', async function (event) {
+                var button = event.target.closest('[data-latchid-connect]');
+
+                if (!button) {
+                    return;
+                }
+
+                var provider = button.getAttribute('data-latchid-connect');
+                var authClient = client();
+                var redirectTo = callbackUrl(provider);
+
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+
+                try {
+                    var sessionResult = await authClient.auth.getSession();
+                    var hasSupabaseSession = sessionResult.data && sessionResult.data.session;
+                    var result;
+
+                    if (hasSupabaseSession && authClient.auth.linkIdentity) {
+                        result = await authClient.auth.linkIdentity({
+                            provider: provider,
+                            options: {
+                                redirectTo: redirectTo,
+                                scopes: provider === 'discord' ? 'identify email' : undefined
+                            }
+                        });
+                    } else {
+                        result = await authClient.auth.signInWithOAuth({
+                            provider: provider,
+                            options: {
+                                redirectTo: redirectTo,
+                                scopes: provider === 'discord' ? 'identify email' : undefined
+                            }
+                        });
+                    }
+
+                    if (result.error) {
+                        throw result.error;
+                    }
+                } catch (error) {
+                    button.disabled = false;
+                    button.removeAttribute('aria-busy');
+                    showError(error && error.message ? error.message : 'Could not connect this LatchID provider.');
+                }
+            });
+        }());
+    </script>
+@endif
 @endsection

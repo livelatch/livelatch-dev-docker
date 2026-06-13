@@ -85,7 +85,8 @@ foreach($pages as $page)
                 <div class="d-flex justify-content-center">
                   <button id="submit-btn" type="submit" class="btn btn-primary">{{__('messages.Sign Up')}}</button>
                 </div>
-                @if(env('ENABLE_SOCIAL_LOGIN') == 'true')
+                @include('auth.latchid-oauth-buttons')
+                @if(!(filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'))) && env('ENABLE_SOCIAL_LOGIN') == 'true')
                 <p class="text-center my-3">{{__('messages.or sign in with other accounts?')}}</p>
                 <div class="d-flex justify-content-center">
                   <ul class="list-group list-group-horizontal list-group-flush">

@@ -8,6 +8,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-13
+
+- Agent: Codex
+- Added Discord as a LatchID login option through Supabase Auth by generalizing the OAuth callback to `/callback/{provider}` for Google and Discord and adding shared LatchID OAuth buttons to login and registration.
+- Updated the LatchID session bridge so an already-authenticated Laravel user can link a verified Supabase/LatchID account without creating a duplicate local user, and mirrored available Supabase identities into `social_accounts`.
+- Reworked `/studio/latchid` so Discord can be connected from the account area using Supabase `linkIdentity` when a browser Supabase session exists, with an OAuth fallback for legacy/local sessions.
+- Updated `docs/supabase/latchid-authentication.md` and added `docs/todos/discord latchid provider setup.md` for the required owner-side Discord/Supabase provider configuration.
+- Validation: ran PHP syntax checks for changed routes, controller, and views; ran `php artisan view:cache`; confirmed `/callback/{provider}` and `/api/latchid/session` routes with `php artisan route:list`.
+
 ### 2026-06-12
 
 - Agent: Codex

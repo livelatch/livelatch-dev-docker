@@ -69,12 +69,15 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
 
         require __DIR__ . '/home.php';
 
-        Route::get('/callback/google', function () {
-            return view('auth.latchid-google-callback', [
+        Route::get('/callback/{provider}', function (string $provider) {
+            abort_unless(in_array($provider, ['google', 'discord'], true), 404);
+
+            return view('auth.latchid-oauth-callback', [
+                'provider' => $provider,
                 'supabaseUrl' => config('services.supabase.url'),
                 'supabaseAnonKey' => config('services.supabase.anon_key'),
             ]);
-        })->name('latchid.google.callback');
+        })->name('latchid.oauth.callback');
 
         Route::post('/api/latchid/session', [LatchIdSessionController::class, 'store'])
             ->name('latchid.session');
