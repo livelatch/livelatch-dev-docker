@@ -173,6 +173,13 @@ class StudioNavigation extends Component
                         'badge' => 'New',
                     ],
                     [
+                        'label' => 'Development Timeline',
+                        'icon' => 'bi bi-hourglass-split',
+                        'url' => url('admin/development-timeline'),
+                        'active' => request()->segment(2) === 'development-timeline',
+                        'skeleton' => '#ll-page-skeleton',
+                    ],
+                    [
                         'label' => 'Dev Tools',
                         'icon' => 'bi bi-code-square',
                         'url' => url('admin/dev-tools'),

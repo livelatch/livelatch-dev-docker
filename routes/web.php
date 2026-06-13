@@ -295,6 +295,7 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::get('/admin/site', [AdminController::class, 'showSite'])->name('showSite');
         Route::post('/admin/site', [AdminController::class, 'editSite'])->name('editSite');
         Route::view('/admin/dev-tools', 'studio.admin.dev-tools')->name('admin.dev-tools');
+        Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');
         Route::get('/admin/site/delavatar', [AdminController::class, 'delAvatar'])->name('delAvatar');
         Route::get('/admin/site/delfavicon', [AdminController::class, 'delFavicon'])->name('delFavicon');
         Route::get('/admin/phpinfo', [AdminController::class, 'phpinfo'])->name('phpinfo');

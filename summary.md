@@ -11,6 +11,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 ### 2026-06-13
 
 - Agent: Codex
+- Added `docs/livelatch-meta/agent-summary.md` as a readable companion to `summary.md`, plus an admin-facing `/admin/development-timeline` page that presents the fork history, core stack, and a clickable pitch-deck-style timeline.
+- Wired the development timeline into the admin navigation and added lightweight interaction so the active milestone and stack summary update when a user clicks through the timeline.
+- Validation: ran `php -l routes\web.php`, `php -l app\Http\Livewire\StudioNavigation.php`, and `php artisan view:cache`.
+- Agent: Codex
+- Added `docs/platform-runtime/affiliate-program.md` to document the future affiliate stack around Refferq, including the recommended split between Livelatch and a separate affiliate portal, setup prerequisites, and the planned handoff flow.
+- Validation: reviewed the existing affiliate placeholder route and Refferq's public repository documentation; no runtime code was changed.
+- Agent: Codex
 - Patched the deployed Supabase Edge Function `tiktok-oauth` from MCP version 17 to version 20 so TikTok user info responses with HTTP 200, `error.code: "ok"`, and `data.user.open_id` are treated as successful and the callback now redirects back to trusted Livelatch return URLs.
 - Updated the function's TikTok account upsert payload to read `tiktok_open_id`, `display_name`, and `avatar_url` from `tiktok.data.user`, include `linked_at`, and preserve the existing OAuth/token save flow while adding success and error redirects to `tiktok_linked=1` and `tiktok_error=1`.
 - Validation: fetched the deployed function back through Supabase MCP and confirmed version 20 is active with the corrected parser, trusted return URL handling, and redirect behavior; no service role key was added to Blade or frontend JavaScript.
