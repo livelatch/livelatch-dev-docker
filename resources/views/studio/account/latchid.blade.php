@@ -3,11 +3,14 @@
 @section('content')
 @php
     $user = auth()->user();
+    $tikTokAccount = $tikTokAccount ?? null;
+    $tikTokAuthorizeUrl = $tikTokAuthorizeUrl ?? null;
     $linkedProviders = $user
         ? $user->socialAccounts()->pluck('provider_name')->map(fn ($provider) => strtolower($provider))->all()
         : [];
     $hasLatchId = $user && filled($user->supabase_user_id);
     $latchIdConfigured = filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'));
+    $tikTokConnected = !empty($tikTokAccount);
     $connections = [
         ['name' => 'Google and YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-google', 'enabled' => true],
         ['name' => 'Discord', 'provider' => 'discord', 'icon' => 'bi bi-discord', 'enabled' => true],
@@ -127,6 +130,20 @@
         background: rgba(25, 135, 84, 0.16);
     }
 
+    .ll-latchid-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 15px;
+        object-fit: cover;
+        flex: 0 0 auto;
+        background: color-mix(in srgb, var(--ll-text) 7%, transparent);
+    }
+
+    .ll-latchid-meta {
+        color: var(--ll-muted);
+        font-size: 0.82rem;
+    }
+
     @media (max-width: 767.98px) {
         .ll-latchid-hero {
             grid-template-columns: 1fr;
@@ -139,6 +156,16 @@
         @if(request('latchid') === 'linked')
             <div class="alert alert-success mb-0">
                 LatchID connection updated.
+            </div>
+        @endif
+        @if(request('tiktok_linked') === '1')
+            <div class="alert alert-success mb-0">
+                TikTok connected successfully.
+            </div>
+        @endif
+        @if(request('tiktok_error') === '1')
+            <div class="alert alert-danger mb-0">
+                TikTok connection failed. Please try again.
             </div>
         @endif
         <div class="alert alert-danger mb-0 d-none" data-latchid-link-error role="alert"></div>
@@ -169,13 +196,23 @@
                 @php
                     $isConnected = in_array($connection['provider'], $linkedProviders, true)
                         || ($connection['provider'] === 'youtube' && in_array('google', $linkedProviders, true))
-                        || ($connection['provider'] === 'youtube' && $hasLatchId && empty($linkedProviders));
+                        || ($connection['provider'] === 'youtube' && $hasLatchId && empty($linkedProviders))
+                        || ($connection['provider'] === 'tiktok' && $tikTokConnected);
                 @endphp
                 <article class="ll-latchid-card">
                     <div class="ll-latchid-card-top">
-                        <span class="ll-latchid-icon">
-                            <i class="{{ $connection['icon'] }}"></i>
-                        </span>
+                        @if($connection['provider'] === 'tiktok' && !empty($tikTokAccount['avatar_url']))
+                            <img
+                                class="ll-latchid-avatar"
+                                src="{{ $tikTokAccount['avatar_url'] }}"
+                                alt=""
+                                referrerpolicy="no-referrer"
+                            >
+                        @else
+                            <span class="ll-latchid-icon">
+                                <i class="{{ $connection['icon'] }}"></i>
+                            </span>
+                        @endif
                         <div>
                             <h3>{{ $connection['name'] }}</h3>
                             <p>
@@ -184,7 +221,11 @@
                                         Link Google and grant YouTube read access for future live stream and video features.
                                     @else
                                         @if($connection['provider'] === 'tiktok')
-                                            Link TikTok through Login Kit for future profile and creator features.
+                                            @if($tikTokConnected)
+                                                {{ $tikTokAccount['display_name'] ?? 'TikTok account linked' }}
+                                            @else
+                                                Link TikTok through Login Kit for future profile and creator features.
+                                            @endif
                                         @else
                                             Link this provider to LatchID for future sign-in options.
                                         @endif
@@ -193,6 +234,11 @@
                                     Future LatchID connection.
                                 @endif
                             </p>
+                            @if($connection['provider'] === 'tiktok' && $tikTokConnected && !empty($tikTokAccount['linked_at']))
+                                <div class="ll-latchid-meta">
+                                    Linked {{ \Carbon\Carbon::parse($tikTokAccount['linked_at'])->diffForHumans() }}
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <span class="ll-latchid-status @if($isConnected) is-connected @endif">
@@ -205,7 +251,26 @@
                             Coming soon
                         @endif
                     </span>
-                    @if($connection['enabled'])
+                    @if($connection['provider'] === 'tiktok')
+                        @if(!$hasLatchId)
+                            <button type="button" class="btn btn-light w-100" disabled>
+                                LatchID unavailable
+                            </button>
+                            <p class="mb-0">LatchID is not available for this account yet.</p>
+                        @elseif($tikTokConnected)
+                            <button type="button" class="btn btn-light w-100" disabled>
+                                TikTok connected
+                            </button>
+                        @elseif(!empty($tikTokAuthorizeUrl))
+                            <a class="btn btn-light w-100" href="{{ $tikTokAuthorizeUrl }}">
+                                Connect TikTok
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-light w-100" disabled>
+                                TikTok unavailable
+                            </button>
+                        @endif
+                    @elseif($connection['enabled'])
                         <button
                             type="button"
                             class="btn btn-light w-100"
@@ -228,7 +293,7 @@
         </section>
 
         <div class="ll-latchid-note">
-            YouTube API access uses Google OAuth through Supabase Auth with read-only YouTube scopes. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
+            TikTok linking is handled through a Supabase Edge Function and stored in LatchID. YouTube API access uses Google OAuth through Supabase Auth with read-only YouTube scopes. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
         </div>
     </div>
 </div>
@@ -282,10 +347,6 @@
                     return 'google';
                 }
 
-                if (provider === 'tiktok') {
-                    return 'custom:tiktok-loginkit';
-                }
-
                 return provider;
             }
 
@@ -296,10 +357,6 @@
 
                 if (provider === 'discord') {
                     options.scopes = 'identify email';
-                }
-
-                if (provider === 'tiktok') {
-                    options.scopes = 'user.info.basic';
                 }
 
                 if (provider === 'youtube') {

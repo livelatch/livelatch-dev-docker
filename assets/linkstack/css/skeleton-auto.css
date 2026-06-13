@@ -84,27 +84,19 @@ are based on 10px sizing. So basically 1.5rem = 15px :) */
 html {
   font-size: 100%; }
 
-  @media (prefers-color-scheme: dark) {
-    body {
-      font-size: 18px;
-      line-height: 24px;
-      font-weight: 400;
-      background: #151826;
-      background: radial-gradient(circle, #151826 28%, #0d0f18 100%);
-      font-family: "Inter", sans-serif;
-      color: #ffffff; }
-  }
-  
-  @media (prefers-color-scheme: light) {
-    body {
-      font-size: 18px;
-      line-height: 24px;
-      font-weight: 400;
-      background: #fff;
-      font-family: "Inter", sans-serif;
-      color: #222; }
+body {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 400;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+  color: #222; }
 
-  }
+[data-ll-theme="dark"] body,
+body[data-ll-theme="dark"] {
+  background: #151826;
+  background: radial-gradient(circle, #151826 28%, #0d0f18 100%);
+  color: #ffffff; }
 
 
 /* Typography
@@ -139,12 +131,9 @@ a:hover {
   padding: 0 10px;
 }
 
-  @media (prefers-color-scheme: dark) {
-  .social-icon{color:#fff;}
-  }
-  @media (prefers-color-scheme: light) {
-    .social-icon{color:#222;}
-  }
+.social-icon{color:#222;}
+
+[data-ll-theme="dark"] .social-icon{color:#fff;}
 
 /* Code
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
@@ -202,7 +191,7 @@ hr {
   border-width: 0;
   border-top: 1px solid #E1E1E1; }
 
-  @media (prefers-color-scheme: dark) {
+[data-ll-theme="dark"] {
 /* ===== Scrollbar CSS ===== */
   /* Firefox */
   * {
@@ -227,7 +216,6 @@ hr {
  
 }
   
-  @media (prefers-color-scheme: light) {
 /* ===== Scrollbar CSS ===== */
   /* Firefox */
   * {
@@ -260,13 +248,10 @@ font-size: 15px;
 text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-.credit-txt-clr{
-    color: #FFF !important;
-}
-}
-@media (prefers-color-scheme: light) {
 .credit-txt-clr{
     color: #100a26 !important;
 }
+
+[data-ll-theme="dark"] .credit-txt-clr{
+    color: #FFF !important;
 }

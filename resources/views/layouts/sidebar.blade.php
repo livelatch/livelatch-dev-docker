@@ -83,6 +83,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
         :root {
+            color-scheme: light;
             --ll-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             --ll-bg: #ffffff;
             --ll-bg-soft: #d1faff;
@@ -106,13 +107,15 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             --ll-topbar-height: 74px;
         }
 
+        :root[data-ll-theme="dark"],
         [data-ll-theme="dark"] {
+            color-scheme: dark;
             --ll-bg: #121212;
             --ll-bg-soft: #0e2225;
             --ll-surface: rgba(16, 16, 31, 0.78);
-            --ll-surface-solid: #ffffff;
-            --ll-text: #000421;
-            --ll-muted: #6b6885;
+            --ll-surface-solid: #171827;
+            --ll-text: #f8fbff;
+            --ll-muted: #aeb8cf;
             --ll-border: rgba(255, 255, 255, 0.10);
             --ll-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
             --ll-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.22);
@@ -1756,7 +1759,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     </style>
 </head>
 
-<body data-ll-theme="light">
+<body>
     <div id="loading">
         <div class="loader simple-loader">
             <div class="loader-body"></div>
@@ -2185,13 +2188,52 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <script>
         (function () {
             const body = document.body;
-            const storedTheme = localStorage.getItem('livelatch-theme');
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const initialTheme = storedTheme || (prefersDark ? 'dark' : 'light');
+            const root = document.documentElement;
+            const storageKey = 'livelatch-theme';
+            const legacyStorageKey = 'color-mode';
+
+            function getStoredTheme() {
+                try {
+                    const storedTheme = localStorage.getItem(storageKey);
+                    const legacyTheme = localStorage.getItem(legacyStorageKey);
+
+                    if (storedTheme === 'light' || storedTheme === 'dark') {
+                        return storedTheme;
+                    }
+
+                    if (legacyTheme === 'light' || legacyTheme === 'dark') {
+                        return legacyTheme;
+                    }
+                } catch (error) {
+                    return null;
+                }
+
+                return null;
+            }
+
+            function storeTheme(theme) {
+                try {
+                    localStorage.setItem(storageKey, theme);
+                    localStorage.setItem(legacyStorageKey, theme);
+                } catch (error) {
+                    // Storage can be blocked in private or restricted browser modes.
+                }
+            }
+
+            const initialTheme = root.getAttribute('data-ll-theme') || getStoredTheme() || 'light';
 
             function setTheme(theme) {
-                body.setAttribute('data-ll-theme', theme);
-                localStorage.setItem('livelatch-theme', theme);
+                const safeTheme = theme === 'dark' ? 'dark' : 'light';
+
+                root.setAttribute('data-ll-theme', safeTheme);
+                root.setAttribute('data-bs-theme', safeTheme);
+                root.style.colorScheme = safeTheme;
+
+                body.setAttribute('data-ll-theme', safeTheme);
+                body.setAttribute('data-bs-theme', safeTheme);
+                body.style.colorScheme = safeTheme;
+
+                storeTheme(safeTheme);
             }
 
             function setActiveNavFromUrl(url) {

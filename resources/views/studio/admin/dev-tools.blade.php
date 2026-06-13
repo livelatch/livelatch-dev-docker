@@ -420,8 +420,14 @@
             '--ll-dev-heading-weight': '700',
             '--ll-dev-button-weight': '800',
         };
-        const originalBodyTheme = body.getAttribute('data-ll-theme') || 'light';
-        const originalStorageTheme = localStorage.getItem('livelatch-theme');
+        const originalBodyTheme = docRoot.getAttribute('data-ll-theme') || body.getAttribute('data-ll-theme') || 'light';
+        const originalStorageTheme = (() => {
+            try {
+                return localStorage.getItem('livelatch-theme');
+            } catch (error) {
+                return null;
+            }
+        })();
         const originalInlineValues = {};
         const originalBodyInlineValues = {};
         const originalState = { light: {}, dark: {}, shared: {} };
@@ -560,10 +566,22 @@
         }
 
         function setBodyTheme(theme, persist = false) {
-            body.setAttribute('data-ll-theme', theme);
+            const safeTheme = theme === 'dark' ? 'dark' : 'light';
+
+            docRoot.setAttribute('data-ll-theme', safeTheme);
+            docRoot.setAttribute('data-bs-theme', safeTheme);
+            docRoot.style.colorScheme = safeTheme;
+            body.setAttribute('data-ll-theme', safeTheme);
+            body.setAttribute('data-bs-theme', safeTheme);
+            body.style.colorScheme = safeTheme;
 
             if (persist) {
-                localStorage.setItem('livelatch-theme', theme);
+                try {
+                    localStorage.setItem('livelatch-theme', safeTheme);
+                    localStorage.setItem('color-mode', safeTheme);
+                } catch (error) {
+                    // Storage can be blocked in private or restricted browser modes.
+                }
             }
         }
 
@@ -789,10 +807,16 @@ Implementation notes:
 
             setBodyTheme(originalBodyTheme, false);
 
-            if (originalStorageTheme) {
-                localStorage.setItem('livelatch-theme', originalStorageTheme);
-            } else {
-                localStorage.removeItem('livelatch-theme');
+            try {
+                if (originalStorageTheme) {
+                    localStorage.setItem('livelatch-theme', originalStorageTheme);
+                    localStorage.setItem('color-mode', originalStorageTheme);
+                } else {
+                    localStorage.removeItem('livelatch-theme');
+                    localStorage.removeItem('color-mode');
+                }
+            } catch (error) {
+                // Storage can be blocked in private or restricted browser modes.
             }
 
             document.body.removeEventListener('htmx:beforeSwap', cleanupBeforeSwap);

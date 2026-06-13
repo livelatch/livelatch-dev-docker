@@ -27,6 +27,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Validation: ran PHP syntax checks for the LatchID controller and account view; ran `php artisan view:cache`.
 - Corrected the TikTok Supabase provider call to use the required custom OAuth provider identifier `custom:tiktok-loginkit`.
 - Validation: ran `php -l resources/views/studio/account/latchid.blade.php` and `php artisan view:cache`.
+- Reworked TikTok account linking to use the Supabase Edge Function flow instead of Supabase Auth providers: `/studio/latchid` now queries `public.latchid_tiktok_accounts` server-side through Supabase REST, shows connected TikTok profile details, and links disconnected users to the Edge Function authorize URL with `latchid_user_id` and `return_url`.
+- Added LatchID TikTok service/controller plumbing, `LATCHID_SUPABASE_URL`, `LATCHID_SERVICE_ROLE_KEY`, and `TIKTOK_OAUTH_AUTHORIZE_URL` config, and a todo for the Edge Function `return_url` callback behavior because the deployed function source was not accessible in this repo/session.
+- Validation: ran PHP syntax checks for the TikTok service, Studio LatchID controller, services config, routes, and account view; ran `php artisan view:cache`, `php artisan route:list --path=studio/latchid`, and `php artisan route:list --path=callback`.
+- Hardened Studio light/dark mode across browsers by applying the selected theme to `<html>` before CSS loads, mirroring runtime toggles to `<html>` and `<body>` with `data-ll-theme`, `data-bs-theme`, and `color-scheme`, removing the hardcoded body light theme, and correcting dark-mode surface/text tokens.
+- Updated Admin Dev Tools preview switching to use the same root/body theme sync and storage guards so temporary preview mode behaves consistently in Chrome, Safari, and Edge.
+- Validation: ran PHP syntax checks for the sidebar layout and Dev Tools view, `node --check assets/js/detect-dark-mode.js`, and `php artisan view:cache`.
+- Removed device `prefers-color-scheme` handling from Livelatch theme loading so the site no longer switches light/dark mode based on the user's OS or browser setting; explicit Livelatch theme selection is now the source of truth with light as the fallback.
+- Updated the legacy Hope UI setting plugin, admin PHP info panel, and fallback LinkStack skeleton CSS to avoid automatic OS-driven dark mode.
+- Validation: searched app-owned assets/views for remaining device theme hooks, ran PHP syntax checks for changed Blade views, ran JS syntax checks for changed theme scripts, and rebuilt Blade view cache.
 
 ### 2026-06-12
 

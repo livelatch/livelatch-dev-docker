@@ -12,6 +12,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\Studio\LatchIdController;
 use App\Http\Controllers\Studio\ThemeController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -70,7 +71,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
         require __DIR__ . '/home.php';
 
         Route::get('/callback/{provider}', function (string $provider) {
-            abort_unless(in_array($provider, ['google', 'discord', 'youtube', 'tiktok'], true), 404);
+            abort_unless(in_array($provider, ['google', 'discord', 'youtube'], true), 404);
 
             return view('auth.latchid-oauth-callback', [
                 'provider' => $provider,
@@ -224,7 +225,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                     'tosDocument' => $documents['tos'],
                 ]);
             });
-            Route::view('/studio/latchid', 'studio.account.latchid');
+            Route::get('/studio/latchid', [LatchIdController::class, 'edit'])->name('studio.latchid');
             Route::get('/studio/docs', [DocumentationController::class, 'index'])
                 ->name('docs.index');
             Route::get('/studio/docs/article/{path}', [DocumentationController::class, 'article'])

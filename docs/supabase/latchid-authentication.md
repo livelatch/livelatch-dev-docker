@@ -27,7 +27,7 @@ Google or Discord OAuth login
 ## Important implementation details
 
 - the callback UI lives in `resources/views/auth/latchid-oauth-callback.blade.php`
-- `/callback/google`, `/callback/discord`, `/callback/tiktok`, and `/callback/youtube` use the same LatchID callback route
+- `/callback/google`, `/callback/discord`, and `/callback/youtube` use the same LatchID callback route
 - login and registration include `resources/views/auth/latchid-oauth-buttons.blade.php` when Supabase is configured
 - `/api/latchid/session` posts verified Supabase session data into Laravel
 - `users.supabase_user_id` is the local bridge to `auth.users.id`
@@ -60,38 +60,53 @@ The disconnect and consent-history flows are still future work. Supabase documen
 
 ## TikTok Login Kit connection
 
-TikTok is implemented as a LatchID account connection through Supabase Auth and TikTok Login Kit. It is currently exposed from `/studio/latchid`, not as a primary login button on the public auth form.
+TikTok is implemented as a LatchID account connection through a Supabase Edge Function and TikTok Login Kit. It is currently exposed from `/studio/latchid`, not as a primary login button on the public auth form.
 
 Implementation details:
 
-- The TikTok card starts Supabase OAuth with custom provider `custom:tiktok-loginkit`.
-- Laravel stores the local account connection as `tiktok` so the product UI does not expose the provider implementation name.
-- The callback route is `/callback/tiktok`.
-- The requested TikTok Login Kit scope is:
+- The TikTok card is rendered by `Studio\LatchIdController`.
+- Laravel checks `public.latchid_tiktok_accounts` through Supabase REST on the server side.
+- The lookup filters `latchid_user_id = users.supabase_user_id`.
+- The selected fields are `display_name`, `avatar_url`, `tiktok_open_id`, and `linked_at`.
+- The service role key is only used by `LatchIdTikTokAccountService`; it must not be exposed to Blade or frontend JavaScript.
+- If no account is found, the TikTok button links to the Edge Function authorize endpoint with `latchid_user_id` and `return_url`.
+
+```text
+https://yaljyfdfnphxzuhqlbfs.functions.supabase.co/tiktok-oauth/authorize
+```
+
+- The Edge Function is responsible for TikTok OAuth, upserting `public.latchid_tiktok_accounts`, and redirecting back to the supplied return URL.
+- The requested TikTok Login Kit scope remains:
 
 ```text
 user.info.basic
 ```
 
-- The callback verifies the Supabase session before Laravel links the connection to the local user.
-- Provider tokens can be stored on `social_accounts` when Supabase returns them, using the encrypted token fields shared with other provider connections.
-
 Operational setup:
 
 1. In the [TikTok for Developers](https://developers.tiktok.com/) app, enable Login Kit.
-2. Register the Supabase Auth callback URL as the TikTok Login Kit redirect URI:
+2. Register the Edge Function callback URL required by the `tiktok-oauth` function as the TikTok Login Kit redirect URI.
+3. Configure Laravel env:
 
-```text
-https://<project-ref>.supabase.co/auth/v1/callback
+```env
+LATCHID_SUPABASE_URL=
+LATCHID_SERVICE_ROLE_KEY=
+TIKTOK_OAUTH_AUTHORIZE_URL=https://yaljyfdfnphxzuhqlbfs.functions.supabase.co/tiktok-oauth/authorize
 ```
 
-3. In Supabase Auth URL configuration, allow the app callback URL:
+4. The Edge Function should redirect successful callbacks to:
 
 ```text
-https://dev.livelatch.com/callback/tiktok
+{return_url}?tiktok_linked=1
 ```
 
-4. Confirm the TikTok app has access to `user.info.basic`.
+5. When possible, Edge Function failures should redirect to:
+
+```text
+{return_url}?tiktok_error=1
+```
+
+6. Confirm the TikTok app has access to `user.info.basic`.
 
 ## YouTube API connection
 
@@ -179,6 +194,8 @@ GOOGLE_CLIENT_SECRET=
 
 - `SUPABASE_URL` and `SUPABASE_ANON_KEY` are required for the browser/session bridge
 - `SUPABASE_SERVICE_ROLE_KEY` appears in notification debugging and server-side notification reads
+- `LATCHID_SUPABASE_URL` and `LATCHID_SERVICE_ROLE_KEY` are used for server-side LatchID table lookups such as TikTok account status
+- `TIKTOK_OAUTH_AUTHORIZE_URL` points the Studio TikTok connect button to the Supabase Edge Function authorize endpoint
 - if identity behavior changes later, preserve the trust boundary: Laravel should verify the Supabase session, not just trust browser-submitted profile fields
 - Discord client credentials are stored in Supabase provider settings, not in Laravel `.env`, for the current LatchID implementation
 - YouTube API token refresh requires Laravel `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` because the backend service refreshes Google provider tokens server-side

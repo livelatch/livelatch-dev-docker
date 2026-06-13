@@ -1,8 +1,40 @@
-// Retrieve the value of the 'color-mode' key from local storage
-var colorMode = localStorage.getItem('color-mode');
+(function () {
+  'use strict';
 
-// Check if the value is valid and set it to 'auto' if not
-if (!colorMode || (colorMode !== 'light' && colorMode !== 'dark')) {
-  colorMode = 'auto';
-  localStorage.setItem('color-mode', colorMode);
-}
+  var root = document.documentElement;
+  var storageKey = 'livelatch-theme';
+  var legacyStorageKey = 'color-mode';
+  var theme = 'light';
+
+  function storedValue(key) {
+    try {
+      return window.localStorage ? window.localStorage.getItem(key) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function storeValue(key, value) {
+    try {
+      if (window.localStorage) {
+        window.localStorage.setItem(key, value);
+      }
+    } catch (error) {
+      // Storage can be unavailable in private or restricted browser modes.
+    }
+  }
+
+  var storedTheme = storedValue(storageKey);
+  var legacyTheme = storedValue(legacyStorageKey);
+
+  if (storedTheme === 'light' || storedTheme === 'dark') {
+    theme = storedTheme;
+  } else if (legacyTheme === 'light' || legacyTheme === 'dark') {
+    theme = legacyTheme;
+  }
+
+  root.setAttribute('data-ll-theme', theme);
+  root.style.colorScheme = theme;
+  storeValue(storageKey, theme);
+  storeValue(legacyStorageKey, theme);
+}());

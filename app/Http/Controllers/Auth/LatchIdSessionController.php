@@ -30,7 +30,7 @@ class LatchIdSessionController extends Controller
             'avatar_url' => ['nullable', 'url', 'max:2048'],
             'access_token' => ['required', 'string'],
             'redirect_to' => ['nullable', 'string', 'max:2048'],
-            'oauth_provider' => ['nullable', 'string', 'in:google,discord,youtube,tiktok,tiktok-loginkit'],
+            'oauth_provider' => ['nullable', 'string', 'in:google,discord,youtube'],
             'provider_token' => ['nullable', 'string'],
             'provider_refresh_token' => ['nullable', 'string'],
             'provider_expires_at' => ['nullable', 'integer'],
@@ -302,7 +302,7 @@ class LatchIdSessionController extends Controller
 
     private function normalizeConnectionProvider(string $provider): string
     {
-        return $provider === 'tiktok-loginkit' ? 'tiktok' : $provider;
+        return $provider;
     }
 
     private function primaryIdentity(array $supabaseUser): array

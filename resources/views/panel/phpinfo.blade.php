@@ -8,7 +8,7 @@
 		// code to set the `color_scheme` cookie
 		var $color_scheme = Cookies.get("color_scheme");
 		function get_color_scheme() {
-		return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+		return Cookies.get("livelatch-theme") === "dark" || Cookies.get("color_scheme_override") === "dark" ? "dark" : "light";
 		}
 		function update_color_scheme() {
 		Cookies.set("color_scheme", get_color_scheme());
@@ -16,9 +16,6 @@
 		// read & compare cookie `color-scheme`
 		if ((typeof $color_scheme === "undefined") || (get_color_scheme() != $color_scheme))
 		update_color_scheme();
-		// detect changes and change the cookie
-		if (window.matchMedia)
-		window.matchMedia("(prefers-color-scheme: dark)").addListener( update_color_scheme );
 		// reloads page to apply the dark mode cookie
 		window.onload = function() {
 		    if(!window.location.hash && get_color_scheme() == "dark" && (get_color_scheme() != $color_scheme)) {
