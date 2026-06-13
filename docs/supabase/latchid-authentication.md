@@ -64,7 +64,7 @@ TikTok is implemented as a LatchID account connection through Supabase Auth and 
 
 Implementation details:
 
-- The TikTok card starts Supabase OAuth with provider `tiktok-loginkit`.
+- The TikTok card starts Supabase OAuth with custom provider `custom:tiktok-loginkit`.
 - Laravel stores the local account connection as `tiktok` so the product UI does not expose the provider implementation name.
 - The callback route is `/callback/tiktok`.
 - The requested TikTok Login Kit scope is:

@@ -25,6 +25,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Validation: ran PHP syntax checks for routes, the LatchID controller, and the LatchID account view; ran `php artisan view:cache` and `php artisan route:list --path=callback`.
 - Updated the TikTok account connection to call Supabase provider `tiktok-loginkit` while normalizing the local Livelatch `social_accounts.provider_name` value back to `tiktok`.
 - Validation: ran PHP syntax checks for the LatchID controller and account view; ran `php artisan view:cache`.
+- Corrected the TikTok Supabase provider call to use the required custom OAuth provider identifier `custom:tiktok-loginkit`.
+- Validation: ran `php -l resources/views/studio/account/latchid.blade.php` and `php artisan view:cache`.
 
 ### 2026-06-12
 

@@ -283,7 +283,7 @@
                 }
 
                 if (provider === 'tiktok') {
-                    return 'tiktok-loginkit';
+                    return 'custom:tiktok-loginkit';
                 }
 
                 return provider;
