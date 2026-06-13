@@ -16,6 +16,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Reworked `/studio/latchid` so Discord can be connected from the account area using Supabase `linkIdentity` when a browser Supabase session exists, with an OAuth fallback for legacy/local sessions.
 - Updated `docs/supabase/latchid-authentication.md` and added `docs/todos/discord latchid provider setup.md` for the required owner-side Discord/Supabase provider configuration.
 - Validation: ran PHP syntax checks for changed routes, controller, and views; ran `php artisan view:cache`; confirmed `/callback/{provider}` and `/api/latchid/session` routes with `php artisan route:list`.
+- Added YouTube API connection groundwork by allowing `/callback/youtube`, wiring the LatchID YouTube card to Google OAuth with the YouTube read-only scope, storing provider tokens on encrypted `social_accounts` fields, and adding `YoutubeConnectionService` for future server-side video/live broadcast reads.
+- Updated `.env.example`, LatchID authentication docs, and `docs/todos/youtube api provider setup.md` with Google Cloud, Supabase redirect, and Laravel token-refresh setup requirements.
+- Validation: ran PHP syntax checks for the YouTube service, social account model, migration, LatchID controller, callback view, and account view; ran `php artisan view:cache` and `php artisan route:list --path=callback`; attempted `php artisan migrate --pretend` but local PHP failed before migration execution because the configured PDO driver is missing.
+- Removed the separate YouTube card from the LatchID account view and changed the Google card copy/action to explain that Google also grants YouTube API access for future live stream and video features.
+- Validation: ran `php -l resources/views/studio/account/latchid.blade.php` and `php artisan view:cache`.
+- Enabled the TikTok LatchID account card after Supabase Login Kit setup by allowing `/callback/tiktok`, accepting `tiktok` in the LatchID session bridge, requesting `user.info.basic`, and documenting the TikTok redirect/scope requirements.
+- Validation: ran PHP syntax checks for routes, the LatchID controller, and the LatchID account view; ran `php artisan view:cache` and `php artisan route:list --path=callback`.
 
 ### 2026-06-12
 

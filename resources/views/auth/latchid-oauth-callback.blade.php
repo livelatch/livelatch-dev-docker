@@ -202,6 +202,11 @@
                     name: metadata.full_name || metadata.name || '',
                     avatar_url: metadata.avatar_url || '',
                     access_token: session.access_token,
+                    oauth_provider: config.provider,
+                    provider_token: session.provider_token || '',
+                    provider_refresh_token: session.provider_refresh_token || '',
+                    provider_expires_at: session.expires_at || null,
+                    provider_scopes: session.provider_scopes || '',
                     redirect_to: callbackRedirectTo()
                 })
             });

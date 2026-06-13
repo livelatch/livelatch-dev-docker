@@ -11,7 +11,24 @@ class SocialAccount extends Model
 
 
     protected $fillable = [
-        'user_id', 'provider_name', 'provider_id'
+        'user_id',
+        'provider_name',
+        'provider_id',
+        'access_token',
+        'refresh_token',
+        'token_expires_at',
+        'scopes',
+        'metadata',
+        'connected_at',
+    ];
+
+    protected $casts = [
+        'access_token' => 'encrypted',
+        'refresh_token' => 'encrypted',
+        'token_expires_at' => 'datetime',
+        'scopes' => 'array',
+        'metadata' => 'array',
+        'connected_at' => 'datetime',
     ];
 
     // User

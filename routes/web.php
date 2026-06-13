@@ -70,7 +70,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
         require __DIR__ . '/home.php';
 
         Route::get('/callback/{provider}', function (string $provider) {
-            abort_unless(in_array($provider, ['google', 'discord'], true), 404);
+            abort_unless(in_array($provider, ['google', 'discord', 'youtube', 'tiktok'], true), 404);
 
             return view('auth.latchid-oauth-callback', [
                 'provider' => $provider,

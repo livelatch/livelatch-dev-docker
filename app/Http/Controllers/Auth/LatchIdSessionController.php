@@ -30,6 +30,11 @@ class LatchIdSessionController extends Controller
             'avatar_url' => ['nullable', 'url', 'max:2048'],
             'access_token' => ['required', 'string'],
             'redirect_to' => ['nullable', 'string', 'max:2048'],
+            'oauth_provider' => ['nullable', 'string', 'in:google,discord,youtube,tiktok'],
+            'provider_token' => ['nullable', 'string'],
+            'provider_refresh_token' => ['nullable', 'string'],
+            'provider_expires_at' => ['nullable', 'integer'],
+            'provider_scopes' => ['nullable'],
         ]);
 
         $supabaseUser = $this->verifySupabaseUser($validated['access_token']);
@@ -76,7 +81,7 @@ class LatchIdSessionController extends Controller
                     $currentUser->save();
                 }
 
-                $this->syncSocialAccounts($currentUser, $supabaseUser);
+                $this->syncSocialAccounts($currentUser, $supabaseUser, $validated);
 
                 return $currentUser;
             }
@@ -157,7 +162,7 @@ class LatchIdSessionController extends Controller
                 ]);
             }
 
-            $this->syncSocialAccounts($user, $supabaseUser);
+            $this->syncSocialAccounts($user, $supabaseUser, $validated);
 
             return $user;
         });
@@ -193,7 +198,7 @@ class LatchIdSessionController extends Controller
         return url($decoded);
     }
 
-    private function syncSocialAccounts(User $user, array $supabaseUser): void
+    private function syncSocialAccounts(User $user, array $supabaseUser, array $validated): void
     {
         foreach (($supabaseUser['identities'] ?? []) as $identity) {
             $provider = (string) ($identity['provider'] ?? '');
@@ -229,6 +234,110 @@ class LatchIdSessionController extends Controller
                 'user_id' => $user->id,
             ]);
         }
+
+        $this->syncRequestedProviderConnection($user, $supabaseUser, $validated);
+    }
+
+    private function syncRequestedProviderConnection(User $user, array $supabaseUser, array $validated): void
+    {
+        $connectionProvider = (string) ($validated['oauth_provider'] ?? '');
+
+        if ($connectionProvider === '') {
+            return;
+        }
+
+        $identity = $this->primaryIdentity($supabaseUser);
+        $providerId = $this->providerIdFromIdentity($identity);
+
+        if ($providerId === '') {
+            return;
+        }
+
+        $accountProviderId = $connectionProvider === 'youtube'
+            ? 'youtube:' . $providerId
+            : $providerId;
+
+        $account = SocialAccount::where([
+            'provider_name' => $connectionProvider,
+            'provider_id' => $accountProviderId,
+        ])->first();
+
+        if ($account && (int) $account->user_id !== (int) $user->id) {
+            throw ValidationException::withMessages([
+                'supabase_user_id' => 'This provider connection is already linked to another Livelatch account.',
+            ]);
+        }
+
+        $values = [
+            'user_id' => $user->id,
+            'metadata' => [
+                'identity_provider' => (string) ($identity['provider'] ?? ''),
+                'supabase_user_id' => (string) ($supabaseUser['id'] ?? ''),
+            ],
+            'connected_at' => now(),
+        ];
+
+        if (!empty($validated['provider_token'])) {
+            $values['access_token'] = $validated['provider_token'];
+        }
+
+        if (!empty($validated['provider_refresh_token'])) {
+            $values['refresh_token'] = $validated['provider_refresh_token'];
+        }
+
+        if (!empty($validated['provider_expires_at'])) {
+            $values['token_expires_at'] = now()->setTimestamp((int) $validated['provider_expires_at']);
+        }
+
+        $scopes = $this->normalizeScopes($validated['provider_scopes'] ?? null);
+        if (!empty($scopes)) {
+            $values['scopes'] = $scopes;
+        }
+
+        SocialAccount::updateOrCreate([
+            'provider_name' => $connectionProvider,
+            'provider_id' => $accountProviderId,
+        ], $values);
+    }
+
+    private function primaryIdentity(array $supabaseUser): array
+    {
+        $identities = $supabaseUser['identities'] ?? [];
+
+        if (is_array($identities) && isset($identities[0]) && is_array($identities[0])) {
+            return $identities[0];
+        }
+
+        return [];
+    }
+
+    private function providerIdFromIdentity(array $identity): string
+    {
+        $identityData = $identity['identity_data'] ?? [];
+
+        return (string) (
+            $identity['provider_id']
+            ?? $identityData['provider_id']
+            ?? $identityData['sub']
+            ?? $identityData['id']
+            ?? $identity['identity_id']
+            ?? ''
+        );
+    }
+
+    private function normalizeScopes(mixed $scopes): array
+    {
+        if (is_array($scopes)) {
+            return array_values(array_filter(array_map('strval', $scopes)));
+        }
+
+        $scopes = trim((string) $scopes);
+
+        if ($scopes === '') {
+            return [];
+        }
+
+        return array_values(array_filter(preg_split('/\s+/', $scopes) ?: []));
     }
 
     private function verifySupabaseUser(string $accessToken): array

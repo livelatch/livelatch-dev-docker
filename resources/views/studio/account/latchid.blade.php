@@ -9,11 +9,10 @@
     $hasLatchId = $user && filled($user->supabase_user_id);
     $latchIdConfigured = filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'));
     $connections = [
-        ['name' => 'Google', 'provider' => 'google', 'icon' => 'bi bi-google', 'enabled' => false],
+        ['name' => 'Google and YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-google', 'enabled' => true],
         ['name' => 'Discord', 'provider' => 'discord', 'icon' => 'bi bi-discord', 'enabled' => true],
-        ['name' => 'TikTok', 'provider' => 'tiktok', 'icon' => 'bi bi-tiktok', 'enabled' => false],
+        ['name' => 'TikTok', 'provider' => 'tiktok', 'icon' => 'bi bi-tiktok', 'enabled' => true],
         ['name' => 'Instagram', 'provider' => 'instagram', 'icon' => 'bi bi-instagram', 'enabled' => false],
-        ['name' => 'YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-youtube', 'enabled' => false],
         ['name' => 'X', 'provider' => 'x', 'icon' => 'bi bi-twitter-x', 'enabled' => false],
     ];
 @endphp
@@ -151,17 +150,17 @@
                 </span>
                 <div>
                     <h2>LatchID</h2>
-                    <p>Manage social connections backed by Supabase identity services. Discord can now be linked for login and account recovery paths.</p>
+                    <p>Manage social connections backed by Supabase identity services. Google also grants the YouTube access needed for live stream and video features.</p>
                 </div>
             </div>
             <button
                 type="button"
                 class="btn btn-primary"
-                data-latchid-connect="discord"
+                data-latchid-connect="youtube"
                 @disabled(!$latchIdConfigured)
             >
                 <i class="bi bi-plus-circle"></i>
-                Connect Discord
+                Connect Google
             </button>
         </section>
 
@@ -169,7 +168,8 @@
             @foreach($connections as $connection)
                 @php
                     $isConnected = in_array($connection['provider'], $linkedProviders, true)
-                        || ($connection['provider'] === 'google' && $hasLatchId && empty($linkedProviders));
+                        || ($connection['provider'] === 'youtube' && in_array('google', $linkedProviders, true))
+                        || ($connection['provider'] === 'youtube' && $hasLatchId && empty($linkedProviders));
                 @endphp
                 <article class="ll-latchid-card">
                     <div class="ll-latchid-card-top">
@@ -180,7 +180,15 @@
                             <h3>{{ $connection['name'] }}</h3>
                             <p>
                                 @if($connection['enabled'])
-                                    Link this provider to LatchID for future sign-in options.
+                                    @if($connection['provider'] === 'youtube')
+                                        Link Google and grant YouTube read access for future live stream and video features.
+                                    @else
+                                        @if($connection['provider'] === 'tiktok')
+                                            Link TikTok through Login Kit for future profile and creator features.
+                                        @else
+                                            Link this provider to LatchID for future sign-in options.
+                                        @endif
+                                    @endif
                                 @else
                                     Future LatchID connection.
                                 @endif
@@ -220,7 +228,7 @@
         </section>
 
         <div class="ll-latchid-note">
-            Discord uses Supabase Auth as the provider connection layer for LatchID. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
+            YouTube API access uses Google OAuth through Supabase Auth with read-only YouTube scopes. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
         </div>
     </div>
 </div>
@@ -269,6 +277,34 @@
                     + '?redirect_to=' + encodeURIComponent(config.returnPath);
             }
 
+            function oauthProvider(provider) {
+                return provider === 'youtube' ? 'google' : provider;
+            }
+
+            function oauthOptions(provider, redirectTo) {
+                var options = {
+                    redirectTo: redirectTo
+                };
+
+                if (provider === 'discord') {
+                    options.scopes = 'identify email';
+                }
+
+                if (provider === 'tiktok') {
+                    options.scopes = 'user.info.basic';
+                }
+
+                if (provider === 'youtube') {
+                    options.scopes = 'https://www.googleapis.com/auth/youtube.readonly';
+                    options.queryParams = {
+                        access_type: 'offline',
+                        prompt: 'consent'
+                    };
+                }
+
+                return options;
+            }
+
             document.addEventListener('click', async function (event) {
                 var button = event.target.closest('[data-latchid-connect]');
 
@@ -279,6 +315,8 @@
                 var provider = button.getAttribute('data-latchid-connect');
                 var authClient = client();
                 var redirectTo = callbackUrl(provider);
+                var providerForOAuth = oauthProvider(provider);
+                var options = oauthOptions(provider, redirectTo);
 
                 button.disabled = true;
                 button.setAttribute('aria-busy', 'true');
@@ -288,21 +326,15 @@
                     var hasSupabaseSession = sessionResult.data && sessionResult.data.session;
                     var result;
 
-                    if (hasSupabaseSession && authClient.auth.linkIdentity) {
+                    if (provider !== 'youtube' && hasSupabaseSession && authClient.auth.linkIdentity) {
                         result = await authClient.auth.linkIdentity({
-                            provider: provider,
-                            options: {
-                                redirectTo: redirectTo,
-                                scopes: provider === 'discord' ? 'identify email' : undefined
-                            }
+                            provider: providerForOAuth,
+                            options: options
                         });
                     } else {
                         result = await authClient.auth.signInWithOAuth({
-                            provider: provider,
-                            options: {
-                                redirectTo: redirectTo,
-                                scopes: provider === 'discord' ? 'identify email' : undefined
-                            }
+                            provider: providerForOAuth,
+                            options: options
                         });
                     }
 
