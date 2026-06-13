@@ -11,6 +11,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 ### 2026-06-13
 
 - Agent: Codex
+- Patched the deployed Supabase Edge Function `tiktok-oauth` from MCP version 17 to version 20 so TikTok user info responses with HTTP 200, `error.code: "ok"`, and `data.user.open_id` are treated as successful and the callback now redirects back to trusted Livelatch return URLs.
+- Updated the function's TikTok account upsert payload to read `tiktok_open_id`, `display_name`, and `avatar_url` from `tiktok.data.user`, include `linked_at`, and preserve the existing OAuth/token save flow while adding success and error redirects to `tiktok_linked=1` and `tiktok_error=1`.
+- Validation: fetched the deployed function back through Supabase MCP and confirmed version 20 is active with the corrected parser, trusted return URL handling, and redirect behavior; no service role key was added to Blade or frontend JavaScript.
+- Agent: Codex
 - Added Discord as a LatchID login option through Supabase Auth by generalizing the OAuth callback to `/callback/{provider}` for Google and Discord and adding shared LatchID OAuth buttons to login and registration.
 - Updated the LatchID session bridge so an already-authenticated Laravel user can link a verified Supabase/LatchID account without creating a duplicate local user, and mirrored available Supabase identities into `social_accounts`.
 - Reworked `/studio/latchid` so Discord can be connected from the account area using Supabase `linkIdentity` when a browser Supabase session exists, with an OAuth fallback for legacy/local sessions.
@@ -36,6 +40,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Removed device `prefers-color-scheme` handling from Livelatch theme loading so the site no longer switches light/dark mode based on the user's OS or browser setting; explicit Livelatch theme selection is now the source of truth with light as the fallback.
 - Updated the legacy Hope UI setting plugin, admin PHP info panel, and fallback LinkStack skeleton CSS to avoid automatic OS-driven dark mode.
 - Validation: searched app-owned assets/views for remaining device theme hooks, ran PHP syntax checks for changed Blade views, ran JS syntax checks for changed theme scripts, and rebuilt Blade view cache.
+- Updated the TikTok Edge Function owner todo with the observed `tiktok_user_fetch_failed` parser bug where TikTok returns HTTP 200 and `error.code: "ok"` with `data.user`, but the function still treats the lookup as failed.
+- Validation: confirmed the Edge Function source is not present in this repo and Supabase MCP access requires authentication before remote function retrieval or deployment.
 
 ### 2026-06-12
 
