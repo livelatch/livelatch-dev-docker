@@ -13,236 +13,548 @@
     $initialPrimary = $customSettings['primary'] ?? $selectedPresetValues['primary'] ?? '#2563eb';
     $initialBackground = $customSettings['background'] ?? $selectedPresetValues['background'] ?? '#ffffff';
     $initialText = $customSettings['text'] ?? $selectedPresetValues['text'] ?? '#111827';
-    $initialFontFamily = $customSettings['fontFamily'] ?? $selectedPresetValues['fontFamily'] ?? 'Inter';
+    $initialRadius = $customSettings['buttonRadius'] ?? $selectedPresetValues['buttonRadius'] ?? '8px';
+    $initialFontFamily = $customSettings['fontFamily'] ?? $selectedVersion?->manifest['fontFamilies'][0] ?? 'Inter';
+    $initialEffect = $customSettings['effectIntensity'] ?? $selectedVersion?->manifest['parameters']['effectIntensity']['default'] ?? 55;
+    $initialShape = $customSettings['shapeIntensity'] ?? $selectedVersion?->manifest['parameters']['shapeIntensity']['default'] ?? 45;
 @endphp
 
-<style data-ll-theme-editor-style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+<style data-ll-theme-studio-style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P:wght@400&family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+    .ll-theme-studio {
+        display: grid;
+        gap: 18px;
+    }
+
+    .ll-theme-top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: end;
+    }
+
+    .ll-theme-top h1 {
+        color: var(--ll-text);
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1;
+        margin: 0 0 8px;
+    }
+
+    .ll-theme-top p,
+    .ll-theme-muted {
+        color: var(--ll-muted);
+    }
+
+    .ll-theme-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 0;
+        border-radius: var(--ll-button-radius);
+        background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+        color: #fff;
+        font-weight: 800;
+        padding: 12px 18px;
+        box-shadow: var(--ll-shadow-soft);
+    }
+
+    .ll-theme-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .ll-theme-panel {
+        border: 1px solid var(--ll-border);
+        border-radius: var(--ll-radius);
+        background: var(--ll-surface-solid);
+        box-shadow: var(--ll-shadow-soft);
+        padding: 18px;
+    }
+
+    .ll-theme-panel h2 {
+        color: var(--ll-text);
+        font-size: 1.05rem;
+        margin: 0 0 14px;
+    }
+
+    .ll-theme-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ll-theme-card {
+        border: 1px solid var(--ll-border);
+        border-radius: calc(var(--ll-radius) + 2px);
+        background: color-mix(in srgb, var(--ll-bg-soft) 70%, transparent);
+        color: var(--ll-text);
+        cursor: pointer;
+        display: grid;
+        gap: 12px;
+        min-height: 178px;
+        padding: 12px;
+        text-align: left;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+        width: 100%;
+    }
+
+    .ll-theme-card:hover,
+    .ll-theme-card.is-active {
+        border-color: color-mix(in srgb, var(--ll-primary) 52%, var(--ll-border));
+        background: color-mix(in srgb, var(--ll-primary) 8%, var(--ll-surface-solid));
+        transform: translateY(-1px);
+    }
+
+    .ll-theme-swatch {
+        border-radius: calc(var(--ll-radius) - 2px);
+        min-height: 78px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ll-theme-swatch::after {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border: 1px solid rgba(255,255,255,.45);
+        border-radius: 12px;
+        background: rgba(255,255,255,.24);
+        box-shadow: 0 14px 30px rgba(15,23,42,.18);
+    }
+
+    .ll-theme-card strong,
+    .ll-theme-control strong {
+        color: var(--ll-text);
+    }
+
+    .ll-theme-card p {
+        color: var(--ll-muted);
+        font-size: .86rem;
+        line-height: 1.35;
+        margin: 0;
+    }
+
+    .ll-theme-presets,
+    .ll-theme-fonts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .ll-theme-pill {
+        border: 1px solid var(--ll-border);
+        border-radius: 999px;
+        background: var(--ll-surface-solid);
+        color: var(--ll-text);
+        cursor: pointer;
+        font-weight: 700;
+        padding: 8px 11px;
+    }
+
+    .ll-theme-pill.is-active {
+        border-color: color-mix(in srgb, var(--ll-primary) 56%, var(--ll-border));
+        background: color-mix(in srgb, var(--ll-primary) 12%, transparent);
+        color: var(--ll-primary);
+    }
+
+    .ll-theme-controls {
+        display: grid;
+        gap: 14px;
+    }
+
+    .ll-theme-colours {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ll-colour-control,
+    .ll-theme-control {
+        border: 1px solid var(--ll-border);
+        border-radius: calc(var(--ll-radius) - 2px);
+        background: color-mix(in srgb, var(--ll-bg-soft) 74%, transparent);
+        padding: 12px;
+    }
+
+    .ll-colour-control label,
+    .ll-theme-control label {
+        color: var(--ll-muted);
+        display: block;
+        font-size: .78rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .ll-colour-row {
+        align-items: center;
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .ll-colour-row input[type="color"] {
+        appearance: none;
+        border: 0;
+        border-radius: 14px;
+        cursor: pointer;
+        height: 48px;
+        overflow: hidden;
+        padding: 0;
+        width: 48px;
+    }
+
+    .ll-colour-row input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    .ll-colour-row input[type="color"]::-webkit-color-swatch {
+        border: 0;
+        border-radius: 14px;
+    }
+
+    .ll-colour-value {
+        color: var(--ll-text);
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-weight: 800;
+    }
+
+    .ll-theme-range {
+        accent-color: var(--ll-primary);
+        width: 100%;
+    }
+
+    .ll-theme-custom-font {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .ll-theme-custom-font input {
+        border: 1px solid var(--ll-border);
+        border-radius: var(--ll-button-radius);
+        background: var(--ll-surface-solid);
+        color: var(--ll-text);
+        padding: 10px 12px;
+    }
+
+    .ll-theme-preview-shell {
+        position: sticky;
+        top: 92px;
+    }
 
     #theme-preview {
-        background: #f8fafc !important;
-        color-scheme: light;
-        isolation: isolate;
-    }
-
-    #theme-preview,
-    #theme-preview * {
-        box-sizing: border-box;
-    }
-
-    #theme-preview .ll-theme-preview-page {
-        min-height: 360px;
-        background: var(--ll-background) !important;
-        color: var(--ll-text) !important;
-        border-radius: 12px;
-        padding: 32px 20px;
-        font-family: var(--ll-font-family) !important;
-        transition: background 160ms ease, color 160ms ease, font-family 160ms ease;
-    }
-
-    #theme-preview .ll-theme-preview-profile {
-        max-width: 360px;
+        --ll-preview-primary: {{ $initialPrimary }};
+        --ll-preview-background: {{ $initialBackground }};
+        --ll-preview-text: {{ $initialText }};
+        --ll-preview-radius: {{ $initialRadius }};
+        --ll-preview-font: "{{ $initialFontFamily }}", system-ui, sans-serif;
+        --ll-preview-effect: {{ ((int) $initialEffect) / 100 }};
+        --ll-preview-shape: {{ ((int) $initialShape) / 100 }};
+        border: 1px solid var(--ll-border);
+        border-radius: 34px;
+        background: #101827;
+        box-shadow: var(--ll-shadow-soft);
         margin: 0 auto;
+        max-width: 390px;
+        padding: 12px;
+    }
+
+    .ll-theme-preview-screen {
+        background:
+            radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--ll-preview-primary) 34%, transparent), transparent 28%),
+            linear-gradient(135deg, var(--ll-preview-background), color-mix(in srgb, var(--ll-preview-primary) 12%, var(--ll-preview-background)));
+        border-radius: 26px;
+        color: var(--ll-preview-text);
+        font-family: var(--ll-preview-font);
+        min-height: 610px;
+        overflow: hidden;
+        padding: 30px 22px;
+        position: relative;
+    }
+
+    .ll-theme-preview-screen::before,
+    .ll-theme-preview-screen::after {
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+    }
+
+    .ll-theme-preview-screen::before {
+        background-image:
+            radial-gradient(circle, color-mix(in srgb, var(--ll-preview-primary) 26%, transparent) 1px, transparent 2px),
+            linear-gradient(120deg, transparent 0 22px, color-mix(in srgb, var(--ll-preview-primary) 10%, transparent) 22px 25px);
+        background-size: calc(28px - (var(--ll-preview-shape) * 10px)) calc(28px - (var(--ll-preview-shape) * 10px)), 72px 72px;
+        opacity: calc(.12 + (var(--ll-preview-effect) * .28));
+    }
+
+    .ll-theme-preview-screen::after {
+        background: radial-gradient(circle at 82% 16%, rgba(255,255,255,.34), transparent 16%);
+        animation: ll-theme-preview-drift 12s ease-in-out infinite alternate;
+        opacity: calc(.18 + (var(--ll-preview-effect) * .24));
+    }
+
+    @keyframes ll-theme-preview-drift {
+        to { transform: translate3d(16px, -12px, 0); }
+    }
+
+    .ll-theme-preview-profile {
+        display: grid;
+        gap: 14px;
+        position: relative;
         text-align: center;
+        z-index: 1;
     }
 
-    #theme-preview .ll-theme-preview-avatar {
-        width: 72px;
-        height: 72px;
+    .ll-theme-avatar {
+        background: var(--ll-preview-primary);
+        border: 3px solid rgba(255,255,255,.42);
         border-radius: 999px;
-        margin: 0 auto 16px;
-        background: var(--ll-primary) !important;
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+        height: 78px;
+        margin: 0 auto;
+        width: 78px;
     }
 
-    #theme-preview .ll-theme-preview-heading {
-        color: var(--ll-text) !important;
-        margin-bottom: 8px;
-        font-family: var(--ll-font-family) !important;
+    .ll-theme-preview-profile h3 {
+        color: var(--ll-preview-text);
+        font-family: var(--ll-preview-font);
+        margin: 0;
     }
 
-    #theme-preview .ll-theme-preview-text {
-        color: var(--ll-text) !important;
-        opacity: 0.82;
-        margin-bottom: 20px;
+    .ll-theme-preview-profile p {
+        color: var(--ll-preview-text);
+        margin: 0;
+        opacity: .76;
     }
 
-    #theme-preview .ll-theme-preview-button {
+    .ll-theme-preview-link {
+        background: var(--ll-preview-primary);
+        border-radius: var(--ll-preview-radius);
+        box-shadow: 0 14px 34px color-mix(in srgb, var(--ll-preview-primary) 26%, transparent);
+        color: #fff;
         display: block;
-        width: 100%;
-        padding: 13px 18px;
-        border-radius: var(--ll-button-radius);
-        background: var(--ll-primary) !important;
-        color: #ffffff !important;
-        text-decoration: none;
-        font-weight: 700;
-        margin-bottom: 14px;
-        font-family: var(--ll-font-family) !important;
-        transition: background 160ms ease, border-radius 160ms ease;
-    }
-
-    #theme-preview .ll-theme-preview-link-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        text-align: left;
+        font-weight: 800;
         padding: 14px;
-        border-radius: var(--ll-button-radius);
-        border: 1px solid rgba(17, 24, 39, 0.14);
-        background: rgba(255, 255, 255, 0.28);
-        color: var(--ll-text) !important;
-        transition: background 160ms ease, color 160ms ease, border-radius 160ms ease;
+        text-decoration: none;
     }
 
-    #theme-preview .ll-theme-preview-link-card p {
-        margin: 2px 0 0;
-        color: var(--ll-text) !important;
-        opacity: 0.72;
-        font-size: 0.9rem;
+    .ll-theme-preview-card {
+        align-items: center;
+        background: color-mix(in srgb, #ffffff 24%, transparent);
+        border: 1px solid color-mix(in srgb, var(--ll-preview-text) 18%, transparent);
+        border-radius: var(--ll-preview-radius);
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        text-align: left;
     }
 
-    #theme-preview .ll-theme-preview-link-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: var(--ll-primary) !important;
-        flex: 0 0 auto;
+    .ll-theme-preview-card span {
+        background: var(--ll-preview-primary);
+        border-radius: 12px;
+        height: 38px;
+        width: 38px;
+    }
+
+    .ll-theme-alert {
+        border-radius: var(--ll-radius);
+    }
+
+    @media (max-width: 1199.98px) {
+        .ll-theme-layout,
+        .ll-theme-top {
+            grid-template-columns: 1fr;
+        }
+
+        .ll-theme-preview-shell {
+            position: static;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .ll-theme-grid,
+        .ll-theme-colours {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-<div class="container-fluid content-inner mt-n5 py-0">
-    <div class="row">
-        <div class="col-lg-10 col-xl-8">
-            <div class="card rounded">
-                <div class="card-body">
-                    <h2 class="mb-2">Theme Settings</h2>
-                    <p class="text-muted mb-4">Select a published theme preset and customize the default theme styling for your profile.</p>
+<div class="container-fluid content-inner mt-n5 py-0 ll-theme-studio">
+    <div class="ll-theme-top">
+        <div>
+            <h1>Theme Studio</h1>
+            <p class="mb-0">Choose a free core theme, pick a preset, then tune colours, font, radius, and motion for your public profile.</p>
+        </div>
+        @if(!$themes->isEmpty())
+            <button type="submit" form="theme-settings-form" class="ll-theme-save" id="theme-save-button">
+                <i class="bi bi-check2-circle"></i>
+                Save theme
+            </button>
+        @endif
+    </div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+    @if(session('success'))
+        <div class="alert alert-success ll-theme-alert" role="alert">{{ session('success') }}</div>
+    @endif
 
-                    <div class="alert alert-danger d-none" id="theme-settings-errors" role="alert"></div>
+    <div class="alert alert-danger d-none ll-theme-alert" id="theme-settings-errors" role="alert"></div>
 
-                    @if($errors->any())
-                        <div class="alert alert-danger" role="alert">
-                            @foreach($errors->all() as $error)
-                                <div>{{ $error }}</div>
+    @if($errors->any())
+        <div class="alert alert-danger ll-theme-alert" role="alert">
+            @foreach($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+
+    @if($themes->isEmpty())
+        <div class="alert alert-warning ll-theme-alert" role="alert">No published themes are available yet.</div>
+    @else
+        <form method="post" action="{{ route('editTheme') }}" id="theme-settings-form" data-custom-settings='@json($customSettings)'>
+            @csrf
+            <input type="hidden" name="theme_id" id="theme-id" value="{{ $selectedTheme?->id }}">
+            <input type="hidden" name="theme_version_id" id="theme-version-id" value="{{ $selectedVersionId }}">
+            <input type="hidden" name="preset" id="theme-preset" value="{{ $selectedPreset }}">
+
+            <div class="ll-theme-layout">
+                <div class="ll-theme-controls">
+                    <section class="ll-theme-panel">
+                        <h2>Choose a theme</h2>
+                        <div class="ll-theme-grid" id="theme-card-grid">
+                            @foreach($themes as $theme)
+                                @php
+                                    $version = $theme->currentVersion;
+                                    $manifest = $version?->manifest ?? [];
+                                    $presets = $manifest['presets'] ?? [];
+                                    $defaultPreset = $presets['default'] ?? reset($presets) ?: [];
+                                @endphp
+                                <button
+                                    type="button"
+                                    class="ll-theme-card @if((int) $selectedThemeId === $theme->id) is-active @endif"
+                                    data-theme-card
+                                    data-theme-id="{{ $theme->id }}"
+                                    data-theme-slug="{{ $theme->slug }}"
+                                    data-version-id="{{ $version?->id }}"
+                                    data-theme-name="{{ $theme->name }}"
+                                    data-description="{{ $manifest['description'] ?? '' }}"
+                                    data-preview-gradient="{{ $manifest['previewGradient'] ?? 'linear-gradient(135deg, #2563eb, #22d3ee)' }}"
+                                    data-presets='@json($presets)'
+                                    data-fonts='@json($manifest['fontFamilies'] ?? array_values($fontFamilies))'
+                                    data-parameters='@json($manifest['parameters'] ?? [])'
+                                >
+                                    <span class="ll-theme-swatch" style="background: {{ $manifest['previewGradient'] ?? 'linear-gradient(135deg, #2563eb, #22d3ee)' }};"></span>
+                                    <span>
+                                        <strong>{{ $theme->name }}</strong>
+                                        <p>{{ $manifest['description'] ?? 'Core Livelatch theme.' }}</p>
+                                    </span>
+                                </button>
                             @endforeach
                         </div>
-                    @endif
+                    </section>
 
-                    @if($themes->isEmpty())
-                        <div class="alert alert-warning" role="alert">
-                            No published themes are available yet.
+                    <section class="ll-theme-panel">
+                        <h2>Presets</h2>
+                        <div class="ll-theme-presets" id="theme-preset-list"></div>
+                    </section>
+
+                    <section class="ll-theme-panel">
+                        <h2>Style controls</h2>
+                        <div class="ll-theme-colours">
+                            <div class="ll-colour-control">
+                                <label for="theme-primary">Primary</label>
+                                <div class="ll-colour-row">
+                                    <input type="color" id="theme-primary" name="custom_settings[primary]" value="{{ $initialPrimary }}">
+                                    <span class="ll-colour-value" data-colour-value="theme-primary">{{ $initialPrimary }}</span>
+                                </div>
+                            </div>
+                            <div class="ll-colour-control">
+                                <label for="theme-background">Background</label>
+                                <div class="ll-colour-row">
+                                    <input type="color" id="theme-background" name="custom_settings[background]" value="{{ $initialBackground }}">
+                                    <span class="ll-colour-value" data-colour-value="theme-background">{{ $initialBackground }}</span>
+                                </div>
+                            </div>
+                            <div class="ll-colour-control">
+                                <label for="theme-text">Text</label>
+                                <div class="ll-colour-row">
+                                    <input type="color" id="theme-text" name="custom_settings[text]" value="{{ $initialText }}">
+                                    <span class="ll-colour-value" data-colour-value="theme-text">{{ $initialText }}</span>
+                                </div>
+                            </div>
                         </div>
-                    @else
-                        <form
-                            method="post"
-                            action="{{ route('editTheme') }}"
-                            id="theme-settings-form"
-                            data-custom-settings='@json($customSettings)'
-                        >
-                            @csrf
+                    </section>
 
-                            <input type="hidden" name="theme_version_id" id="theme-version-id" value="{{ $selectedVersionId }}">
+                    <section class="ll-theme-panel">
+                        <h2>Typography</h2>
+                        <div class="ll-theme-fonts" id="theme-font-list"></div>
+                        <div class="ll-theme-custom-font">
+                            <input type="text" id="theme-custom-font" placeholder="Add a Google Font name">
+                            <button type="button" class="ll-theme-pill" id="theme-custom-font-apply">Use font</button>
+                        </div>
+                        <input type="hidden" id="theme-font-family" name="custom_settings[fontFamily]" value="{{ $initialFontFamily }}">
+                    </section>
 
-                            <div class="mb-3">
-                                <label for="theme-id" class="form-label">Current theme</label>
-                                <select class="form-control" id="theme-id" name="theme_id">
-                                    @foreach($themes as $theme)
-                                        @php
-                                            $version = $theme->currentVersion;
-                                            $presets = $version?->manifest['presets'] ?? [];
-                                        @endphp
-                                        <option
-                                            value="{{ $theme->id }}"
-                                            data-version-id="{{ $version?->id }}"
-                                            data-presets='@json($presets)'
-                                            @selected((int) $selectedThemeId === $theme->id)
-                                        >
-                                            {{ $theme->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="preset" class="form-label">Preset</label>
-                                <select class="form-control" id="preset" name="preset" data-selected-preset="{{ $selectedPreset }}">
-                                    @foreach($selectedPresets as $presetKey => $preset)
-                                        <option value="{{ $presetKey }}" @selected($selectedPreset === $presetKey)>
-                                            {{ Str::headline($presetKey) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="theme-primary" class="form-label">Primary colour</label>
-                                    <input type="color" class="form-control form-control-color w-100" id="theme-primary" name="custom_settings[primary]" value="{{ $initialPrimary }}">
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label for="theme-background" class="form-label">Background colour</label>
-                                    <input type="color" class="form-control form-control-color w-100" id="theme-background" name="custom_settings[background]" value="{{ $initialBackground }}">
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label for="theme-text" class="form-label">Text colour</label>
-                                    <input type="color" class="form-control form-control-color w-100" id="theme-text" name="custom_settings[text]" value="{{ $initialText }}">
+                    <section class="ll-theme-panel">
+                        <h2>Shape and motion</h2>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="ll-theme-control">
+                                    <label for="theme-radius">Button radius</label>
+                                    <input class="ll-theme-range" type="range" min="0" max="32" step="1" id="theme-radius" value="{{ (int) $initialRadius }}">
+                                    <input type="hidden" id="theme-radius-value" name="custom_settings[buttonRadius]" value="{{ $initialRadius }}">
+                                    <strong id="theme-radius-label">{{ $initialRadius }}</strong>
                                 </div>
                             </div>
-
-                            <div class="mb-4">
-                                <label for="theme-font-family" class="form-label">Font family</label>
-                                <select class="form-control" id="theme-font-family" name="custom_settings[fontFamily]">
-                                    @foreach($fontFamilies as $fontFamily => $label)
-                                        <option value="{{ $fontFamily }}" @selected($initialFontFamily === $fontFamily)>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <div class="col-md-4">
+                                <div class="ll-theme-control">
+                                    <label for="theme-effect">Motion</label>
+                                    <input class="ll-theme-range" type="range" min="0" max="100" id="theme-effect" name="custom_settings[effectIntensity]" value="{{ $initialEffect }}">
+                                    <strong id="theme-effect-label">{{ $initialEffect }}%</strong>
+                                </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="ll-theme-control">
+                                    <label for="theme-shape">Texture</label>
+                                    <input class="ll-theme-range" type="range" min="0" max="100" id="theme-shape" name="custom_settings[shapeIntensity]" value="{{ $initialShape }}">
+                                    <strong id="theme-shape-label">{{ $initialShape }}%</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
 
-                            <div class="mb-4">
-                                <div
-                                    id="theme-preview"
-                                    class="border rounded p-4"
-                                    style="--ll-primary: {{ $initialPrimary }}; --ll-background: {{ $initialBackground }}; --ll-text: {{ $initialText }}; --ll-button-radius: 8px; --ll-font-family: '{{ $initialFontFamily }}', system-ui, sans-serif;"
-                                >
-                                    <div class="ll-theme-preview-page">
-                                        <div class="ll-theme-preview-profile">
-                                            <div class="ll-theme-preview-avatar"></div>
-                                            <h3 id="theme-preview-heading" class="ll-theme-preview-heading">Livelatch Default</h3>
-                                            <p id="theme-preview-text" class="ll-theme-preview-text">Preset preview for your public profile.</p>
-
-                                            <a id="theme-preview-button" class="ll-theme-preview-button" href="#" onclick="return false;">
-                                                Sample button
-                                            </a>
-
-                                            <div id="theme-preview-link-card" class="ll-theme-preview-link-card">
-                                                <span class="ll-theme-preview-link-icon"></span>
-                                                <div>
-                                                    <strong>Sample link card</strong>
-                                                    <p>Creator link preview using this preset.</p>
-                                                </div>
-                                            </div>
+                <aside class="ll-theme-preview-shell">
+                    <section class="ll-theme-panel">
+                        <h2>Live preview</h2>
+                        <div id="theme-preview">
+                            <div class="ll-theme-preview-screen" id="theme-preview-screen">
+                                <div class="ll-theme-preview-profile">
+                                    <div class="ll-theme-avatar"></div>
+                                    <h3 id="theme-preview-heading">{{ $selectedTheme?->name ?? 'Livelatch Default' }}</h3>
+                                    <p id="theme-preview-copy">{{ Str::headline($selectedPreset) }} preset preview for your public profile.</p>
+                                    <a class="ll-theme-preview-link" href="#" onclick="return false;">Latest drop</a>
+                                    <a class="ll-theme-preview-link" href="#" onclick="return false;">Watch live</a>
+                                    <div class="ll-theme-preview-card">
+                                        <span></span>
+                                        <div>
+                                            <strong>Creator link card</strong>
+                                            <p class="mb-0">Theme effects stay behind the profile content.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <button type="submit" class="btn btn-primary" id="theme-save-button">Save theme settings</button>
-                        </form>
-                    @endif
-                </div>
+                        </div>
+                        <p class="ll-theme-muted mt-3 mb-0">Preview changes do not save until you press Save theme.</p>
+                    </section>
+                </aside>
             </div>
-        </div>
-    </div>
+        </form>
+    @endif
 </div>
 
 <div class="modal fade" id="theme-saved-modal" tabindex="-1" aria-labelledby="theme-saved-modal-label" aria-hidden="true">
@@ -252,9 +564,7 @@
                 <h5 class="modal-title" id="theme-saved-modal-label">Theme saved</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body pt-0">
-                Your theme settings have been saved to your public profile.
-            </div>
+            <div class="modal-body pt-0">Your theme settings have been saved to your public profile.</div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
             </div>
@@ -266,161 +576,186 @@
     window.LivelatchThemeEditor = window.LivelatchThemeEditor || {
         init: function () {
             const form = document.getElementById('theme-settings-form');
-            const themeSelect = document.getElementById('theme-id');
-            const presetSelect = document.getElementById('preset');
+            if (!form || form.dataset.themeEditorInitialized === 'true') return;
+            form.dataset.themeEditorInitialized = 'true';
+
+            const cards = Array.from(document.querySelectorAll('[data-theme-card]'));
+            const themeInput = document.getElementById('theme-id');
             const versionInput = document.getElementById('theme-version-id');
-            const preview = document.getElementById('theme-preview');
-            const previewHeading = document.getElementById('theme-preview-heading');
-            const previewText = document.getElementById('theme-preview-text');
+            const presetInput = document.getElementById('theme-preset');
+            const presetList = document.getElementById('theme-preset-list');
+            const fontList = document.getElementById('theme-font-list');
+            const fontInput = document.getElementById('theme-font-family');
+            const customFont = document.getElementById('theme-custom-font');
+            const customFontApply = document.getElementById('theme-custom-font-apply');
             const primaryInput = document.getElementById('theme-primary');
             const backgroundInput = document.getElementById('theme-background');
             const textInput = document.getElementById('theme-text');
-            const fontInput = document.getElementById('theme-font-family');
+            const radiusRange = document.getElementById('theme-radius');
+            const radiusValue = document.getElementById('theme-radius-value');
+            const radiusLabel = document.getElementById('theme-radius-label');
+            const effectInput = document.getElementById('theme-effect');
+            const effectLabel = document.getElementById('theme-effect-label');
+            const shapeInput = document.getElementById('theme-shape');
+            const shapeLabel = document.getElementById('theme-shape-label');
+            const preview = document.getElementById('theme-preview');
+            const previewScreen = document.getElementById('theme-preview-screen');
+            const previewHeading = document.getElementById('theme-preview-heading');
+            const previewCopy = document.getElementById('theme-preview-copy');
             const saveButton = document.getElementById('theme-save-button');
             const errorBox = document.getElementById('theme-settings-errors');
 
-            if (!form || !themeSelect || !presetSelect || !versionInput || !preview || form.dataset.themeEditorInitialized === 'true') {
-                return;
+            function parseJson(value, fallback) {
+                try { return JSON.parse(value || ''); } catch (error) { return fallback; }
             }
 
-            form.dataset.themeEditorInitialized = 'true';
-
-            function getSelectedThemeOption() {
-                return themeSelect.options[themeSelect.selectedIndex];
+            function activeCard() {
+                return cards.find(card => card.classList.contains('is-active')) || cards[0];
             }
 
-            function getPresets(option) {
-                try {
-                    return JSON.parse(option.dataset.presets || '{}');
-                } catch (error) {
-                    return {};
-                }
+            function currentPresets() {
+                return parseJson(activeCard()?.dataset.presets, {});
             }
 
-            function getCustomSettings() {
-                try {
-                    return JSON.parse(form.dataset.customSettings || '{}') || {};
-                } catch (error) {
-                    return {};
-                }
+            function formatName(value) {
+                return String(value || '').replace(/[-_]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
             }
 
-            function formatPresetName(value) {
-                return value
-                    .replace(/[-_]+/g, ' ')
-                    .replace(/\b\w/g, function (letter) {
-                        return letter.toUpperCase();
-                    });
-            }
-
-            function hideErrors() {
-                if (!errorBox) {
-                    return;
-                }
-
-                errorBox.classList.add('d-none');
-                errorBox.innerHTML = '';
-            }
-
-            function showErrors(errors) {
-                if (!errorBox) {
-                    return;
-                }
-
-                const messages = [];
-                if (typeof errors === 'string') {
-                    messages.push(errors);
-                } else {
-                    Object.keys(errors || {}).forEach(function (key) {
-                        const value = errors[key];
-                        if (Array.isArray(value)) {
-                            messages.push.apply(messages, value);
-                        } else {
-                            messages.push(value);
-                        }
-                    });
-                }
-
-                errorBox.innerHTML = messages.map(function (message) {
-                    return '<div>' + String(message) + '</div>';
-                }).join('');
-                errorBox.classList.remove('d-none');
-            }
-
-            function renderPresets() {
-                const option = getSelectedThemeOption();
-                const presets = getPresets(option);
-                const previous = presetSelect.value || presetSelect.dataset.selectedPreset || 'default';
-
-                versionInput.value = option.dataset.versionId || '';
-                presetSelect.innerHTML = '';
-
-                Object.keys(presets).forEach(function (presetKey) {
-                    const presetOption = document.createElement('option');
-                    presetOption.value = presetKey;
-                    presetOption.textContent = formatPresetName(presetKey);
-                    presetOption.selected = presetKey === previous;
-                    presetSelect.appendChild(presetOption);
+            function setColourLabels() {
+                [primaryInput, backgroundInput, textInput].forEach(input => {
+                    const label = document.querySelector('[data-colour-value="' + input.id + '"]');
+                    if (label) label.textContent = input.value;
                 });
+            }
 
-                if (!presetSelect.value && presetSelect.options.length > 0) {
-                    presetSelect.options[0].selected = true;
-                }
+            function setPresetValues(presetKey, keepCustom) {
+                const preset = currentPresets()[presetKey] || currentPresets().default || {};
+                const custom = keepCustom ? parseJson(form.dataset.customSettings, {}) : {};
 
-                applyPresetToControls(true);
+                primaryInput.value = custom.primary || preset.primary || '#2563eb';
+                backgroundInput.value = custom.background || preset.background || '#ffffff';
+                textInput.value = custom.text || preset.text || '#111827';
+
+                const radius = custom.buttonRadius || preset.buttonRadius || '8px';
+                radiusRange.value = parseInt(radius, 10) || 8;
+                radiusValue.value = (parseInt(radiusRange.value, 10) || 0) + 'px';
+
+                effectInput.value = custom.effectIntensity || '55';
+                shapeInput.value = custom.shapeIntensity || '45';
+                setColourLabels();
                 updatePreview();
             }
 
-            function applyPresetToControls(useSavedCustomSettings) {
-                const presets = getPresets(getSelectedThemeOption());
-                const preset = presets[presetSelect.value] || {};
-                const customSettings = useSavedCustomSettings ? getCustomSettings() : {};
+            function renderPresets(selectedKey, keepCustom) {
+                const presets = currentPresets();
+                const keys = Object.keys(presets);
+                const selected = keys.includes(selectedKey) ? selectedKey : (keys.includes('default') ? 'default' : keys[0]);
+                presetList.innerHTML = '';
+                presetInput.value = selected || 'default';
 
-                primaryInput.value = customSettings.primary || preset.primary || '#2563eb';
-                backgroundInput.value = customSettings.background || preset.background || '#ffffff';
-                textInput.value = customSettings.text || preset.text || '#111827';
-                fontInput.value = customSettings.fontFamily || preset.fontFamily || 'Inter';
+                keys.forEach(key => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'll-theme-pill' + (key === presetInput.value ? ' is-active' : '');
+                    button.textContent = formatName(key);
+                    button.addEventListener('click', () => {
+                        presetInput.value = key;
+                        form.dataset.customSettings = '{}';
+                        renderPresets(key, false);
+                    });
+                    presetList.appendChild(button);
+                });
+
+                setPresetValues(presetInput.value, keepCustom);
+            }
+
+            function renderFonts(selectedFont) {
+                const fonts = parseJson(activeCard()?.dataset.fonts, ['Inter', 'Poppins', 'Roboto', 'Open Sans', 'Montserrat']).slice(0, 5);
+                const selected = selectedFont || fonts[0] || 'Inter';
+                fontInput.value = selected;
+                fontList.innerHTML = '';
+
+                fonts.forEach(font => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'll-theme-pill' + (font === selected ? ' is-active' : '');
+                    button.textContent = font;
+                    button.style.fontFamily = '"' + font + '", system-ui, sans-serif';
+                    button.addEventListener('click', () => {
+                        fontInput.value = font;
+                        renderFonts(font);
+                        updatePreview();
+                    });
+                    fontList.appendChild(button);
+                });
             }
 
             function updatePreview() {
-                const presets = getPresets(getSelectedThemeOption());
-                const preset = presets[presetSelect.value] || {};
-                const primary = primaryInput.value || preset.primary || '#2563eb';
-                const background = backgroundInput.value || preset.background || '#ffffff';
-                const text = textInput.value || preset.text || '#111827';
-                const buttonRadius = preset.buttonRadius || '8px';
-                const fontFamily = fontInput.value || preset.fontFamily || 'Inter';
-
-                preview.style.setProperty('--ll-primary', primary);
-                preview.style.setProperty('--ll-background', background);
-                preview.style.setProperty('--ll-text', text);
-                preview.style.setProperty('--ll-button-radius', buttonRadius);
-                preview.style.setProperty('--ll-font-family', '"' + fontFamily + '", system-ui, sans-serif');
-                previewHeading.textContent = getSelectedThemeOption().textContent.trim();
-                previewText.textContent = formatPresetName(presetSelect.value || 'default') + ' preset preview for your public profile.';
+                const card = activeCard();
+                const radius = (parseInt(radiusRange.value, 10) || 0) + 'px';
+                radiusValue.value = radius;
+                radiusLabel.textContent = radius;
+                effectLabel.textContent = effectInput.value + '%';
+                shapeLabel.textContent = shapeInput.value + '%';
+                preview.style.setProperty('--ll-preview-primary', primaryInput.value);
+                preview.style.setProperty('--ll-preview-background', backgroundInput.value);
+                preview.style.setProperty('--ll-preview-text', textInput.value);
+                preview.style.setProperty('--ll-preview-radius', radius);
+                preview.style.setProperty('--ll-preview-font', '"' + (fontInput.value || 'Inter') + '", system-ui, sans-serif');
+                preview.style.setProperty('--ll-preview-effect', (parseInt(effectInput.value, 10) || 0) / 100);
+                preview.style.setProperty('--ll-preview-shape', (parseInt(shapeInput.value, 10) || 0) / 100);
+                previewScreen.dataset.theme = card?.dataset.themeSlug || 'livelatch-default';
+                previewHeading.textContent = card?.dataset.themeName || 'Livelatch Default';
+                previewCopy.textContent = formatName(presetInput.value || 'default') + ' preset preview for your public profile.';
+                setColourLabels();
             }
 
-            themeSelect.addEventListener('change', function () {
-                presetSelect.dataset.selectedPreset = 'default';
-                renderPresets();
-            });
+            function selectTheme(card, keepCustom) {
+                cards.forEach(item => item.classList.toggle('is-active', item === card));
+                themeInput.value = card.dataset.themeId || '';
+                versionInput.value = card.dataset.versionId || '';
+                renderFonts(keepCustom ? fontInput.value : parseJson(card.dataset.fonts, ['Inter'])[0]);
+                renderPresets(keepCustom ? presetInput.value : 'default', keepCustom);
+            }
 
-            presetSelect.addEventListener('change', function () {
+            function hideErrors() {
+                errorBox?.classList.add('d-none');
+                if (errorBox) errorBox.innerHTML = '';
+            }
+
+            function showErrors(errors) {
+                if (!errorBox) return;
+                const messages = [];
+                Object.values(errors || { theme: 'Theme settings could not be saved.' }).forEach(value => {
+                    Array.isArray(value) ? messages.push(...value) : messages.push(value);
+                });
+                errorBox.innerHTML = messages.map(message => '<div>' + String(message) + '</div>').join('');
+                errorBox.classList.remove('d-none');
+            }
+
+            cards.forEach(card => card.addEventListener('click', () => {
                 form.dataset.customSettings = '{}';
-                applyPresetToControls(false);
-                updatePreview();
-            });
+                selectTheme(card, false);
+            }));
 
-            [primaryInput, backgroundInput, textInput, fontInput].forEach(function (input) {
+            [primaryInput, backgroundInput, textInput, radiusRange, effectInput, shapeInput].forEach(input => {
                 input.addEventListener('input', updatePreview);
                 input.addEventListener('change', updatePreview);
+            });
+
+            customFontApply.addEventListener('click', () => {
+                const font = customFont.value.trim().replace(/[^A-Za-z0-9 ]/g, '');
+                if (!font) return;
+                fontInput.value = font;
+                renderFonts(font);
+                updatePreview();
             });
 
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 hideErrors();
                 saveButton.disabled = true;
-                saveButton.textContent = 'Saving...';
+                saveButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving';
 
                 const csrfToken = form.querySelector('input[name="_token"]')?.value
                     || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
@@ -436,71 +771,27 @@
                     credentials: 'same-origin',
                     body: new FormData(form)
                 })
-                    .then(function (response) {
-                        const contentType = response.headers.get('content-type') || '';
-
-                        if (!response.ok) {
-                            return response.text().then(function (text) {
-                                let data = {};
-
-                                if (contentType.includes('application/json')) {
-                                    try {
-                                        data = JSON.parse(text);
-                                    } catch (error) {
-                                        data = {};
-                                    }
-                                }
-
-                                if (data.errors) {
-                                    throw data;
-                                }
-
-                                throw {
-                                    errors: {
-                                        theme: 'Theme settings could not be saved. Server returned HTTP ' + response.status + '.'
-                                    }
-                                };
-                            });
-                        }
-
-                        if (contentType.includes('application/json')) {
-                            return response.json();
-                        }
-
-                        return {
-                            message: 'Theme settings saved.',
-                            setting: {
-                                custom_settings: {
-                                    primary: primaryInput.value,
-                                    background: backgroundInput.value,
-                                    text: textInput.value,
-                                    fontFamily: fontInput.value
-                                }
-                            }
-                        };
+                    .then(response => {
+                        if (response.ok) return response.headers.get('content-type')?.includes('application/json') ? response.json() : {};
+                        return response.json().then(data => { throw data; }).catch(error => { throw error.errors ? error : { errors: { theme: 'Theme settings could not be saved.' } }; });
                     })
-                    .then(function (data) {
-                        form.dataset.customSettings = JSON.stringify(data.setting?.custom_settings || {
-                            primary: primaryInput.value,
-                            background: backgroundInput.value,
-                            text: textInput.value,
-                            fontFamily: fontInput.value
-                        });
-
+                    .then(data => {
+                        form.dataset.customSettings = JSON.stringify(data.setting?.custom_settings || {});
                         if (window.bootstrap && document.getElementById('theme-saved-modal')) {
                             bootstrap.Modal.getOrCreateInstance(document.getElementById('theme-saved-modal')).show();
                         }
                     })
-                    .catch(function (error) {
-                        showErrors(error.errors || { theme: 'Theme settings could not be saved.' });
-                    })
-                    .finally(function () {
+                    .catch(error => showErrors(error.errors))
+                    .finally(() => {
                         saveButton.disabled = false;
-                        saveButton.textContent = 'Save theme settings';
+                        saveButton.innerHTML = '<i class="bi bi-check2-circle"></i> Save theme';
                     });
             });
 
-            renderPresets();
+            selectTheme(activeCard(), true);
+            fontInput.value = '{{ $initialFontFamily }}';
+            renderFonts(fontInput.value);
+            updatePreview();
         }
     };
 

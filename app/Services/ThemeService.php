@@ -17,6 +17,8 @@ class ThemeService
         return Theme::where('status', 'published')
             ->where('visibility', 'public')
             ->with('currentVersion')
+            ->orderByRaw("case when slug = 'livelatch-default' then 0 else 1 end")
+            ->orderBy('name')
             ->get();
     }
 
@@ -58,6 +60,8 @@ class ThemeService
 
             $version = $theme?->currentVersion;
             $presetKey = self::DEFAULT_PRESET;
+        } else {
+            $theme = $setting?->theme;
         }
 
         $manifest = $version ? $this->getThemeManifest($version) : [];
@@ -68,6 +72,9 @@ class ThemeService
 
         return [
             'theme_version' => $version,
+            'theme_slug' => $theme?->slug ?? self::DEFAULT_THEME_SLUG,
+            'theme_name' => $theme?->name ?? 'Livelatch Default',
+            'manifest' => $manifest,
             'preset_key' => isset($presets[$presetKey]) ? $presetKey : self::DEFAULT_PRESET,
             'preset' => array_merge($this->defaultPresetValues(), $preset, $this->cleanCustomSettings($customSettings)),
         ];
@@ -97,16 +104,35 @@ class ThemeService
             'text' => '#111827',
             'buttonRadius' => '8px',
             'fontFamily' => 'Inter',
+            'effectIntensity' => '55',
+            'shapeIntensity' => '45',
         ];
     }
 
     private function cleanCustomSettings(array $settings): array
     {
-        $allowedKeys = ['primary', 'background', 'text', 'buttonRadius', 'fontFamily'];
+        $allowedKeys = ['primary', 'background', 'text', 'buttonRadius', 'fontFamily', 'effectIntensity', 'shapeIntensity'];
         $cleanSettings = array_intersect_key($settings, array_flip($allowedKeys));
 
-        return array_filter($cleanSettings, function ($value) {
-            return is_string($value) && trim($value) !== '';
-        });
+        return collect($cleanSettings)
+            ->map(function ($value, string $key) {
+                if (in_array($key, ['effectIntensity', 'shapeIntensity'], true)) {
+                    return (string) max(0, min(100, (int) $value));
+                }
+
+                if ($key === 'buttonRadius') {
+                    return preg_match('/^\d{1,2}px$/', (string) $value) ? (string) $value : null;
+                }
+
+                if ($key === 'fontFamily') {
+                    $font = trim((string) $value);
+
+                    return preg_match('/^[A-Za-z0-9 ]{2,60}$/', $font) ? $font : null;
+                }
+
+                return is_string($value) && trim($value) !== '' ? $value : null;
+            })
+            ->filter()
+            ->all();
     }
 }

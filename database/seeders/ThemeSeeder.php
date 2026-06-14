@@ -4,56 +4,39 @@ namespace Database\Seeders;
 
 use App\Models\Theme;
 use App\Models\ThemeVersion;
+use App\Support\Themes\LivelatchThemeCatalog;
 use Illuminate\Database\Seeder;
 
 class ThemeSeeder extends Seeder
 {
     public function run(): void
     {
-        $theme = Theme::updateOrCreate(
-            ['slug' => 'livelatch-default'],
-            [
-                'name' => 'Livelatch Default',
-                'status' => 'published',
-                'visibility' => 'public',
-                'pricing_type' => 'free',
-            ]
-        );
+        foreach (LivelatchThemeCatalog::all() as $definition) {
+            $theme = Theme::updateOrCreate(
+                ['slug' => $definition['slug']],
+                [
+                    'name' => $definition['name'],
+                    'status' => $definition['status'],
+                    'visibility' => $definition['visibility'],
+                    'pricing_type' => $definition['pricing_type'],
+                ]
+            );
 
-        $version = ThemeVersion::updateOrCreate(
-            [
-                'theme_id' => $theme->id,
-                'version' => '1.0.0',
-            ],
-            [
-                'status' => 'published',
-                's3_asset_prefix' => 'themes/published/livelatch-default/v1.0.0',
-                'manifest' => [
-                    'presets' => [
-                        'default' => [
-                            'primary' => '#2563eb',
-                            'background' => '#ffffff',
-                            'text' => '#111827',
-                            'buttonRadius' => '8px',
-                        ],
-                        'dark' => [
-                            'primary' => '#7c3aed',
-                            'background' => '#0b0f1a',
-                            'text' => '#f9fafb',
-                            'buttonRadius' => '10px',
-                        ],
-                    ],
-                    'editableElements' => [
-                        'page' => ['background', 'color'],
-                        'button' => ['background', 'color', 'border-radius'],
-                        'heading' => ['color', 'font-size'],
-                    ],
+            $version = ThemeVersion::updateOrCreate(
+                [
+                    'theme_id' => $theme->id,
+                    'version' => $definition['version'],
                 ],
-            ]
-        );
+                [
+                    'status' => 'published',
+                    's3_asset_prefix' => $definition['s3_asset_prefix'],
+                    'manifest' => $definition['manifest'],
+                ]
+            );
 
-        $theme->update([
-            'current_version_id' => $version->id,
-        ]);
+            $theme->update([
+                'current_version_id' => $version->id,
+            ]);
+        }
     }
 }

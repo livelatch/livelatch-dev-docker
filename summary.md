@@ -14,6 +14,11 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Replaced the temporary dashboard sample data with `DashboardAnalyticsService`, which reads profile link click rows from Supabase as the source of truth and renders creator-focused Livewire analytics for total clicks, daily movement, clicks per link, direct destination opens, and connected social channels.
 - Added optional Supabase social metric snapshot configuration for future YouTube subscriber, TikTok follower, and other creator-connection growth charts, plus documentation and an owner todo for creating/populating the snapshot table.
 - Validation: ran PHP syntax checks for the dashboard service, Livewire component, dashboard Blade view, and services config.
+- Agent: Codex
+- Added a core Livelatch theme catalogue with 10 new free themes plus Livelatch Default, each backed by database-seeded manifests, six presets, suggested fonts, editable colour/radius/font/effect parameters, and public profile CSS effect rendering.
+- Rebuilt `/studio/theme` into a full-width Theme Studio with visual theme cards, preset pills, styled colour pickers, font examples, custom Google Font input, motion/texture sliders, live phone preview, and the existing AJAX save flow.
+- Updated theme documentation and added an owner todo to run `php artisan db:seed --class=ThemeSeeder` in an environment with the correct PDO driver; local seeding was attempted but failed because this PHP environment lacks the configured database driver.
+- Validation: ran PHP syntax checks for the catalog, seeder, theme service, controller, Studio Blade, and public theme module; rebuilt Blade view cache.
 
 ### 2026-06-13
 

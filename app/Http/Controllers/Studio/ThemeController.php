@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ThemeVersion;
 use App\Services\ThemeService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ThemeController extends Controller
 {
@@ -37,7 +36,10 @@ class ThemeController extends Controller
             'custom_settings.primary' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'custom_settings.background' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'custom_settings.text' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'custom_settings.fontFamily' => ['nullable', Rule::in(array_keys($this->themeService->getDefaultThemeFontFamilies()))],
+            'custom_settings.buttonRadius' => ['nullable', 'regex:/^\d{1,2}px$/'],
+            'custom_settings.fontFamily' => ['nullable', 'regex:/^[A-Za-z0-9 ]{2,60}$/'],
+            'custom_settings.effectIntensity' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'custom_settings.shapeIntensity' => ['nullable', 'integer', 'min:0', 'max:100'],
         ]);
 
         $themeVersion = ThemeVersion::query()
