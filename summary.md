@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-14
+
+- Agent: Codex
+- Replaced the temporary dashboard sample data with `DashboardAnalyticsService`, which reads profile link click rows from Supabase as the source of truth and renders creator-focused Livewire analytics for total clicks, daily movement, clicks per link, direct destination opens, and connected social channels.
+- Added optional Supabase social metric snapshot configuration for future YouTube subscriber, TikTok follower, and other creator-connection growth charts, plus documentation and an owner todo for creating/populating the snapshot table.
+- Validation: ran PHP syntax checks for the dashboard service, Livewire component, dashboard Blade view, and services config.
+
 ### 2026-06-13
 
 - Agent: Codex

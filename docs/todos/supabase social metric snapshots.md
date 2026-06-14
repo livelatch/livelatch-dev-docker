@@ -1,0 +1,19 @@
+# Supabase Social Metric Snapshots
+
+ask_after: 2026-06-15T00:00:00+08:00
+
+Create and populate the optional Supabase table used by the dashboard for YouTube, TikTok, and other creator connection growth charts.
+
+Recommended table name:
+
+```text
+livelatch_social_metric_snapshots
+```
+
+Recommended columns are documented in:
+
+```text
+docs/platform-runtime/dashboard-analytics-data.md
+```
+
+The dashboard already reads this table through `SUPABASE_SOCIAL_METRICS_TABLE`. It will show connected accounts without graphs until follower/subscriber snapshot rows are being written.

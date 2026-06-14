@@ -1,62 +1,124 @@
-# Dashboard Analytics Data (Current + Planned)
+# Dashboard Analytics Data
 
-The Studio dashboard currently renders through the Livewire analytics component:
+The Studio dashboard is rendered by Livewire:
 
 ```text
 resources/views/panel/index.blade.php
 -> app/Http/Livewire/DashboardAnalytics.php
+-> app/Services/DashboardAnalyticsService.php
 -> resources/views/livewire/dashboard-analytics.blade.php
 ```
 
-## Current status
+## Current Source Of Truth
 
-The dashboard is intentionally running on sample metrics so the `/dashboard` screen stays stable while the analytics pipeline is being reworked.
+Dashboard click analytics now come from [Supabase](https://supabase.com/), not the old LinkStack `links.click_number` counters and not temporary sample data.
 
-The UI includes a disclaimer:
+The primary table is configured with:
 
-```text
-Sample analytics data only — Latchalytics is coming soon.
+```env
+SUPABASE_PROFILE_LINK_CLICKS_TABLE=livelatch_profile_link_clicks
 ```
 
-This placeholder mode prevents data-provider failures from breaking Studio navigation and login redirects.
+Laravel reads that table through Supabase REST using:
 
-## How native analytics was previously gathered
-
-Before the sample-data fallback, dashboard cards were assembled in:
-
-```text
-app/Http/Controllers/AdminController.php
+```env
+LATCHID_SUPABASE_URL=
+LATCHID_SERVICE_ROLE_KEY=
 ```
 
-Main sources were:
+The service role key is only used server-side in Laravel. It must never be passed to Blade, JavaScript, or browser requests.
 
-- `links` table counts and click totals from `App\Models\Link`
-- top-link ranking from `links.click_number`
-- account totals and activity windows from `App\Models\User`
-- profile visit windows through the `visits(...)` tracker helper
+## Click Metrics
 
-That approach provided real metrics, but it also introduced runtime fragility when analytics providers or tracker assumptions failed.
+`DashboardAnalyticsService` reads recent rows from the click table and filters by the current user:
 
-## Current sample-data structure
+```text
+laravel_user_id = current Laravel user id
+or
+latchid_user_id = current user's LatchID Supabase user id
+or
+profile_handle = current user's public handle
+```
 
-`AdminController::index()` now passes:
+The dashboard then calculates:
 
-- sample link totals and click totals
-- sample top links
-- sample visit windows (`day`, `week`, `month`, `year`)
-- sample site and user activity windows
-- explicit sample-mode flags for the Livewire view (`isSampleData`, `analyticsNotice`)
+- total clicks
+- clicks today
+- yesterday comparison
+- percentage change since yesterday
+- clicked-link count
+- average clicks per clicked link
+- clicks per link
+- last clicked time per link
+- a 14-day click chart
 
-The Livewire component still renders real dashboard cards/charts (bars, top-link rows, activity windows), but with controlled sample values.
+Link rows are grouped from Supabase click data. This means newly added profile links appear in dashboard analytics automatically once a visitor clicks them and the redirect flow inserts a new Supabase click row.
 
-## Planned rewire (PostHog + Latchalytics)
+## Redirect Links
 
-The intended direction is to replace sample payloads with a dedicated analytics service that reads from PostHog-backed events and internal Latchalytics transforms.
+The dashboard uses the stored destination URL from the Supabase click row for the `Open` action. This intentionally opens the destination directly instead of routing through `/going/{id}` so dashboard owner clicks do not inflate public link analytics.
 
-Recommended next step:
+## Creator Connections
 
-1. Create a dashboard analytics service layer that returns a typed payload for Livewire.
-2. Keep `DashboardAnalytics` view contracts stable.
-3. Switch the service source from sample fixtures to PostHog queries when production metrics are ready.
+The dashboard also shows active creator connections from the local `social_accounts` table and the LatchID TikTok account lookup.
 
-This allows the dashboard UI to stay stable while analytics storage and event mapping evolve.
+Supported labels include:
+
+- YouTube / Google
+- TikTok
+- Discord
+- Instagram
+- Threads
+- Bluesky
+- X
+- Reddit
+
+If a connection exists but no metric snapshots exist yet, the dashboard shows the account as connected and waits for history before drawing a chart.
+
+## Social Metric Snapshots
+
+Follower/subscriber graphs are optional and data-driven. They are configured with:
+
+```env
+SUPABASE_SOCIAL_METRICS_TABLE=livelatch_social_metric_snapshots
+```
+
+Recommended Supabase table shape:
+
+```sql
+create table if not exists public.livelatch_social_metric_snapshots (
+    id uuid primary key default gen_random_uuid(),
+    provider text not null,
+    metric_name text not null,
+    metric_value bigint not null,
+    laravel_user_id bigint,
+    latchid_user_id uuid,
+    captured_at timestamptz not null default now(),
+    inserted_at timestamptz not null default now()
+);
+
+create index if not exists livelatch_social_metric_snapshots_laravel_user_idx
+    on public.livelatch_social_metric_snapshots (laravel_user_id, provider, captured_at);
+
+create index if not exists livelatch_social_metric_snapshots_latchid_user_idx
+    on public.livelatch_social_metric_snapshots (latchid_user_id, provider, captured_at);
+```
+
+Expected metric names:
+
+```text
+youtube: subscribers
+tiktok: followers
+discord: members
+instagram: followers
+threads: followers
+bluesky: followers
+x: followers
+reddit: followers
+```
+
+Collectors for these snapshots can be added later through scheduled Laravel jobs, Supabase Edge Functions, or another backend worker. The dashboard does not invent follower or subscriber values.
+
+## Failure Behavior
+
+Supabase lookups are best-effort. If config is missing, the table is unavailable, or the REST request fails, the dashboard renders empty live states instead of fake data. This keeps `/dashboard` available while making it obvious that analytics data has not loaded.
