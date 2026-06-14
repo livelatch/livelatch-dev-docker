@@ -28,9 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        PostHog::init(config('services.posthog.key'), [
-            'host' => config('services.posthog.host'),
-        ]);
+        if (config('services.posthog.key')) {
+            PostHog::init(config('services.posthog.key'), [
+                'host' => config('services.posthog.host'),
+            ]);
+        }
 
         Paginator::useBootstrap();
         Validator::extend('isunique', function ($attribute, $value, $parameters, $validator) {

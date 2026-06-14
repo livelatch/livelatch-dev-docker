@@ -41,6 +41,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <base href="{{ url()->current() }}" />
 
     @include('layouts.analytics')
+    @include('layouts.posthog')
     @stack('sidebar-stylesheets')
     @livewireStyles
     {{-- Legacy LinkStack notifications disabled. Livelatch notifications are rendered directly in this layout. --}}

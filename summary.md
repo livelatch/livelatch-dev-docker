@@ -55,6 +55,12 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Validation: searched app-owned assets/views for remaining device theme hooks, ran PHP syntax checks for changed Blade views, ran JS syntax checks for changed theme scripts, and rebuilt Blade view cache.
 - Updated the TikTok Edge Function owner todo with the observed `tiktok_user_fetch_failed` parser bug where TikTok returns HTTP 200 and `error.code: "ok"` with `data.user`, but the function still treats the lookup as failed.
 - Validation: confirmed the Edge Function source is not present in this repo and Supabase MCP access requires authentication before remote function retrieval or deployment.
+- Added the PostHog browser snippet to the Studio/sidebar layout, guarded the server-side PostHog PHP init behind `services.posthog.key`, and documented `POSTHOG_API_KEY` plus `POSTHOG_HOST` in `.env.example`.
+- Validation: ran PHP syntax checks for the changed provider and sidebar Blade layout, then rebuilt Blade view cache.
+- Added `docs/platform-runtime/posthog-analytics.md` documenting PostHog environment variables, Laravel config, Blade snippet placement, server-side initialization, and deployment cache checks.
+- Validation: reviewed the new documentation entry and rebuilt Blade view cache.
+- Added `docs/SEO Research/babylovegrowth-ai.md` as an early research note on BabyLoveGrowth.ai, including public positioning, possible Livelatch relevance, evaluation questions, SEO themes to test, and cautions around automated content/backlinks.
+- Validation: reviewed the new SEO research note and confirmed the `docs/SEO Research` folder contents.
 
 ### 2026-06-12
 
