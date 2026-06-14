@@ -58,6 +58,7 @@ return [
 
     'supabase_url' => env('LATCHID_SUPABASE_URL', env('SUPABASE_URL')),
     'supabase_service_role_key' => env('LATCHID_SERVICE_ROLE_KEY', env('SUPABASE_SERVICE_ROLE_KEY')),
+    'supabase_profile_link_clicks_table' => env('SUPABASE_PROFILE_LINK_CLICKS_TABLE', 'livelatch_profile_link_clicks'),
     'tiktok_oauth_authorize_url' => env('TIKTOK_OAUTH_AUTHORIZE_URL', 'https://yaljyfdfnphxzuhqlbfs.functions.supabase.co/tiktok-oauth/authorize'),
 
     'posthog' => [

@@ -57,6 +57,7 @@
   <meta name="robots" content="noindex, follow">
 
 <style>.container{word-break: break-word;}</style>
+@include('layouts.posthog')
 </head>
 <body>
 

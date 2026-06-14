@@ -2,6 +2,7 @@
 @include('layouts.lang')
 @if(auth()->user()->role == 'admin')
 <head>
+  @include('layouts.posthog')
   <!-- begin dark mode detection -->
 	<script src="{{ asset('assets/linkstack/js/js.cookie.min.js') }}"></script>
 	<script>

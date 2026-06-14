@@ -61,6 +61,16 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Validation: reviewed the new documentation entry and rebuilt Blade view cache.
 - Added `docs/SEO Research/babylovegrowth-ai.md` as an early research note on BabyLoveGrowth.ai, including public positioning, possible Livelatch relevance, evaluation questions, SEO themes to test, and cautions around automated content/backlinks.
 - Validation: reviewed the new SEO research note and confirmed the `docs/SEO Research` folder contents.
+- Added server-side Supabase profile link click capture on the existing `/going/{id}` redirect path, preserving local `links.click_number` increments while inserting best-effort analytics rows through the Supabase REST API.
+- Added `SUPABASE_PROFILE_LINK_CLICKS_TABLE` configuration, documented the Supabase table contract in `docs/supabase/profile-link-clicks.md`, and added a todo for creating/verifying the remote Supabase table because MCP is not authenticated in this session.
+- Validation: ran PHP syntax checks for the new service, changed controller, and services config; rebuilt Laravel config and Blade caches.
+- Extended the profile link click capture path to also emit a server-side PostHog `profile_link_clicked` event with link, profile, destination, referer, IP hash, and timestamp properties.
+- Updated the Supabase profile-click and PostHog analytics docs with the event name, distinct ID strategy, and property list.
+- Validation: ran PHP syntax checks for the click capture service and rebuilt Laravel config and Blade caches.
+- Explicitly enabled PostHog JS `capture_pageleave`, pageview capture, autocapture, secure cookies, and current defaults in the shared browser snippet so `$pageleave` events are collected consistently.
+- Expanded PostHog browser coverage across public profiles, auth/guest pages, maintenance/install/update pages, public static pages, the fallback home/demo/report/linkinfo pages, standalone admin utility pages, and the standalone `homepage-demo.php` marketing homepage.
+- Updated `docs/platform-runtime/posthog-analytics.md` with the browser config, layout coverage, and expected event checks.
+- Validation: ran PHP syntax checks for `homepage-demo.php` and the PHP info Blade view, rebuilt Blade view cache, and rebuilt Laravel config cache.
 
 ### 2026-06-12
 

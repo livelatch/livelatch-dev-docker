@@ -5,6 +5,7 @@
 @include('layouts.lang')
   <head>
     <meta charset="utf-8">
+    @include('layouts.posthog')
     @php $GLOBALS['themeName'] = config('advanced-config.home_theme'); @endphp
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
       @if(env('CUSTOM_META_TAGS') == 'true' and config('advanced-config.title') != '')

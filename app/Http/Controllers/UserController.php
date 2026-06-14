@@ -27,6 +27,7 @@ use App\Models\Button;
 use App\Models\Link;
 use App\Models\LinkType;
 use App\Models\UserData;
+use App\Services\SupabaseProfileLinkClickService;
 use App\Services\ThemeService;
 
 
@@ -367,7 +368,7 @@ class UserController extends Controller
 
 
     //Count the number of clicks and redirect to link
-    public function clickNumber(request $request)
+    public function clickNumber(request $request, SupabaseProfileLinkClickService $profileLinkClicks)
     {
         $linkId = $request->id;
 
@@ -376,19 +377,20 @@ class UserController extends Controller
             return redirect(url('info/'.$linkWithoutPlus));
         }
     
-        $link = Link::find($linkId);
+        $linkModel = Link::find($linkId);
 
-        if (empty($link)) {
+        if (empty($linkModel)) {
             return abort(404);
         }
 
-        $link = $link->link;
+        $link = $linkModel->link;
 
         if (empty($linkId)) {
             return abort(404);
         }
 
         Link::where('id', $linkId)->increment('click_number', 1);
+        $profileLinkClicks->record($linkModel, $request);
 
         $response = redirect()->away($link);
         $response->header('X-Robots-Tag', 'noindex, nofollow');

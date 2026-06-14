@@ -66,3 +66,4 @@
 @endif
 
 @include('layouts.analytics')
+@include('layouts.posthog')

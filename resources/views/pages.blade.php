@@ -5,6 +5,7 @@
   <title>{{ucfirst(Request::segment(2))}} - {{env('APP_NAME')}}</title>
 
 @include('layouts.analytics')
+@include('layouts.posthog')
 
       <!-- Favicon -->
       @if(file_exists(base_path("assets/linkstack/images/").findFile('favicon')))

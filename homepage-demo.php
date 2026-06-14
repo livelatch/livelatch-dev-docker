@@ -41,6 +41,11 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Livelatch Homepage Demo</title>
     <meta name="description" content="A static Livelatch homepage prototype for the creator platform, LatchID, LatchDeck, and Latchalytics.">
+    <?php
+    if (function_exists('view')) {
+        echo view('layouts.posthog')->render();
+    }
+    ?>
     <style>
         :root {
             --ll-navy-950: #050814;

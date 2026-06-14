@@ -5,6 +5,7 @@
   <meta charset="utf-8">
 
 @include('layouts.analytics')
+@include('layouts.posthog')
 
   @if(env('CUSTOM_META_TAGS') == 'true' and config('advanced-config.title') != '')
   <title>{{ config('advanced-config.title') }}</title>
