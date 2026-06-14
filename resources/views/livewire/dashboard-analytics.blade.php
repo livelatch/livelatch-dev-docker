@@ -367,8 +367,8 @@
                 <strong>{{ $status['headline'] ?? 'Your dashboard is ready.' }}</strong>
                 <p class="mb-0">{{ $status['message'] ?? 'Keep sharing your profile to build momentum.' }}</p>
                 <span class="ll-dashboard-source">
-                    <i class="bi bi-database-check"></i>
-                    Supabase source of truth
+                    <i class="bi bi-activity"></i>
+                    Live analytics
                 </span>
             </aside>
         </div>
@@ -376,7 +376,7 @@
 
     @if(empty($source['isConfigured']))
         <section class="ll-dashboard-empty" role="status">
-            Supabase analytics is not configured for this environment yet. Set the LatchID Supabase URL and service role key to load live dashboard data.
+            Analytics are getting ready. Check back after your profile receives new visits and link clicks.
         </section>
     @endif
 
@@ -432,7 +432,7 @@
                     @endforeach
                 </div>
             @else
-                <div class="ll-dashboard-empty">No Supabase click rows have been recorded yet.</div>
+                <div class="ll-dashboard-empty">No clicks have been recorded yet.</div>
             @endif
         </article>
 
@@ -476,7 +476,7 @@
                     </div>
                 @empty
                     <div class="ll-dashboard-empty">
-                        No link clicks have arrived from Supabase yet. New link rows will appear here automatically after visitors click profile links.
+                        No link clicks yet. Share your profile and your top links will appear here as your audience starts clicking.
                     </div>
                 @endforelse
             </div>
@@ -520,7 +520,7 @@
                     </div>
                 @empty
                     <div class="ll-dashboard-empty">
-                        No creator connections are active yet. Link YouTube, TikTok, or other channels from LatchID to unlock growth charts.
+                        No creator channels are connected yet. Link your channels from LatchID to unlock growth charts.
                     </div>
                 @endforelse
             </div>

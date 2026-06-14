@@ -17,6 +17,8 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Agent: Codex
 - Added a core Livelatch theme catalogue with 10 new free themes plus Livelatch Default, each backed by database-seeded manifests, six presets, suggested fonts, editable colour/radius/font/effect parameters, and public profile CSS effect rendering.
 - Rebuilt `/studio/theme` into a full-width Theme Studio with visual theme cards, preset pills, styled colour pickers, font examples, custom Google Font input, motion/texture sliders, live phone preview, and the existing AJAX save flow.
+- Tightened the Theme Studio UI so theme selection is a compact horizontal chooser with presets in the same panel and a smaller sticky preview, reducing the vertical space used before the editing controls.
+- Cleaned user-facing alpha copy across Theme Studio, Dashboard analytics, Manage My Data, Affiliate Program, and LatchDeck placeholder screens so implementation details, testing language, and internal provider references are no longer shown to normal users.
 - Updated theme documentation and added an owner todo to run `php artisan db:seed --class=ThemeSeeder` in an environment with the correct PDO driver; local seeding was attempted but failed because this PHP environment lacks the configured database driver.
 - Validation: ran PHP syntax checks for the catalog, seeder, theme service, controller, Studio Blade, and public theme module; rebuilt Blade view cache.
 

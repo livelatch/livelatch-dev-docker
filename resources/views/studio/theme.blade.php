@@ -24,7 +24,7 @@
 
     .ll-theme-studio {
         display: grid;
-        gap: 18px;
+        gap: 14px;
     }
 
     .ll-theme-top {
@@ -36,9 +36,9 @@
 
     .ll-theme-top h1 {
         color: var(--ll-text);
-        font-size: clamp(2rem, 4vw, 3.4rem);
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
         line-height: 1;
-        margin: 0 0 8px;
+        margin: 0 0 6px;
     }
 
     .ll-theme-top p,
@@ -61,7 +61,7 @@
 
     .ll-theme-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr);
+        grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
         gap: 18px;
         align-items: start;
     }
@@ -71,19 +71,23 @@
         border-radius: var(--ll-radius);
         background: var(--ll-surface-solid);
         box-shadow: var(--ll-shadow-soft);
-        padding: 18px;
+        padding: 14px;
     }
 
     .ll-theme-panel h2 {
         color: var(--ll-text);
-        font-size: 1.05rem;
-        margin: 0 0 14px;
+        font-size: .98rem;
+        margin: 0 0 10px;
     }
 
     .ll-theme-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        display: flex;
+        gap: 10px;
+        margin: 0 -4px;
+        overflow-x: auto;
+        padding: 2px 4px 10px;
+        scroll-snap-type: x proximity;
+        scrollbar-width: thin;
     }
 
     .ll-theme-card {
@@ -93,12 +97,14 @@
         color: var(--ll-text);
         cursor: pointer;
         display: grid;
-        gap: 12px;
-        min-height: 178px;
-        padding: 12px;
+        flex: 0 0 176px;
+        gap: 8px;
+        min-height: 118px;
+        padding: 9px;
+        scroll-snap-align: start;
         text-align: left;
         transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-        width: 100%;
+        width: 176px;
     }
 
     .ll-theme-card:hover,
@@ -109,8 +115,8 @@
     }
 
     .ll-theme-swatch {
-        border-radius: calc(var(--ll-radius) - 2px);
-        min-height: 78px;
+        border-radius: 12px;
+        min-height: 48px;
         overflow: hidden;
         position: relative;
     }
@@ -118,9 +124,9 @@
     .ll-theme-swatch::after {
         content: "";
         position: absolute;
-        inset: 12px;
+        inset: 10px;
         border: 1px solid rgba(255,255,255,.45);
-        border-radius: 12px;
+        border-radius: 10px;
         background: rgba(255,255,255,.24);
         box-shadow: 0 14px 30px rgba(15,23,42,.18);
     }
@@ -132,16 +138,26 @@
 
     .ll-theme-card p {
         color: var(--ll-muted);
-        font-size: .86rem;
-        line-height: 1.35;
+        display: none;
+        font-size: .8rem;
+        line-height: 1.3;
         margin: 0;
+    }
+
+    .ll-theme-card small {
+        color: var(--ll-muted);
+        display: block;
+        font-size: .75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .ll-theme-presets,
     .ll-theme-fonts {
         display: flex;
         flex-wrap: wrap;
-        gap: 9px;
+        gap: 8px;
     }
 
     .ll-theme-pill {
@@ -151,7 +167,7 @@
         color: var(--ll-text);
         cursor: pointer;
         font-weight: 700;
-        padding: 8px 11px;
+        padding: 7px 10px;
     }
 
     .ll-theme-pill.is-active {
@@ -162,7 +178,41 @@
 
     .ll-theme-controls {
         display: grid;
-        gap: 14px;
+        gap: 12px;
+    }
+
+    .ll-theme-picker-panel {
+        display: grid;
+        gap: 12px;
+    }
+
+    .ll-theme-picker-head {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ll-theme-picker-head p {
+        color: var(--ll-muted);
+        font-size: .86rem;
+        margin: 0;
+    }
+
+    .ll-theme-presets-row {
+        align-items: center;
+        border-top: 1px solid var(--ll-border);
+        display: grid;
+        gap: 10px;
+        grid-template-columns: auto minmax(0, 1fr);
+        padding-top: 12px;
+    }
+
+    .ll-theme-presets-row > span {
+        color: var(--ll-muted);
+        font-size: .78rem;
+        font-weight: 800;
+        text-transform: uppercase;
     }
 
     .ll-theme-colours {
@@ -260,8 +310,8 @@
         background: #101827;
         box-shadow: var(--ll-shadow-soft);
         margin: 0 auto;
-        max-width: 390px;
-        padding: 12px;
+        max-width: 342px;
+        padding: 10px;
     }
 
     .ll-theme-preview-screen {
@@ -271,9 +321,9 @@
         border-radius: 26px;
         color: var(--ll-preview-text);
         font-family: var(--ll-preview-font);
-        min-height: 610px;
+        min-height: 500px;
         overflow: hidden;
-        padding: 30px 22px;
+        padding: 24px 18px;
         position: relative;
     }
 
@@ -305,7 +355,7 @@
 
     .ll-theme-preview-profile {
         display: grid;
-        gap: 14px;
+        gap: 11px;
         position: relative;
         text-align: center;
         z-index: 1;
@@ -315,9 +365,9 @@
         background: var(--ll-preview-primary);
         border: 3px solid rgba(255,255,255,.42);
         border-radius: 999px;
-        height: 78px;
+        height: 66px;
         margin: 0 auto;
-        width: 78px;
+        width: 66px;
     }
 
     .ll-theme-preview-profile h3 {
@@ -381,6 +431,15 @@
         .ll-theme-colours {
             grid-template-columns: 1fr;
         }
+
+        .ll-theme-card {
+            flex-basis: 152px;
+            width: 152px;
+        }
+
+        .ll-theme-presets-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
@@ -388,7 +447,7 @@
     <div class="ll-theme-top">
         <div>
             <h1>Theme Studio</h1>
-            <p class="mb-0">Choose a free core theme, pick a preset, then tune colours, font, radius, and motion for your public profile.</p>
+            <p class="mb-0">Choose a theme, pick a preset, then tune colours, font, radius, and motion for your public profile.</p>
         </div>
         @if(!$themes->isEmpty())
             <button type="submit" form="theme-settings-form" class="ll-theme-save" id="theme-save-button">
@@ -423,8 +482,13 @@
 
             <div class="ll-theme-layout">
                 <div class="ll-theme-controls">
-                    <section class="ll-theme-panel">
-                        <h2>Choose a theme</h2>
+                    <section class="ll-theme-panel ll-theme-picker-panel">
+                        <div class="ll-theme-picker-head">
+                            <div>
+                                <h2>Choose a theme</h2>
+                                <p>Browse available looks for your profile.</p>
+                            </div>
+                        </div>
                         <div class="ll-theme-grid" id="theme-card-grid">
                             @foreach($themes as $theme)
                                 @php
@@ -450,16 +514,16 @@
                                     <span class="ll-theme-swatch" style="background: {{ $manifest['previewGradient'] ?? 'linear-gradient(135deg, #2563eb, #22d3ee)' }};"></span>
                                     <span>
                                         <strong>{{ $theme->name }}</strong>
-                                        <p>{{ $manifest['description'] ?? 'Core Livelatch theme.' }}</p>
+                                        <small>{{ $theme->pricing_type === 'free' ? 'Included' : ucfirst($theme->pricing_type) }}</small>
+                                        <p>{{ $manifest['description'] ?? 'Livelatch theme.' }}</p>
                                     </span>
                                 </button>
                             @endforeach
                         </div>
-                    </section>
-
-                    <section class="ll-theme-panel">
-                        <h2>Presets</h2>
-                        <div class="ll-theme-presets" id="theme-preset-list"></div>
+                        <div class="ll-theme-presets-row">
+                            <span>Presets</span>
+                            <div class="ll-theme-presets" id="theme-preset-list"></div>
+                        </div>
                     </section>
 
                     <section class="ll-theme-panel">
@@ -543,7 +607,7 @@
                                         <span></span>
                                         <div>
                                             <strong>Creator link card</strong>
-                                            <p class="mb-0">Theme effects stay behind the profile content.</p>
+                                            <p class="mb-0">Your links stay clear and easy to tap.</p>
                                         </div>
                                     </div>
                                 </div>

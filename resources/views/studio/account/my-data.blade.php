@@ -136,7 +136,7 @@
                     Compliance
                 </span>
                 <h2>Manage My Data</h2>
-                <p>Review how Livelatch expects to collect, use, and manage account data. These documents are draft operational boilerplate loaded from the compliance docs folder.</p>
+                <p>Review how Livelatch collects, uses, and manages account data.</p>
             </div>
             <a href="{{ url('/studio/latchid') }}" class="btn btn-primary">
                 <i class="bi bi-person-vcard-fill"></i>
@@ -169,7 +169,7 @@
         <section class="ll-data-request">
             <div>
                 <h3>Request a copy of all held data</h3>
-                <p>If you want to request a copy of all data Livelatch holds about your account, press this button. This is a placeholder and will later send an automated email request.</p>
+                <p>Request an export of the account data Livelatch holds about you.</p>
             </div>
             <button type="button" class="btn btn-light" disabled>
                 <i class="bi bi-envelope-paper"></i>
@@ -180,7 +180,7 @@
         <section class="ll-data-request">
             <div>
                 <h3>Request account deletion</h3>
-                <p>If you want your Livelatch account reviewed for deletion, press this button. For now this is placeholder boilerplate and will later send an automated offboarding email request.</p>
+                <p>Ask Livelatch to review your account for deletion and offboarding.</p>
             </div>
             <button type="button" class="btn btn-light" disabled>
                 <i class="bi bi-person-x"></i>
@@ -191,7 +191,7 @@
         <section class="ll-data-request">
             <div>
                 <h3>View source</h3>
-                <p>Livelatch is built from a LinkStack fork. This placeholder will eventually redirect to the public GitHub source page for license and transparency review.</p>
+                <p>Review the public source code and license information for Livelatch.</p>
             </div>
             <button type="button" class="btn btn-light" disabled>
                 <i class="bi bi-github"></i>
