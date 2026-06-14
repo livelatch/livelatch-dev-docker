@@ -21,6 +21,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Cleaned user-facing alpha copy across Theme Studio, Dashboard analytics, Manage My Data, Affiliate Program, and LatchDeck placeholder screens so implementation details, testing language, and internal provider references are no longer shown to normal users.
 - Updated theme documentation and added an owner todo to run `php artisan db:seed --class=ThemeSeeder` in an environment with the correct PDO driver; local seeding was attempted but failed because this PHP environment lacks the configured database driver.
 - Validation: ran PHP syntax checks for the catalog, seeder, theme service, controller, Studio Blade, and public theme module; rebuilt Blade view cache.
+- Agent: Codex
+- Overhauled `homepage-demo.php` into a Livelatch Alpha homepage with a single Get Started LatchID action, documentation-library nav link, `@alex` profile demo frame, Free vs Pro plan table, and HTMX-loaded public Privacy/Terms footer panels.
+- Added public `/legal/privacy` and `/legal/terms` routes with compact HTMX partials plus standalone fallback pages, and documented the homepage/legal route structure in `docs/platform-runtime/public-homepage.md`.
+- Validation: ran PHP syntax checks for the homepage, routes, and legal Blade views.
 
 ### 2026-06-13
 

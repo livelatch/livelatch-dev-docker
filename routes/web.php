@@ -115,6 +115,18 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
 
         Route::get('/demo-page', [App\Http\Controllers\HomeController::class, 'demo'])->name('demo')->middleware('disableCookies');
 
+        Route::get('/legal/privacy', function (\Illuminate\Http\Request $request) {
+            $view = $request->header('HX-Request') ? 'public.legal-partial' : 'public.legal-page';
+
+            return view($view, ['type' => 'privacy']);
+        })->name('legal.privacy')->middleware('disableCookies');
+
+        Route::get('/legal/terms', function (\Illuminate\Http\Request $request) {
+            $view = $request->header('HX-Request') ? 'public.legal-partial' : 'public.legal-page';
+
+            return view($view, ['type' => 'terms']);
+        })->name('legal.terms')->middleware('disableCookies');
+
         Route::get('/block-asset/{type}', [LinkTypeViewController::class, 'blockAsset'])
             ->name('block.asset')->where(['type' => '[a-zA-Z0-9_-]+']);
 
