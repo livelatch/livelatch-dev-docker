@@ -60,4 +60,9 @@ return [
     'supabase_service_role_key' => env('LATCHID_SERVICE_ROLE_KEY', env('SUPABASE_SERVICE_ROLE_KEY')),
     'tiktok_oauth_authorize_url' => env('TIKTOK_OAUTH_AUTHORIZE_URL', 'https://yaljyfdfnphxzuhqlbfs.functions.supabase.co/tiktok-oauth/authorize'),
 
+    'posthog' => [
+        'key' => env('POSTHOG_API_KEY'),
+        'host' => env('POSTHOG_HOST', 'https://eu.i.posthog.com'),
+    ],
+
 ];
