@@ -17,5 +17,15 @@
             });
         },
     });
+
+    @auth
+    @php($llDistinctId = auth()->user()->supabase_user_id ? 'latchid:'.auth()->user()->supabase_user_id : 'laravel-user:'.auth()->id())
+    posthog.identify(@json($llDistinctId), {
+        email: @json(auth()->user()->email),
+        name: @json(auth()->user()->name ?? ''),
+        livelatch_user_id: @json((string) auth()->id()),
+        latchid_user_id: @json((string) (auth()->user()->supabase_user_id ?? '')),
+    });
+    @endauth
 </script>
 @endif

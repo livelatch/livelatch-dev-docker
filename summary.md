@@ -28,6 +28,11 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Overhauled admin Dev Tools (`resources/views/studio/admin/dev-tools.blade.php`) into a scoped, leak-free editor: light and dark token sets are crafted independently against two side-by-side preview stages rendered via offscreen `[data-ll-theme]` probes, so the live site theme is never touched.
 - Added an optional, persisted Liquid Glass visual layer toggled from Dev Tools, isolated in `resources/views/layouts/liquid-glass.blade.php` (included once in the sidebar layout) with removal instructions in `docs/platform-runtime/liquid-glass.md`.
 - Validation: ran `php artisan view:cache` (all Blade templates compiled); updated `docs/platform-runtime/admin-dev-tools.md` and added `docs/platform-runtime/liquid-glass.md`.
+- Agent: Claude
+- Added PostHog user identification for authenticated users in `resources/views/layouts/posthog.blade.php`: an `@auth` `posthog.identify(...)` call placed after the existing `posthog.init(...)` (init left unchanged), sending `email`, `name`, `livelatch_user_id`, and `latchid_user_id` as person properties.
+- Set the browser distinct ID to `latchid:{supabase_user_id}` with a `laravel-user:{id}` fallback so browser identity matches the server-side `profile_link_clicked` scheme; corrected the assumption that `users.id` is the Supabase UUID (the UUID is `users.supabase_user_id`). Values are emitted with `@json(...)` for safe JS escaping.
+- No sidebar change needed: `resources/views/layouts/sidebar.blade.php` already includes `@include('layouts.posthog')`.
+- Validation: ran `php artisan view:cache` (all Blade templates compiled); updated `docs/platform-runtime/posthog-analytics.md`.
 
 ### 2026-06-14
 

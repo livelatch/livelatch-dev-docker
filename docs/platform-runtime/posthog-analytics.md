@@ -86,6 +86,21 @@ echo view('layouts.posthog')->render();
 
 This matters because most Studio and admin screens use `layouts.sidebar`, some Laravel/Livewire screens use `layouts.app`, auth screens use `layouts.guest`, and public profile pages render through the LinkStack profile layout.
 
+## User Identification
+
+Authenticated Studio pages call `posthog.identify` from the shared snippet so logged-in users appear in PostHog with their email instead of an anonymous ID.
+
+The browser distinct ID mirrors the server-side scheme used by `SupabaseProfileLinkClickService`, so browser and server events resolve to the same person:
+
+- `latchid:{users.supabase_user_id}` when the user has a LatchID/Supabase UUID
+- `laravel-user:{users.id}` as a fallback
+
+Person properties sent: `email`, `name`, `livelatch_user_id` (local Laravel ID), and `latchid_user_id` (Supabase UUID).
+
+The call is wrapped in Blade `@auth` (authenticated users only) and sits inside the `config('services.posthog.key')` guard, immediately after `posthog.init(...)`. Values are emitted with `@json(...)` for safe JavaScript escaping. Because the snippet sets `person_profiles: 'identified_only'`, PostHog only creates a person profile once `identify` runs.
+
+> Note: `auth()->user()->id` is the local Laravel bigint primary key, **not** the Supabase UUID — that is `users.supabase_user_id`. The distinct ID above intentionally uses the Supabase UUID with the `latchid:` prefix to stay aligned with the server-side `profile_link_clicked` events.
+
 ## Server-Side Client
 
 `app/Providers/AppServiceProvider.php` initializes the PostHog PHP client only when a key is configured:
