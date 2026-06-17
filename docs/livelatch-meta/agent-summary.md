@@ -17,6 +17,7 @@ The rule is simple:
 - The full project documentation was reviewed first to get up to speed before making any changes.
 - The owner todo list was cleaned up, and finished items were closed: Discord login, the TikTok connection fix, live click analytics, and the theme catalogue.
 - A few todos were kept open with clearer notes explaining why, including a YouTube setup step that is waiting on Google's review.
+- The public homepage was redesigned to match the live app's clean, light, Poppins look and to explain Livelatch in plain language, using the product logos as section headings and keeping the live @alex2 page as a demo.
 
 ### 2026-06-13
 

@@ -16,6 +16,11 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Ran the AGENTS.md todo-check pass and closed completed todos: Discord LatchID provider setup, the TikTok Edge Function return-URL fix, the Supabase profile link clicks table, and seeding the core theme catalogue.
 - Kept three todos open with refreshed context: data collection logic (recorded the owner-confirmed production processor map and GDPR/offboarding approach inline, `ask_after` -> 2026-06-18), YouTube API provider setup (blocked on Google sensitive-scope OAuth verification, `ask_after` -> 2026-07-01), and Supabase social metric snapshots (parked pending a snapshot collector, `ask_after` -> 2026-06-24).
 - Validation: documentation/todo maintenance only; no runtime code changed.
+- Agent: Claude
+- Rebuilt `homepage-demo.php` as a light, Poppins-based public homepage matching the live Studio design tokens (white surfaces, `#0092ec` -> `#0ce5de` blue/teal gradients, deep-navy text, 36px rounded cards, soft glows) in place of the previous dark neon SaaS look.
+- Restructured for a non-technical first impression: hero with the live `/@alex2` profile preview, a plain-language three-step "How it works", a Livelatch family product section using the `logos/` wordmarks (Livelatch, LatchID, LatchDeck, Latchalytics) as headings with friendly descriptions, a friendlier two-card Free/Pro pricing block, and a restyled footer using the social icon as the favicon.
+- Kept login intact: the Supabase Google OAuth flow, `/callback/google` redirect, HTMX privacy/terms panel, and PostHog render are unchanged; added a nav "Log in" that reuses the same modal and switched the demo profile from `/@alex` to `/@alex2`.
+- Validation: ran `php -l homepage-demo.php` (no syntax errors) and confirmed the deployment docroot is the project root (root `index.php`/`.htaccess`) so `/logos/*.png` resolve.
 
 ### 2026-06-14
 
