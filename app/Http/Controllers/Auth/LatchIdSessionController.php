@@ -49,8 +49,10 @@ class LatchIdSessionController extends Controller
 
         $redirectTo = $this->resolveRedirectTo($request, $validated['redirect_to'] ?? null);
         $currentUser = Auth::user();
+        $isNewUser = false;
 
-        $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser) {
+        try {
+        $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser, &$isNewUser) {
             $user = User::where('supabase_user_id', $validated['supabase_user_id'])->first();
 
             if ($currentUser) {
@@ -124,48 +126,38 @@ class LatchIdSessionController extends Controller
                 }
 
                 $user = User::create($userData);
-
-                Stripe::setApiKey(config('billing.stripe_secret'));
-
-                $customer = Customer::create([
-                    'email' => $user->email,
-                    'name' => $user->name,
-                    'metadata' => [
-                        'livelatch_user_id' => (string) $user->id,
-                        'supabase_user_id' => (string) $user->supabase_user_id,
-                    ],
-                ]);
-
-                $subscription = Subscription::create([
-                    'customer' => $customer->id,
-                    'items' => [[
-                        'price' => config('billing.free_price_id'),
-                    ]],
-                    'metadata' => [
-                        'livelatch_user_id' => (string) $user->id,
-                        'supabase_user_id' => (string) $user->supabase_user_id,
-                        'plan_key' => 'free',
-                    ],
-                ]);
-
-                UserBilling::create([
-                    'user_id' => $user->id,
-                    'plan_key' => 'free',
-                    'stripe_customer_id' => $customer->id,
-                    'stripe_subscription_id' => $subscription->id,
-                    'stripe_price_id' => config('billing.free_price_id'),
-                    'stripe_status' => $subscription->status,
-                    'current_period_end' => isset($subscription->current_period_end)
-                        ? now()->setTimestamp($subscription->current_period_end)
-                        : null,
-                    'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
-                ]);
+                $isNewUser = true;
             }
 
             $this->syncSocialAccounts($user, $supabaseUser, $validated);
 
             return $user;
         });
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // A concurrent double-submit can try to create the same LatchID user
+            // twice (unique supabase_user_id). Recover the existing record rather
+            // than returning a 500; otherwise fail cleanly with a retry message.
+            $user = User::where('supabase_user_id', $validated['supabase_user_id'])->first();
+
+            if (!$user) {
+                Log::error('LatchID session persistence failed.', ['error' => $e->getMessage()]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'We could not finish signing you in. Please try again.',
+                ], 503);
+            }
+        }
+
+        // Stripe provisioning is best-effort and runs outside the database
+        // transaction so a transient Stripe/network failure can no longer roll
+        // back signup or 500 the request. Missing billing is reconciled by the
+        // billing:backfill-stripe command.
+        if ($isNewUser) {
+            $this->provisionBilling($user);
+        }
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -174,6 +166,56 @@ class LatchIdSessionController extends Controller
             'success' => true,
             'redirect' => $redirectTo,
         ]);
+    }
+
+    private function provisionBilling(User $user): void
+    {
+        if (UserBilling::where('user_id', $user->id)->exists()) {
+            return;
+        }
+
+        try {
+            Stripe::setApiKey(config('billing.stripe_secret'));
+
+            $customer = Customer::create([
+                'email' => $user->email,
+                'name' => $user->name,
+                'metadata' => [
+                    'livelatch_user_id' => (string) $user->id,
+                    'supabase_user_id' => (string) $user->supabase_user_id,
+                ],
+            ]);
+
+            $subscription = Subscription::create([
+                'customer' => $customer->id,
+                'items' => [[
+                    'price' => config('billing.free_price_id'),
+                ]],
+                'metadata' => [
+                    'livelatch_user_id' => (string) $user->id,
+                    'supabase_user_id' => (string) $user->supabase_user_id,
+                    'plan_key' => 'free',
+                ],
+            ]);
+
+            UserBilling::create([
+                'user_id' => $user->id,
+                'plan_key' => 'free',
+                'stripe_customer_id' => $customer->id,
+                'stripe_subscription_id' => $subscription->id,
+                'stripe_price_id' => config('billing.free_price_id'),
+                'stripe_status' => $subscription->status,
+                'current_period_end' => isset($subscription->current_period_end)
+                    ? now()->setTimestamp($subscription->current_period_end)
+                    : null,
+                'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LatchID signup: Stripe billing provisioning failed; user can be backfilled later.', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function resolveRedirectTo(Request $request, ?string $redirectTo): string
@@ -355,10 +397,18 @@ class LatchIdSessionController extends Controller
             abort(500, 'LatchID authentication is not configured.');
         }
 
-        $response = Http::withHeaders([
-            'apikey' => $anonKey,
-            'Authorization' => 'Bearer ' . $accessToken,
-        ])->acceptJson()->get($supabaseUrl . '/auth/v1/user');
+        try {
+            $response = Http::withHeaders([
+                'apikey' => $anonKey,
+                'Authorization' => 'Bearer ' . $accessToken,
+            ])->acceptJson()->timeout(8)->retry(2, 250)->get($supabaseUrl . '/auth/v1/user');
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::warning('LatchID Supabase verification could not connect.', ['error' => $e->getMessage()]);
+
+            throw ValidationException::withMessages([
+                'access_token' => 'We could not reach LatchID to verify your session. Please try again.',
+            ]);
+        }
 
         if (!$response->successful()) {
             Log::warning('LatchID Supabase user verification failed.', [

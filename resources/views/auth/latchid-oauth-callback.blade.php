@@ -153,7 +153,10 @@
 
             var client = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
                 auth: {
-                    detectSessionInUrl: true,
+                    // We exchange the OAuth code manually below, so disable the
+                    // automatic URL detection. Running both races to consume the
+                    // same single-use code and intermittently fails the sign in.
+                    detectSessionInUrl: false,
                     persistSession: true,
                     autoRefreshToken: true
                 }
@@ -163,7 +166,13 @@
             if (code) {
                 var exchange = await client.auth.exchangeCodeForSession(code);
                 if (exchange.error) {
-                    throw exchange.error;
+                    // The code may already have been consumed (page reload, or an
+                    // earlier attempt that established a session). Fall back to an
+                    // existing session before treating this as a failure.
+                    var existing = await client.auth.getSession();
+                    if (!existing.data || !existing.data.session) {
+                        throw exchange.error;
+                    }
                 }
                 window.history.replaceState({}, document.title, '/callback/' + encodeURIComponent(config.provider));
             }
