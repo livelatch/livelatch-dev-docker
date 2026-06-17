@@ -18,6 +18,9 @@ The rule is simple:
 - The owner todo list was cleaned up, and finished items were closed: Discord login, the TikTok connection fix, live click analytics, and the theme catalogue.
 - A few todos were kept open with clearer notes explaining why, including a YouTube setup step that is waiting on Google's review.
 - The public homepage was redesigned to match the live app's clean, light, Poppins look and to explain Livelatch in plain language, using the product logos as section headings and keeping the live @alex2 page as a demo.
+- Fixed the light/dark mode toggle so the background can no longer get stuck, and stopped the Dev Tools preview from leaking onto the live site.
+- Gave the dashboard a proper line chart for clicks and rebuilt the Appearance page to match the rest of the new Studio.
+- Reworked Dev Tools so light and dark themes can be designed side by side, and added an optional "liquid glass" look that can be switched on or off (and removed cleanly later).
 
 ### 2026-06-13
 

@@ -21,6 +21,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Restructured for a non-technical first impression: hero with the live `/@alex2` profile preview, a plain-language three-step "How it works", a Livelatch family product section using the `logos/` wordmarks (Livelatch, LatchID, LatchDeck, Latchalytics) as headings with friendly descriptions, a friendlier two-card Free/Pro pricing block, and a restyled footer using the social icon as the favicon.
 - Kept login intact: the Supabase Google OAuth flow, `/callback/google` redirect, HTMX privacy/terms panel, and PostHog render are unchanged; added a nav "Log in" that reuses the same modal and switched the demo profile from `/@alex` to `/@alex2`.
 - Validation: ran `php -l homepage-demo.php` (no syntax errors) and confirmed the deployment docroot is the project root (root `index.php`/`.htaccess`) so `/logos/*.png` resolve.
+- Agent: Claude
+- Fixed the Studio light/dark toggle so it can no longer get stuck: the global toggle now strips inline `--ll-*` overrides and re-asserts the stored theme after every HTMX swap, and the Dev Tools live preview no longer writes to the global document at all.
+- Replaced the dashboard "last 14 days" bar chart with an inline SVG line chart (gradient area fill, hover points, peak/day annotation) in `resources/views/livewire/dashboard-analytics.blade.php`.
+- Rebuilt the Appearance page (`resources/views/studio/page.blade.php`, `/studio/page`) natively in the Studio shell using `--ll-*` tokens, native switches and inputs, replacing the legacy LinkStack form styling while preserving all field names, the `editPage` action, URL validation, and the CKEditor block.
+- Overhauled admin Dev Tools (`resources/views/studio/admin/dev-tools.blade.php`) into a scoped, leak-free editor: light and dark token sets are crafted independently against two side-by-side preview stages rendered via offscreen `[data-ll-theme]` probes, so the live site theme is never touched.
+- Added an optional, persisted Liquid Glass visual layer toggled from Dev Tools, isolated in `resources/views/layouts/liquid-glass.blade.php` (included once in the sidebar layout) with removal instructions in `docs/platform-runtime/liquid-glass.md`.
+- Validation: ran `php artisan view:cache` (all Blade templates compiled); updated `docs/platform-runtime/admin-dev-tools.md` and added `docs/platform-runtime/liquid-glass.md`.
 
 ### 2026-06-14
 

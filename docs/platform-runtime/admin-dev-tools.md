@@ -1,6 +1,6 @@
 # Admin Dev Tools
 
-The admin Dev Tools screen is a view-only browser editor for testing Livelatch Studio design tokens before asking Codex to make source changes.
+The admin Dev Tools screen is a preview-only editor for hand-crafting the Livelatch Studio design tokens before asking Codex to make source changes.
 
 Route:
 
@@ -14,76 +14,57 @@ View:
 resources/views/studio/admin/dev-tools.blade.php
 ```
 
-Sidebar entry:
-
-```text
-app/Http/Livewire/StudioNavigation.php
-```
-
 The route is registered inside the existing admin middleware group in `routes/web.php`, so only authenticated admin users can open it.
 
-## What It Edits
+## Light and dark, side by side
 
-The page temporarily changes CSS variables on `document.documentElement` and injects a temporary browser-only style tag. It does not POST, write files, update the database, or persist changes. Temporary values are cleaned up when leaving the page through HTMX navigation or a full browser unload.
+The editor shows **two live preview stages** at once — one light, one dark — so you can design both Studio themes independently in a single pass. A mode tab (Light / Dark) chooses which set of colour tokens the controls edit; the shape/type tokens are shared across both.
 
-The current editor covers Studio-facing tokens such as:
+The editor covers:
 
 ```css
+--ll-primary
+--ll-primary-2
+--ll-primary-3
 --ll-bg
 --ll-bg-soft
 --ll-surface-solid
 --ll-text
 --ll-muted
---ll-primary
---ll-primary-2
---ll-primary-3
 --ll-radius
 --ll-button-radius
-```
-
-It also previews heading and button font-weight changes through temporary CSS rules.
-
-## Approved Studio Baseline Tokens
-
-When a draft is approved, token values are copied into the Studio layout source at:
-
-```text
-resources/views/layouts/sidebar.blade.php
-```
-
-The current approved implementation also keeps the preview weight controls as stable Studio tokens:
-
-```css
 --ll-dev-heading-weight
 --ll-dev-button-weight
 ```
 
-Those values drive the default heading and button weights in the Studio shell.
+## Why the preview is scoped (and cannot leak)
 
-## Light And Dark Mode
+Earlier the preview wrote token values and `data-ll-theme` directly onto `document.documentElement`. If its cleanup did not fire on HTMX navigation, those inline overrides leaked onto the real page and the light/dark toggle could get "stuck" (the toggle flipped but the background did not).
 
-The editor keeps separate colour drafts for light and dark mode. The mode toggle uses the same `data-ll-theme` attribute as the rest of the Studio layout, so the preview matches the real dashboard theme mechanism.
+The current editor never touches the live document. Instead:
 
-When a colour is changed in the active mode, the opposite mode is auto-generated from the same hue with mode-appropriate lightness. For example, editing a dark-mode background creates a lighter matching background draft for light mode. Radius and font-weight controls are shared across both modes.
+- Baselines for both modes are read from **offscreen probe elements** that carry `data-ll-theme="light"` / `data-ll-theme="dark"`. This works because the Studio stylesheet exposes dark values through the `[data-ll-theme="dark"]` selector, which matches any element.
+- Edits are applied as inline CSS variables on the **two preview stage containers only**, not on `:root` or `<body>`.
+
+As defence in depth, the global theme switch in `resources/views/layouts/sidebar.blade.php` also strips any stray inline `--ll-*` overrides and re-asserts the stored theme after every HTMX swap.
 
 ## Generated Codex Instructions
 
-The `Generate Codex Instructions` button writes a prompt into the page textarea. The prompt lists light-mode colour values, dark-mode colour values, and shared shape/type values, then tells Codex to apply the approved changes to:
+The `Generate Codex Instructions` button writes a prompt listing the hand-crafted light values, dark values, and shared shape/type values, then tells Codex to apply them to:
 
 ```text
 resources/views/layouts/sidebar.blade.php
 ```
 
-The generated prompt also reminds Codex that public profile theme presets are separate. Public profile colours are resolved through `ThemeService`, `ThemeSeeder`, and `resources/views/linkstack/modules/theme.blade.php`.
+It also reminds Codex that public profile theme presets are separate — those are resolved through `ThemeService`, `ThemeSeeder`, and `resources/views/linkstack/modules/theme.blade.php`.
 
-## Editing The Tool
+## Liquid Glass toggle
 
-To add another preview control:
+Dev Tools also hosts the **Liquid glass** toggle, an optional frosted-surface visual layer for the Studio. It is persisted like the light/dark theme and is fully isolated so it can be removed cleanly. See [Liquid Glass](liquid-glass.md).
 
-1. Add an input in `resources/views/studio/admin/dev-tools.blade.php` with `data-token`.
-2. Use `data-unit="px"` for pixel-based range controls.
-3. If the token needs extra selectors, update the temporary style block created by `ensureTemporaryStyle()`.
-4. Keep the tool view-only unless the product decision changes.
+## Editing the tool
+
+To add another colour control, add an `<input data-token="--ll-...">` (use `data-shared="true"` for tokens that apply to both modes, and `data-unit="px"` for pixel ranges). The script wires it up automatically.
 
 Useful references:
 

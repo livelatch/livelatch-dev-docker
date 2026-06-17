@@ -38,6 +38,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <title>{{ env('APP_NAME') }}</title>
 
     <script src="{{ asset('assets/js/detect-dark-mode.js') }}"></script>
+    @include('layouts.liquid-glass')
     <base href="{{ url()->current() }}" />
 
     @include('layouts.analytics')
