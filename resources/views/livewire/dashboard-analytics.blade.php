@@ -177,36 +177,39 @@
             gap: 12px;
         }
 
-        .ll-dashboard-day-chart {
-            display: grid;
-            grid-template-columns: repeat(14, minmax(18px, 1fr));
-            gap: 8px;
-            align-items: end;
-            min-height: 180px;
-            padding-top: 10px;
+        .ll-line-chart {
+            width: 100%;
+            height: auto;
+            display: block;
+            overflow: visible;
         }
 
-        .ll-dashboard-day {
-            display: grid;
-            gap: 8px;
-            align-items: end;
-            min-width: 0;
+        .ll-line-chart-dot {
+            fill: var(--ll-surface-solid);
+            stroke: var(--ll-primary);
+            stroke-width: 2;
+            transition: r 140ms ease;
         }
 
-        .ll-dashboard-day-fill {
-            min-height: 4px;
-            border-radius: 999px 999px 6px 6px;
-            background: linear-gradient(180deg, var(--ll-primary), var(--ll-primary-2));
-            box-shadow: 0 10px 24px color-mix(in srgb, var(--ll-primary) 24%, transparent);
+        .ll-line-chart-dot:hover {
+            r: 5;
         }
 
-        .ll-dashboard-day span {
+        .ll-dashboard-chart-axis {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             color: var(--ll-muted);
-            font-size: 0.68rem;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.72rem;
+        }
+
+        .ll-dashboard-chart-peak {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--ll-text);
+            font-weight: 700;
         }
 
         .ll-dashboard-links {
@@ -418,18 +421,45 @@
         <article class="ll-dashboard-card">
             <h3>Clicks over the last 14 days</h3>
             @if(!empty($dailyClicks))
-                <div class="ll-dashboard-day-chart" aria-label="Daily click chart">
-                    @foreach($dailyClicks as $day)
-                        @php
-                            $height = ((int) ($day['clicks'] ?? 0)) > 0
-                                ? max(8, ((int) $day['clicks'] / $peakDayClicks) * 150)
-                                : 4;
-                        @endphp
-                        <div class="ll-dashboard-day" title="{{ $day['label'] ?? '' }}: {{ number_format((int) ($day['clicks'] ?? 0)) }} clicks">
-                            <div class="ll-dashboard-day-fill" style="height: {{ $height }}px;"></div>
-                            <span>{{ $day['label'] ?? '' }}</span>
-                        </div>
-                    @endforeach
+                @php
+                    $days = array_values($dailyClicks);
+                    $n = count($days);
+                    $cw = 720; $ch = 210; $px = 14; $pt = 16; $pb = 30;
+                    $iw = $cw - $px * 2; $ih = $ch - $pt - $pb;
+                    $baseY = $pt + $ih;
+                    $pts = [];
+                    foreach ($days as $i => $day) {
+                        $clicks = (int) ($day['clicks'] ?? 0);
+                        $x = $n > 1 ? $px + ($i / ($n - 1)) * $iw : $cw / 2;
+                        $y = $baseY - ($clicks / $peakDayClicks) * $ih;
+                        $pts[] = ['x' => round($x, 1), 'y' => round($y, 1), 'c' => $clicks, 'label' => $day['label'] ?? ''];
+                    }
+                    $line = implode(' ', array_map(fn ($p) => $p['x'] . ',' . $p['y'], $pts));
+                    $area = 'M ' . $pts[0]['x'] . ' ' . $baseY
+                        . ' L ' . implode(' L ', array_map(fn ($p) => $p['x'] . ' ' . $p['y'], $pts))
+                        . ' L ' . $pts[$n - 1]['x'] . ' ' . $baseY . ' Z';
+                @endphp
+                <div class="ll-dashboard-chart">
+                    <svg class="ll-line-chart" viewBox="0 0 {{ $cw }} {{ $ch }}" role="img" aria-label="Line chart of daily clicks over the last 14 days">
+                        <defs>
+                            <linearGradient id="llClicksFill" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="var(--ll-primary)" stop-opacity="0.26"></stop>
+                                <stop offset="100%" stop-color="var(--ll-primary)" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="{{ $area }}" fill="url(#llClicksFill)"></path>
+                        <polyline points="{{ $line }}" fill="none" stroke="var(--ll-primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+                        @foreach($pts as $p)
+                            <circle class="ll-line-chart-dot" cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="3">
+                                <title>{{ $p['label'] }}: {{ number_format($p['c']) }} clicks</title>
+                            </circle>
+                        @endforeach
+                    </svg>
+                    <div class="ll-dashboard-chart-axis">
+                        <span>{{ $pts[0]['label'] ?? '' }}</span>
+                        <span class="ll-dashboard-chart-peak"><i class="bi bi-graph-up-arrow"></i> Peak {{ number_format($peakDayClicks) }}/day</span>
+                        <span>{{ $pts[$n - 1]['label'] ?? '' }}</span>
+                    </div>
                 </div>
             @else
                 <div class="ll-dashboard-empty">No clicks have been recorded yet.</div>

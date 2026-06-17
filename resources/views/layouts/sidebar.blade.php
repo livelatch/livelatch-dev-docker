@@ -2223,8 +2223,30 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
             const initialTheme = root.getAttribute('data-ll-theme') || getStoredTheme() || 'light';
 
+            function clearInlineThemeOverrides(el) {
+                if (!el) {
+                    return;
+                }
+
+                const names = [];
+                for (let i = 0; i < el.style.length; i++) {
+                    const prop = el.style[i];
+                    if (prop && prop.indexOf('--ll-') === 0) {
+                        names.push(prop);
+                    }
+                }
+
+                names.forEach(name => el.style.removeProperty(name));
+            }
+
             function setTheme(theme) {
                 const safeTheme = theme === 'dark' ? 'dark' : 'light';
+
+                // Remove any inline design-token overrides left on the document
+                // (for example by the admin Dev Tools live preview) so the chosen
+                // theme always wins instead of a stale dark/light value leaking in.
+                clearInlineThemeOverrides(root);
+                clearInlineThemeOverrides(body);
 
                 root.setAttribute('data-ll-theme', safeTheme);
                 root.setAttribute('data-bs-theme', safeTheme);
@@ -2312,6 +2334,13 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
             document.querySelectorAll('[data-theme-choice]').forEach(button => {
                 button.addEventListener('click', () => setTheme(button.dataset.themeChoice));
+            });
+
+            // Re-assert the stored theme after every HTMX page swap. This keeps the
+            // chosen light/dark mode authoritative and clears any inline token leaks
+            // (e.g. from the Dev Tools live preview) when navigating between screens.
+            document.body.addEventListener('htmx:afterSettle', () => {
+                setTheme(getStoredTheme() || 'light');
             });
 
             document.querySelectorAll('[data-ll-open-sidebar]').forEach(button => {
