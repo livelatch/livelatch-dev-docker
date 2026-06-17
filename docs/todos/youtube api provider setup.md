@@ -2,7 +2,7 @@
 
 <!-- todo-check
 created_at: 2026-06-13T12:15:16+08:00
-ask_after: 2026-06-14T12:15:16+08:00
+ask_after: 2026-07-01T12:00:00+08:00
 status: open
 -->
 
@@ -37,3 +37,13 @@ GOOGLE_CLIENT_SECRET=
 ```
 
 - After deployment and migration, test `Connect YouTube` from `/studio/latchid` and confirm a `social_accounts` row exists with `provider_name = youtube`.
+
+## Status (2026-06-17)
+
+Blocked on Google's OAuth verification. `youtube.readonly` is a Google "sensitive" scope, so the OAuth app must pass Google review before non-test users can grant it. Google requires:
+
+- a demonstration video showing the OAuth consent flow and how the scope is used,
+- a published, publicly reachable privacy policy URL, and
+- a verified app homepage / domain.
+
+This depends on the privacy policy being live (see `data collection logic.md`). `ask_after` is intentionally set ~2 weeks out because Google review cycles take weeks, not a day.

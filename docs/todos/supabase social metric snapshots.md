@@ -1,6 +1,8 @@
 # Supabase Social Metric Snapshots
 
-ask_after: 2026-06-15T00:00:00+08:00
+ask_after: 2026-06-24T00:00:00+08:00
+
+> Parked (2026-06-17): owner is leaving this open until a snapshot collector (scheduled Laravel job or Supabase Edge Function) exists to write follower/subscriber rows. No action needed before then.
 
 Create and populate the optional Supabase table used by the dashboard for YouTube, TikTok, and other creator connection growth charts.
 

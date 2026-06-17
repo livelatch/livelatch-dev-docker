@@ -8,6 +8,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-17
+
+!! Decided to trial Claude (Claude Code) in place of ChatGPT/Codex for Livelatch development. This is the first session run with Claude as the agent.
+- Agent: Claude
+- Reviewed full project context (`summary.md`, `AGENTS.md`, and the entire `docs/` library) to build a working understanding of Livelatch before making changes.
+- Ran the AGENTS.md todo-check pass and closed completed todos: Discord LatchID provider setup, the TikTok Edge Function return-URL fix, the Supabase profile link clicks table, and seeding the core theme catalogue.
+- Kept three todos open with refreshed context: data collection logic (recorded the owner-confirmed production processor map and GDPR/offboarding approach inline, `ask_after` -> 2026-06-18), YouTube API provider setup (blocked on Google sensitive-scope OAuth verification, `ask_after` -> 2026-07-01), and Supabase social metric snapshots (parked pending a snapshot collector, `ask_after` -> 2026-06-24).
+- Validation: documentation/todo maintenance only; no runtime code changed.
+
 ### 2026-06-14
 
 - Agent: Codex
