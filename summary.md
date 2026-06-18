@@ -33,6 +33,10 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Set the browser distinct ID to `latchid:{supabase_user_id}` with a `laravel-user:{id}` fallback so browser identity matches the server-side `profile_link_clicked` scheme; corrected the assumption that `users.id` is the Supabase UUID (the UUID is `users.supabase_user_id`). Values are emitted with `@json(...)` for safe JS escaping.
 - No sidebar change needed: `resources/views/layouts/sidebar.blade.php` already includes `@include('layouts.posthog')`.
 - Validation: ran `php artisan view:cache` (all Blade templates compiled); updated `docs/platform-runtime/posthog-analytics.md`.
+- Agent: Claude
+- Hardened the LatchID sign-in flow against intermittent "Server Error" / failed sign-ins. In `resources/views/auth/latchid-oauth-callback.blade.php`, disabled Supabase `detectSessionInUrl` so the manual `exchangeCodeForSession` is the single authority (removing a double-exchange race on the single-use code) and added a fallback to an existing session when the code was already consumed.
+- In `app/Http/Controllers/Auth/LatchIdSessionController.php`, added a timeout + retry and a connection-failure guard around Supabase token verification, moved Stripe customer/subscription provisioning out of the signup DB transaction into a best-effort idempotent `provisionBilling()` (logs and continues on failure), and wrapped user persistence so a concurrent duplicate insert recovers the existing user instead of returning a 500.
+- Validation: ran `php -l app/Http/Controllers/Auth/LatchIdSessionController.php` and `php artisan view:cache`; updated `docs/supabase/latchid-authentication.md`.
 
 ### 2026-06-14
 

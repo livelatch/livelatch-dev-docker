@@ -21,6 +21,8 @@ The rule is simple:
 - Fixed the light/dark mode toggle so the background can no longer get stuck, and stopped the Dev Tools preview from leaking onto the live site.
 - Gave the dashboard a proper line chart for clicks and rebuilt the Appearance page to match the rest of the new Studio.
 - Reworked Dev Tools so light and dark themes can be designed side by side, and added an optional "liquid glass" look that can be switched on or off (and removed cleanly later).
+- Added PostHog user identification so signed-in users show up by email instead of as anonymous visitors.
+- Hardened the LatchID sign-in so the intermittent failures stop: removed a Supabase session race in the callback and made the server side resilient to Stripe and network hiccups during signup.
 
 ### 2026-06-13
 

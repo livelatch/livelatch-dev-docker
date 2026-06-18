@@ -200,6 +200,15 @@ GOOGLE_CLIENT_SECRET=
 - Discord client credentials are stored in Supabase provider settings, not in Laravel `.env`, for the current LatchID implementation
 - YouTube API token refresh requires Laravel `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` because the backend service refreshes Google provider tokens server-side
 
+## Sign-in reliability
+
+The callback and session bridge are hardened against transient failures that previously produced intermittent "Server Error" sign-ins:
+
+- The browser callback (`resources/views/auth/latchid-oauth-callback.blade.php`) disables Supabase `detectSessionInUrl` and exchanges the OAuth `code` manually, so the single-use code is never exchanged twice — a race that intermittently failed sign in. If the code was already consumed, it falls back to an existing session instead of erroring.
+- `LatchIdSessionController::verifySupabaseUser()` uses a timeout and retry and converts a connection failure into a friendly validation error instead of an uncaught 500.
+- Stripe customer/subscription provisioning runs outside the signup database transaction as best-effort `provisionBilling()`. A Stripe outage no longer blocks or rolls back signup; missing billing is reconciled by `php artisan billing:backfill-stripe`.
+- A concurrent duplicate sign-in (same `supabase_user_id`) recovers the existing user instead of failing on the unique constraint.
+
 ## References
 
 - [Supabase Discord Auth](https://supabase.com/docs/guides/auth/social-login/auth-discord)
