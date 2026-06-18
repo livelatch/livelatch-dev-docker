@@ -13,6 +13,7 @@ use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\Studio\LatchIdController;
+use App\Http\Controllers\Studio\NotificationController;
 use App\Http\Controllers\Studio\ThemeController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -238,6 +239,12 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                 ]);
             });
             Route::get('/studio/latchid', [LatchIdController::class, 'edit'])->name('studio.latchid');
+
+            // Notification center (Supabase-backed). The modal fetches these.
+            Route::get('/studio/notifications', [NotificationController::class, 'index'])->name('studio.notifications');
+            Route::post('/studio/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('studio.notifications.readAll');
+            Route::post('/studio/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('studio.notifications.read');
+            Route::post('/studio/notifications/{id}/unread', [NotificationController::class, 'markUnread'])->name('studio.notifications.unread');
             Route::get('/studio/docs', [DocumentationController::class, 'index'])
                 ->name('docs.index');
             Route::get('/studio/docs/article/{path}', [DocumentationController::class, 'article'])
@@ -335,55 +342,6 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
             ]);
         });
 
-        Route::get('/debug-supabase-notifications', function () {
-            $user = auth()->user();
-
-            $url = rtrim(env('SUPABASE_URL'), '/') . '/rest/v1/livelatch_notifications';
-
-            $response = Http::withHeaders([
-                'apikey' => env('SUPABASE_SERVICE_ROLE_KEY'),
-                'Authorization' => 'Bearer ' . env('SUPABASE_SERVICE_ROLE_KEY'),
-                'Content-Type' => 'application/json',
-            ])->get($url, [
-                'select' => '*',
-                'limit' => 10,
-            ]);
-
-            dd([
-                'laravel_user_id' => $user->id,
-                'laravel_email' => $user->email,
-                'supabase_user_id_from_laravel' => $user->supabase_user_id,
-                'supabase_url_exists' => !empty(env('SUPABASE_URL')),
-                'service_role_key_exists' => !empty(env('SUPABASE_SERVICE_ROLE_KEY')),
-                'supabase_status' => $response->status(),
-                'supabase_body' => $response->json(),
-                'supabase_raw' => $response->body(),
-            ]);
-        })->middleware('auth');
-
-        Route::get('/debug-my-notifications', function () {
-            $user = auth()->user();
-
-            $url = rtrim(env('SUPABASE_URL'), '/') . '/rest/v1/livelatch_notifications';
-
-            $response = Http::withHeaders([
-                'apikey' => env('SUPABASE_SERVICE_ROLE_KEY'),
-                'Authorization' => 'Bearer ' . env('SUPABASE_SERVICE_ROLE_KEY'),
-                'Content-Type' => 'application/json',
-            ])->get($url, [
-                'or' => '(user_id.eq.' . $user->supabase_user_id . ',user_id.is.null)',
-                'select' => '*',
-                'order' => 'created_at.desc',
-                'limit' => 10,
-            ]);
-
-            dd([
-                'supabase_user_id' => $user->supabase_user_id,
-                'status' => $response->status(),
-                'body' => $response->json(),
-                'raw' => $response->body(),
-            ]);
-        })->middleware('auth');
     });
 });
 

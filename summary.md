@@ -8,6 +8,16 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-18
+
+- Agent: Claude
+- Rebuilt the Livelatch notification system end to end after it had silently shown nothing. Root causes found: (1) `LivelatchNotificationService` lived at `app/Services/app/Services/…`, breaking PSR-4 autoload so every call threw and the sidebar's `try/catch` swallowed it; (2) it read creds via `env()` (returns null under `config:cache`) instead of `config('services.latchid.*')`; (3) the "View notification center" link pointed at a non-existent `/studio/notifications` route, and there was no read-state / mark-as-read code at all. RLS was a red herring for reads — the service-role key bypasses RLS.
+- Supabase: added `public.livelatch_notification_reads` (per-user read state, FKs to `livelatch_notifications` and `auth.users`, unique on `(notification_id, user_id)`) plus RLS policies on it and a `SELECT` policy on `livelatch_notifications` (own + global). Captured as `supabase/migrations/20260618120000_livelatch_notifications_per_user_reads_and_rls.sql`; both tables dropped off the "RLS enabled, no policy" advisor.
+- Laravel: moved the service to the correct path `app/Services/LivelatchNotificationService.php`, switched to `config()` creds with real logging, and added `forUser` (annotates `is_read` per user), `unreadCount`, `markAsRead`/`markAsUnread`/`markAllAsRead`, and a `publish()` helper for sending notifications (e.g. invoices). Added `Studio\NotificationController` + auth-protected JSON routes (`studio.notifications[.read|.unread|.readAll]`). Removed the two `/debug-*-notifications` routes.
+- UI: the sidebar bell now reflects per-user unread state, and "View notification center" opens a new Bootstrap modal (`#llNotificationCenterModal`) with Unread and Inbox tabs and live mark-as-read that updates the bell.
+- Note for runtime: notifications need `LATCHID_SUPABASE_URL` and `LATCHID_SERVICE_ROLE_KEY` (or the `SUPABASE_*` fallbacks) set in the environment `.env`; they are absent from the local dev `.env` here.
+- Validation: confirmed the class autoloads, routes resolve (`route:list`), all Blade templates compile (`view:cache`), and exercised the service logic (PostgREST query building, `is_read` annotation, unread count, upsert payload/headers, `publish` payload) via `Http::fake`. LatchOps already writes with the service-role key, so it needs no change. Rewrote `docs/supabase/notifications.md` as the full spec and updated `docs/supabase/latchid-schema.md`.
+
 ### 2026-06-17
 
 !! Decided to trial Claude (Claude Code) in place of ChatGPT/Codex for Livelatch development. This is the first session run with Claude as the agent.

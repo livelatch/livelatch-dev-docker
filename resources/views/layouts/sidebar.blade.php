@@ -12,7 +12,7 @@ $livelatchNotifications = collect();
 $livelatchUnreadNotificationCount = 0;
 
 try {
-    $livelatchNotifications = LivelatchNotificationService::latestForUser($latchIdUserId, 8);
+    $livelatchNotifications = LivelatchNotificationService::forUser($latchIdUserId, 8);
     $livelatchUnreadNotificationCount = LivelatchNotificationService::unreadCount($latchIdUserId);
 } catch (\Throwable $e) {
     $livelatchNotifications = collect();
@@ -1903,7 +1903,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                                         $notificationIcon = $notification['icon'] ?? 'bi-bell-fill';
                                         $notificationSource = $notification['source'] ?? null;
                                         $notificationCreatedAt = $notification['created_at'] ?? null;
-                                        $isUnread = empty($notification['read_at']);
+                                        $isUnread = !($notification['is_read'] ?? false);
                                     @endphp
 
                                     <a href="{{ $notificationUrl }}"
@@ -1942,7 +1942,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                                 @endforelse
                             </div>
 
-                            <a href="{{ url('/studio/notifications') }}" class="ll-notification-footer">
+                            <a href="#" class="ll-notification-footer" data-bs-toggle="modal" data-bs-target="#llNotificationCenterModal">
                                 View notification center
                             </a>
                         </div>
@@ -2165,6 +2165,240 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             </div>
         </div>
     </div>
+
+    {{-- Notification center: Supabase-backed, per-user read state. --}}
+    <style>
+        #llNotificationCenterModal .modal-content {
+            border: none;
+            border-radius: 22px;
+            overflow: hidden;
+        }
+        .ll-nc-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 1rem 0.75rem;
+        }
+        .ll-nc-tab {
+            border: none;
+            background: transparent;
+            color: var(--ll-muted, #64748b);
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.35rem 0.1rem;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .ll-nc-tab.active {
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
+        }
+        .ll-nc-tab .ll-nc-badge {
+            display: inline-block;
+            min-width: 1.2rem;
+            margin-left: 0.25rem;
+            padding: 0 0.35rem;
+            border-radius: 999px;
+            background: rgba(124, 58, 237, 0.14);
+            color: #7c3aed;
+            font-size: 0.72rem;
+            line-height: 1.2rem;
+            text-align: center;
+        }
+        .ll-nc-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .ll-nc-item {
+            display: flex;
+            gap: 0.85rem;
+            padding: 0.85rem 0.25rem;
+            border-bottom: 1px solid var(--border, rgba(15, 23, 42, 0.08));
+        }
+        .ll-nc-item:last-child { border-bottom: none; }
+        .ll-nc-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 14px;
+        }
+        .ll-nc-icon.info    { color: #7c3aed; background: rgba(124, 58, 237, 0.14); }
+        .ll-nc-icon.success { color: #16a34a; background: rgba(34, 197, 94, 0.14); }
+        .ll-nc-icon.warning { color: #d97706; background: rgba(245, 158, 11, 0.16); }
+        .ll-nc-icon.danger  { color: #dc2626; background: rgba(239, 68, 68, 0.15); }
+        .ll-nc-body { flex: 1; min-width: 0; }
+        .ll-nc-title { font-weight: 700; font-size: 0.92rem; }
+        .ll-nc-message { color: var(--ll-muted, #64748b); font-size: 0.82rem; margin-top: 0.1rem; }
+        .ll-nc-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.45rem; font-size: 0.72rem; color: var(--ll-muted, #94a3b8); }
+        .ll-nc-pill { padding: 0.1rem 0.45rem; border-radius: 999px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; font-weight: 700; }
+        .ll-nc-action { border: none; background: transparent; color: #7c3aed; font-weight: 700; font-size: 0.74rem; cursor: pointer; padding: 0; }
+        .ll-nc-empty { text-align: center; color: var(--ll-muted, #64748b); padding: 2rem 1rem; }
+        .ll-nc-empty i { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+    </style>
+
+    <div class="modal fade" id="llNotificationCenterModal" tabindex="-1" aria-labelledby="llNotificationCenterLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <div>
+                        <h5 class="modal-title" id="llNotificationCenterLabel">Notification center</h5>
+                        <p class="mb-0" style="color: var(--ll-muted); font-size: 0.9rem;">Unread notifications and your inbox</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('messages.Close') ?? 'Close' }}"></button>
+                </div>
+
+                <div class="ll-nc-tabs">
+                    <button type="button" class="ll-nc-tab active" data-ll-nc-tab="unread">
+                        Unread <span class="ll-nc-badge" id="llNcUnreadBadge">0</span>
+                    </button>
+                    <button type="button" class="ll-nc-tab" data-ll-nc-tab="read">Inbox</button>
+                    <button type="button" class="ll-nc-action ms-auto" id="llNcMarkAll">Mark all as read</button>
+                </div>
+
+                <div class="modal-body pt-0">
+                    <div class="ll-nc-list" id="llNcUnread"></div>
+                    <div class="ll-nc-list d-none" id="llNcRead"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        const modalEl = document.getElementById('llNotificationCenterModal');
+        if (!modalEl) return;
+
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const unreadEl = document.getElementById('llNcUnread');
+        const readEl = document.getElementById('llNcRead');
+        const unreadBadge = document.getElementById('llNcUnreadBadge');
+        const markAllBtn = document.getElementById('llNcMarkAll');
+        const bellMenu = document.getElementById('llNotificationMenu');
+
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const severityClass = (s) => ['info', 'success', 'warning', 'danger'].includes(s) ? s : 'info';
+
+        function timeAgo(iso) {
+            if (!iso) return '';
+            const then = new Date(iso).getTime();
+            if (isNaN(then)) return '';
+            const secs = Math.max(1, Math.floor((Date.now() - then) / 1000));
+            const units = [[31536000, 'y'], [2592000, 'mo'], [604800, 'w'], [86400, 'd'], [3600, 'h'], [60, 'm']];
+            for (const [s, label] of units) {
+                if (secs >= s) return Math.floor(secs / s) + label + ' ago';
+            }
+            return secs + 's ago';
+        }
+
+        function itemHtml(n, isRead) {
+            const id = esc(n.id);
+            const action = isRead
+                ? `<button type="button" class="ll-nc-action" data-ll-nc-unread="${id}">Mark unread</button>`
+                : `<button type="button" class="ll-nc-action" data-ll-nc-read="${id}">Mark read</button>`;
+            const link = n.action_url ? `<a class="ll-nc-action" href="${esc(n.action_url)}">Open</a>` : '';
+            const source = n.source ? `<span class="ll-nc-pill">${esc(n.source.charAt(0).toUpperCase() + n.source.slice(1))}</span>` : '';
+            const message = n.message ? `<div class="ll-nc-message">${esc(n.message)}</div>` : '';
+            return `
+                <div class="ll-nc-item" data-ll-nc-id="${id}">
+                    <div class="ll-nc-icon ${severityClass(n.severity)}"><i class="bi ${esc(n.icon || 'bi-bell-fill')}"></i></div>
+                    <div class="ll-nc-body">
+                        <div class="ll-nc-title">${esc(n.title || 'Notification')}</div>
+                        ${message}
+                        <div class="ll-nc-meta">
+                            ${source}
+                            <span>${timeAgo(n.created_at)}</span>
+                            ${action}
+                            ${link}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function emptyHtml(label) {
+            return `<div class="ll-nc-empty"><i class="bi bi-bell-slash"></i>${label}</div>`;
+        }
+
+        function syncBell(count) {
+            if (!bellMenu) return;
+            let dot = bellMenu.querySelector('.ll-dot');
+            if (count > 0 && !dot) {
+                dot = document.createElement('span');
+                dot.className = 'll-dot';
+                bellMenu.appendChild(dot);
+            } else if (count === 0 && dot) {
+                dot.remove();
+            }
+        }
+
+        async function load() {
+            unreadEl.innerHTML = emptyHtml('Loading…');
+            readEl.innerHTML = '';
+            try {
+                const res = await fetch('{{ route('studio.notifications') }}', {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                unreadEl.innerHTML = (data.unread && data.unread.length)
+                    ? data.unread.map((n) => itemHtml(n, false)).join('')
+                    : emptyHtml("You're all caught up.");
+                readEl.innerHTML = (data.read && data.read.length)
+                    ? data.read.map((n) => itemHtml(n, true)).join('')
+                    : emptyHtml('Your inbox is empty.');
+                unreadBadge.textContent = data.unread_count ?? 0;
+                syncBell(data.unread_count ?? 0);
+            } catch (e) {
+                unreadEl.innerHTML = emptyHtml('Could not load notifications.');
+            }
+        }
+
+        async function post(url) {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+                return res.ok ? await res.json() : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        modalEl.addEventListener('show.bs.modal', load);
+
+        modalEl.addEventListener('click', async (e) => {
+            const readId = e.target.closest('[data-ll-nc-read]')?.getAttribute('data-ll-nc-read');
+            const unreadId = e.target.closest('[data-ll-nc-unread]')?.getAttribute('data-ll-nc-unread');
+            if (readId) {
+                e.preventDefault();
+                await post('{{ url('studio/notifications') }}/' + encodeURIComponent(readId) + '/read');
+                await load();
+            } else if (unreadId) {
+                e.preventDefault();
+                await post('{{ url('studio/notifications') }}/' + encodeURIComponent(unreadId) + '/unread');
+                await load();
+            }
+        });
+
+        markAllBtn.addEventListener('click', async () => {
+            await post('{{ route('studio.notifications.readAll') }}');
+            await load();
+        });
+
+        modalEl.querySelectorAll('[data-ll-nc-tab]').forEach((tab) => {
+            tab.addEventListener('click', () => {
+                modalEl.querySelectorAll('[data-ll-nc-tab]').forEach((t) => t.classList.remove('active'));
+                tab.classList.add('active');
+                const which = tab.getAttribute('data-ll-nc-tab');
+                unreadEl.classList.toggle('d-none', which !== 'unread');
+                readEl.classList.toggle('d-none', which !== 'read');
+            });
+        });
+    })();
+    </script>
 
     <script src="{{ asset('assets/js/core/libs.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/external.min.js') }}"></script>

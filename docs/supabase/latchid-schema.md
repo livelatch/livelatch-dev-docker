@@ -108,10 +108,25 @@ Columns:
 - `action_url`: optional studio or product URL
 - `icon`: optional Bootstrap icon class consumed by the sidebar UI
 - `metadata`: JSON payload for future structured details
-- `read_at`: nullable read timestamp
+- `read_at`: **deprecated** single-reader timestamp; read state is now per-user (see `livelatch_notification_reads`)
 - `created_at`: creation timestamp
 
-Laravel reads this table through Supabase REST in `LivelatchNotificationService` and sidebar debug routes. User-specific reads are keyed by `users.supabase_user_id`, while global reads use `user_id is null`.
+RLS is enabled with a policy: authenticated users may `SELECT` global rows (`user_id is null`) or their own. All writes go through the service-role key.
+
+### `public.livelatch_notification_reads`
+
+Per-user read state for notifications. A row records that a given user has read a
+given notification — required because a single global notification is read
+independently by many users.
+
+- Primary key: `id`
+- Foreign keys: `notification_id` -> `public.livelatch_notifications.id` (cascade), `user_id` -> `auth.users.id` (cascade)
+- Unique: `(notification_id, user_id)`
+- RLS: enabled, policies scope every action to `user_id = auth.uid()`
+
+Columns: `id`, `notification_id`, `user_id`, `read_at` (defaults to `now()`).
+
+Laravel reads/writes both tables through Supabase REST in `LivelatchNotificationService` using the service-role key. A notification is "read" for a user when a matching `livelatch_notification_reads` row exists. See [notifications.md](notifications.md) for the full spec.
 
 ## LatchDeck tables
 
@@ -271,7 +286,7 @@ No Livelatch or LatchDeck flow currently appears to depend on Supabase Realtime.
 
 Supabase advisor checks surfaced these issues during documentation review:
 
-- Several public tables have RLS enabled but no policies: `latchdeck_applications`, `latchdeck_cards`, `latchdeck_cards_mvp`, `latchdeck_creators`, `latchdeck_restrictions`, `latchdeck_status_history`, and `livelatch_notifications`.
+- Several public tables have RLS enabled but no policies: `latchdeck_applications`, `latchdeck_cards`, `latchdeck_cards_mvp`, `latchdeck_creators`, `latchdeck_restrictions`, `latchdeck_status_history`, `latchid_tiktok_accounts`, and `livelatch_profile_link_clicks`. (`livelatch_notifications` and `livelatch_notification_reads` now have policies as of 2026-06-18.)
 - `public.handle_new_user()` is a `SECURITY DEFINER` function executable by `anon` and `authenticated` roles.
 - Leaked password protection is disabled for Supabase Auth.
 - `public.profiles` RLS policies call auth functions in a way Supabase flags as less efficient at scale.
