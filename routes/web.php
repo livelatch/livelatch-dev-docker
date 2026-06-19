@@ -12,6 +12,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\Studio\LatchDeckController;
 use App\Http\Controllers\Studio\LatchIdController;
 use App\Http\Controllers\Studio\NotificationController;
 use App\Http\Controllers\Studio\ThemeController;
@@ -198,10 +199,14 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/delete-user/{id}', [UserController::class, 'deleteUser'])->name('deleteUser')->middleware('verified');
             Route::post('/auth-as', [AdminController::class, 'authAs'])->name('authAs');
 
-            Route::view('/studio/latchdeck', 'studio.latchdeck.index');
-            Route::view('/studio/latchdeck/cards', 'studio.latchdeck.cards');
-            Route::view('/studio/latchdeck/redemptions', 'studio.latchdeck.redemptions');
-            Route::view('/studio/latchdeck/settings', 'studio.latchdeck.settings');
+            // LatchDeck (Encore-backed). The hub page is state-driven by the
+            // creator's access status; all data lives behind the LatchDeck API.
+            Route::get('/studio/latchdeck', [LatchDeckController::class, 'index'])->name('studio.latchdeck');
+            Route::post('/studio/latchdeck/request-access', [LatchDeckController::class, 'requestAccess'])->name('studio.latchdeck.requestAccess');
+            Route::post('/studio/latchdeck/cards', [LatchDeckController::class, 'storeCard'])->name('studio.latchdeck.cards.store');
+            Route::post('/studio/latchdeck/cards/{id}', [LatchDeckController::class, 'updateCard'])->name('studio.latchdeck.cards.update');
+            Route::post('/studio/latchdeck/cards/{id}/publish', [LatchDeckController::class, 'publishCard'])->name('studio.latchdeck.cards.publish');
+            Route::post('/studio/latchdeck/cards/{id}/unpublish', [LatchDeckController::class, 'unpublishCard'])->name('studio.latchdeck.cards.unpublish');
 
             Route::get('/studio/subscription', [BillingController::class, 'index'])
                 ->name('billing.index');

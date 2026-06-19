@@ -1,44 +1,50 @@
-# LatchDeck Studio
+# LatchDeck Studio (Livelatch client)
 
-LatchDeck is present in the fork today mostly as a studio surface and navigational product area rather than a fully implemented feature set. The key commit sequence is `f756ab2`, `c9ac44b`, `390d5d7`, and `3646dd7`.
+This describes the **Livelatch** side of LatchDeck — the human-facing studio UI.
+For the overall system see [latchdeck-architecture.md](latchdeck-architecture.md);
+for the API see [latchdeck-api.md](latchdeck-api.md).
 
-## What exists now
+> Historical note: LatchDeck started as static placeholder Blade views
+> (`f756ab2`, `c9ac44b`, `390d5d7`, `3646dd7`). As of 2026-06-19 the studio is a
+> live, access-gated client of the LatchDeck (Encore) API.
 
-- dedicated studio routes for `latchdeck`, `cards`, `redemptions`, and `settings`
-- placeholder Blade views for those areas
-- navigation grouped under a distinct LatchDeck section in the studio sidebar
-- HTMX-aware page loading inside the updated sidebar shell
+## How it works
 
-## Why this is significant
+Livelatch holds **no LatchDeck state**. Every screen is driven by a single call
+to the Encore API (`GET /access-status/:latchid_user_id`) and rendered by
+`App\Http\Controllers\Studio\LatchDeckController`.
 
-This work signals a product shift:
+- **Service:** `App\Services\LatchDeckService` — thin HTTP client to Encore,
+  authenticated with the LatchDeck *service* API key
+  (`config('services.latchdeck.*')`). Fails soft (logs + safe defaults) so the
+  studio never breaks if LatchDeck is unreachable.
+- **Routes** (`routes/web.php`, auth group): `studio.latchdeck` (hub) plus POST
+  routes for `request-access`, `cards.store`, `cards.update`, `cards.publish`,
+  `cards.unpublish`.
+- **Nav:** a single LatchDeck entry (`StudioNavigation`) → the state-driven hub.
+- **Views:** `studio/latchdeck/index.blade.php` switches on access status and
+  includes `partials/request-access.blade.php` or `partials/deck.blade.php`.
 
-- Livelatch is no longer just a single settings page
-- the dashboard is becoming a hub for multiple creator products
-- LatchDeck is treated as a first-class product area even before the full business logic exists
+## States the hub renders
 
-## Current interpretation
+| Status | Screen |
+| ------ | ------ |
+| `not_applied` | Request-access page: what LatchDeck is, free/pro/SDK comparison, request form (`POST /applications`). |
+| `pending_review` | Pending banner + card editor. Drafts can be saved; **Publish is disabled**. |
+| `active` | Full editor + card grid. Publish enabled; premium rarities shown but locked for free tier. |
+| `denied_waitlist` / `restricted` / `revoked` | Status message. |
+| (no LatchID / API down) | Friendly fallback. |
 
-Right now, LatchDeck should be read as scaffolding with direction:
+## Cards & images
 
-- routes exist
-- layout patterns exist
-- user expectations are being set
-- deeper product logic is still pending
+- Create saves a **draft** via the API. Publish/Unpublish call the gated API
+  endpoints; tier/approval errors from Encore are surfaced as flash messages.
+- Card art is uploaded to Livelatch's **S3** disk (public) and the URL is passed
+  to Encore as `image_url_mvp`. Livelatch stores no card data itself.
 
-## Design implication
+## Tier sync
 
-Because the LatchDeck area already exists in navigation, future implementation should preserve continuity:
-
-- keep URLs stable where possible
-- upgrade placeholder views into real feature modules
-- let HTMX or similar partial loading continue to reduce full-shell refreshes
-
-## Related future dependencies
-
-LatchDeck will likely intersect with:
-
-- billing entitlements from Stripe
-- identity from LatchID
-- creator growth tooling
-- analytics or redemption workflows across the broader platform
+`LatchDeckController` maps the Livelatch plan (`User::planKey()` from
+`user_billing`) to a LatchDeck tier and **self-heals** it into Encore on page
+load when they differ (no billing webhook yet). Pro controls are visible but
+disabled for free users.

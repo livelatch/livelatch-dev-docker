@@ -62,6 +62,13 @@ return [
     'supabase_social_metrics_table' => env('SUPABASE_SOCIAL_METRICS_TABLE', 'livelatch_social_metric_snapshots'),
     'tiktok_oauth_authorize_url' => env('TIKTOK_OAUTH_AUTHORIZE_URL', 'https://yaljyfdfnphxzuhqlbfs.functions.supabase.co/tiktok-oauth/authorize'),
 
+    // LatchDeck is a platform-agnostic API served by Encore. Livelatch is one
+    // client; it authenticates with the service API key.
+    'latchdeck' => [
+        'api_url' => env('LATCHDECK_API_URL', 'https://staging-latchdeck-7iu2.encr.app'),
+        'api_key' => env('LATCHDECK_API_KEY'),
+    ],
+
     'posthog' => [
         'key' => env('POSTHOG_API_KEY'),
         'host' => env('POSTHOG_HOST', 'https://eu.i.posthog.com'),

@@ -146,7 +146,8 @@ Columns:
 - `latchid_user_id`: LatchID user UUID from `auth.users.id`
 - `email`: creator email snapshot
 - `display_name`: creator display name snapshot
-- `status`: creator lifecycle state, default `pending`
+- `status`: creator lifecycle state. Values used by the LatchDeck (Encore) API: `pending_review`, `active`, `denied_waitlist`, `restricted`, `revoked` (no row = `not_applied`)
+- `tier`: entitlement tier `free` | `pro` | `sdk` (default `free`); synced from Livelatch billing for human creators
 - `tutorial_seen`: onboarding flag
 - `first_card_created`: first-card milestone flag
 - `created_at`, `updated_at`: creator timestamps
@@ -218,6 +219,8 @@ Columns:
 - `creator_name_mvp`: creator display name snapshot
 - `image_url_mvp`: optional image URL
 - `background_color_mvp`: default `#1b1b29`
+- `status_mvp`: `draft` | `published` (default `draft`); cards are created as drafts and published once the creator is approved
+- `published_at_mvp`: nullable publish timestamp
 - `is_active_mvp`: active flag, default `true`
 - `created_at_mvp`, `updated_at_mvp`: MVP timestamps
 

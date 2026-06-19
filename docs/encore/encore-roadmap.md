@@ -1,29 +1,33 @@
-# Encore Roadmap
+# Encore
 
-Encore appears today as a platform-adjacent concept rather than a finished implementation. It is mentioned in the broader Livelatch planning context as one of the systems that may eventually integrate with the platform control layer.
+Encore is now a **live part of the platform**: it serves the LatchDeck API.
+
+As of 2026-06-19 the Encore service (`ld/latchdeck`, deployed on Encore Cloud at
+`https://staging-latchdeck-7iu2.encr.app`) is the **authority for LatchDeck** —
+access/applications, creator tiers, and MVP card create/draft/publish — backed by
+a direct Postgres connection to Supabase. It is the platform-agnostic API that
+Livelatch (and future SDK clients) call.
+
+See [latchdeck-architecture.md](../latchdeck/latchdeck-architecture.md) and
+[latchdeck-api.md](../latchdeck/latchdeck-api.md) for the full design and contract.
+
+## Why Encore (not just Supabase)
+
+Encore owns the logic that benefits from a real backend — entitlement gating,
+publishing rules, and (planned) real-time card/redemption campaigns — which the
+product research found Encore handles better than Supabase. Supabase remains the
+data store; Encore is the brain and the public API surface.
 
 ## Current status
 
-There is no significant commit range in the current fork history dedicated to Encore-specific product logic yet. That is the important fact to preserve.
+- Auth: every endpoint requires a Bearer API key (`auth.ts`); service key
+  (Livelatch) and admin key (LatchOps). Per-developer SDK keys are the next step.
+- Implemented: access status, applications, approve/deny, tier sync, MVP card
+  create/list/update/publish/unpublish.
+- Data: schema changes captured in `ld/latchdeck/migrations/`.
 
-## Why document it now
+## Next
 
-The platform vision already assumes that Livelatch will coordinate multiple services and products. Documenting Encore early keeps the category available for future work without pretending that the integration already exists.
-
-## Safe interpretation
-
-Treat Encore as:
-
-- a planned integration surface
-- part of the broader Livelatch product ecosystem
-- something that should eventually inherit identity, entitlement, and operator conventions from the core platform
-
-## When this category should expand
-
-Add more documents here once the fork includes concrete Encore work such as:
-
-- dedicated routes or views
-- API integrations
-- entitlement checks
-- analytics or operator workflows
-- billing-aware access rules
+- Per-developer (`sdk` tier) API keys and developer onboarding.
+- Redemption / claim / real-time campaign endpoints (reference cards by ID).
+- Tune tier capability limits in `latchdeck/tiers.ts` (currently placeholders).

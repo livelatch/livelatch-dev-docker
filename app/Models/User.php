@@ -53,6 +53,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(UserBilling::class);
     }
+
+    /** The user's billing plan key ('free' or 'pro'). */
+    public function planKey(): string
+    {
+        return optional($this->billing)->plan_key === 'pro' ? 'pro' : 'free';
+    }
+
+    public function isPro(): bool
+    {
+        return $this->planKey() === 'pro';
+    }
     public function visits()
     {
         return visits($this)->relation();
