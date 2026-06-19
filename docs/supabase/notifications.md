@@ -72,8 +72,10 @@ read) is still constrained, and to satisfy the Supabase advisor:
 
 ### Configuration
 
-Credentials are resolved through `config('services.latchid.*')`, **not** `env()`
-directly — `env()` returns `null` once `php artisan config:cache` has run.
+Credentials are resolved through `config('services.supabase_url')` and
+`config('services.supabase_service_role_key')` (the same flat keys the other
+Supabase-backed services use), **not** `env()` directly — `env()` returns `null`
+once `php artisan config:cache` has run.
 Required `.env` keys (see `.env.example`):
 
 ```

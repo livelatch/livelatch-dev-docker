@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
  *
  * All access goes through the Supabase REST API using the service-role key,
  * which bypasses row-level security. Credentials are resolved through
- * config('services.latchid.*') rather than env() directly so they keep
+ * config('services.supabase_*') rather than env() directly so they keep
  * working when the Laravel config cache is built (php artisan config:cache).
  *
  * "Read" state is per user: a notification (especially a global one, where
@@ -275,8 +275,8 @@ class LivelatchNotificationService
         ?array $body = null,
         array $extraHeaders = [],
     ) {
-        $baseUrl = rtrim((string) config('services.latchid.supabase_url'), '/');
-        $serviceKey = (string) config('services.latchid.supabase_service_role_key');
+        $baseUrl = rtrim((string) config('services.supabase_url'), '/');
+        $serviceKey = (string) config('services.supabase_service_role_key');
 
         if ($baseUrl === '' || $serviceKey === '') {
             Log::warning('LivelatchNotificationService: Supabase credentials are not configured.');
