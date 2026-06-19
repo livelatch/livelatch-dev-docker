@@ -66,7 +66,7 @@ return [
     // client; it authenticates with the service API key.
     'latchdeck' => [
         'api_url' => env('LATCHDECK_API_URL', 'https://staging-latchdeck-7iu2.encr.app'),
-        'api_key' => env('LATCHDECK_API_KEY'),
+        'api_key' => env('LATCHDECK_SERVICE_API_KEY'),
     ],
 
     'posthog' => [

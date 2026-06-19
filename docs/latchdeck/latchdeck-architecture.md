@@ -88,7 +88,7 @@ configured as Encore secrets:
 
 | Key (Encore secret) | Held by | Scope |
 | ------------------- | ------- | ----- |
-| `LATCHDECK_SERVICE_API_KEY` | Livelatch (`LATCHDECK_API_KEY` env) | All non-admin endpoints |
+| `LATCHDECK_SERVICE_API_KEY` | Livelatch (`LATCHDECK_SERVICE_API_KEY` env) | All non-admin endpoints |
 | `LATCHDECK_ADMIN_API_KEY` | LatchOps (Settings → admin key) | Adds `/admin/*` (approve/deny, list applications) |
 
 The admin key is a superset of the service key. The auth handler
@@ -104,8 +104,9 @@ the admin key.
 - **Encore Cloud** (dashboard → Secrets, or `encore secret set`):
   `LATCHDECK_SERVICE_API_KEY`, `LATCHDECK_ADMIN_API_KEY` (and the existing
   `SUPABASE_DB_URL`).
-- **Livelatch** (`.env` / Railway vars): `LATCHDECK_API_URL`, `LATCHDECK_API_KEY`
-  (= the service key). Read via `config('services.latchdeck.*')`.
+- **Livelatch** (`.env` / Railway vars): `LATCHDECK_API_URL`,
+  `LATCHDECK_SERVICE_API_KEY` (the service key). Read via
+  `config('services.latchdeck.*')`.
 - **LatchOps** (Settings UI, stored in `latchops-data` only): LatchDeck Encore API
   URL, LatchDeck admin API key, optional operator LatchID UUID.
 
