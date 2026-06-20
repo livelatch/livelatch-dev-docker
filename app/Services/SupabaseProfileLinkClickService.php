@@ -114,7 +114,7 @@ class SupabaseProfileLinkClickService
             'link_title' => $link->title,
             'link_url' => $link->link,
             'destination_host' => $this->hostFromUrl((string) $link->link),
-            'referer' => Str::limit((string) $request->headers->get('referer'), 2048, ''),
+            'referer' => $this->redactAuthParams(Str::limit((string) $request->headers->get('referer'), 2048, '')),
             'user_agent' => Str::limit((string) $request->userAgent(), 512, ''),
             'ip_hash' => $this->hashIp($request->ip()),
             'clicked_at' => now()->toISOString(),
@@ -132,6 +132,24 @@ class SupabaseProfileLinkClickService
         }
 
         return 'anonymous:' . ($event['ip_hash'] ?: 'unknown');
+    }
+
+    /**
+     * Redact auth material from a URL before it is sent to PostHog. Browsers
+     * strip URL fragments from the Referer header, but query-string tokens can
+     * still appear; never catalogue a usable token.
+     */
+    private function redactAuthParams(string $url): string
+    {
+        if ($url === '') {
+            return $url;
+        }
+
+        return (string) preg_replace(
+            '/([?&](?:access_token|refresh_token|id_token|provider_token|token|code|otp|state)=)[^&#]*/i',
+            '$1redacted',
+            $url
+        );
     }
 
     private function hostFromUrl(string $url): ?string

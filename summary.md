@@ -8,6 +8,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-20
+
+- Agent: Claude
+- Hardened analytics so OAuth tokens can never be catalogued in PostHog. On the implicit-flow `/callback/*` pages the Supabase/Google access/refresh tokens land in the URL fragment (`#access_token=<jwt>`), and PostHog's default autocapture/pageview/session-replay would otherwise record the full URL.
+- `resources/views/layouts/posthog.blade.php`: added a `sanitize_properties` hook (`llSanitizePostHogProperties` + `llRedactAuthFromUrl`) that redacts `access_token`/`refresh_token`/`id_token`/`provider_token`/`token`/`code`/`otp`/`state` from `$current_url`, `$referrer`, `$initial_*`, and `$pathname` (query string and a token-bearing fragment). Because session replay captures the URL through a separate pipeline that `sanitize_properties` does not reach, also detect auth/callback routes (`llIsAuthCallbackPage`) and disable `autocapture`, `capture_pageview`, `capture_pageleave`, and `disable_session_recording` on those transient pages only.
+- `app/Services/SupabaseProfileLinkClickService.php`: added a matching server-side `redactAuthParams()` applied to the captured `referer` before it is sent to PostHog/Supabase, so a token leaked via the Referer query string is never stored.
+- Fixed a JS crash on pages without a loader element: `loaderInit()` in `assets/js/hope-ui.js` called `loader.classList.add(...)` inside a `setTimeout` even when `document.querySelector('.loader')` returned null (`TypeError: Cannot read properties of null (reading 'classList')`, PostHog error `019ee07c-...`). Added an early-return null guard matching the existing defensive pattern in the file; the script is included on several views (`home`, `linkinfo`, `pages`, `report`, etc.) that lack a `.loader`.
+- Validation: `php -l app/Services/SupabaseProfileLinkClickService.php`; `node --check assets/js/hope-ui.js` and reviewed the Blade snippet (the redaction regexes and the callback-page gating). No PHP behavior changed beyond the new redaction helper.
+
 ### 2026-06-19
 
 - Agent: Claude
