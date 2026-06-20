@@ -316,11 +316,24 @@
         border-color: rgba(98, 54, 255, 0.16);
     }
 
+    .ll-docs-link {
+        padding: 9px 12px;
+    }
+
+    .ll-docs-link + .ll-docs-link {
+        margin-top: 4px;
+    }
+
     .ll-docs-link strong {
         display: block;
-        font-size: 0.92rem;
-        font-weight: 700;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: var(--docs-text);
+    }
+
+    .ll-docs-link.is-current strong {
+        font-weight: 700;
+        color: var(--docs-accent);
     }
 
     .ll-docs-link span {
@@ -329,6 +342,78 @@
         font-size: 0.82rem;
         line-height: 1.55;
         color: var(--docs-muted);
+    }
+
+    .ll-docs-category-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ll-docs-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: var(--docs-accent-soft);
+        color: var(--docs-accent);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
+
+    .ll-docs-toc {
+        margin: 0 20px;
+        padding: 12px 16px;
+        border: 1px solid var(--docs-border);
+        border-radius: 18px;
+        background: var(--docs-bg);
+    }
+
+    .ll-docs-toc[hidden] {
+        display: none;
+    }
+
+    .ll-docs-toc-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--docs-muted);
+    }
+
+    .ll-docs-toc-links {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 10px;
+    }
+
+    .ll-docs-toc-links a {
+        display: block;
+        padding: 5px 8px;
+        border-radius: 10px;
+        font-size: 0.86rem;
+        line-height: 1.4;
+        color: var(--docs-muted);
+        text-decoration: none;
+        border-left: 2px solid transparent;
+    }
+
+    .ll-docs-toc-links a:hover {
+        color: var(--docs-accent);
+        background: var(--docs-accent-soft);
+    }
+
+    .ll-docs-toc-links a.is-sub {
+        padding-left: 22px;
+        font-size: 0.82rem;
     }
 
     .ll-docs-pane {
@@ -555,13 +640,18 @@
 
             <div class="ll-docs-nav" id="ll-docs-nav">
                 @foreach($categories as $category)
-                    <section class="ll-docs-category" data-category="{{ $category['slug'] }}">
-                        <button class="ll-docs-category-header" type="button" data-docs-toggle aria-expanded="true">
-                            <span>{{ $category['name'] }}</span>
+                    @php $catOpen = collect($category['documents'])->contains(fn ($d) => $d['path'] === $selectedPath); @endphp
+                    <section class="ll-docs-category {{ $catOpen ? 'is-open' : '' }}" data-category="{{ $category['slug'] }}" data-default-open="{{ $catOpen ? '1' : '0' }}">
+                        <button class="ll-docs-category-header" type="button" data-docs-toggle aria-expanded="{{ $catOpen ? 'true' : 'false' }}">
+                            <span class="ll-docs-category-label">
+                                <i class="bi bi-folder2"></i>
+                                {{ $category['name'] }}
+                                <span class="ll-docs-count">{{ count($category['documents']) }}</span>
+                            </span>
                             <i class="bi bi-chevron-down"></i>
                         </button>
 
-                        <div data-docs-collapse>
+                        <div data-docs-collapse @unless($catOpen) style="display:none" @endunless>
                             @foreach($category['documents'] as $document)
                                 <a
                                     class="ll-docs-link {{ $selectedPath === $document['path'] ? 'is-current' : '' }}"
@@ -574,9 +664,9 @@
                                     data-doc-title="{{ $document['title'] }}"
                                     data-doc-summary="{{ $document['summary'] }}"
                                     data-doc-category="{{ $document['category_slug'] }}"
+                                    title="{{ $document['summary'] }}"
                                 >
                                     <strong>{{ $document['title'] }}</strong>
-                                    <span>{{ $document['summary'] }}</span>
                                 </a>
                             @endforeach
                         </div>
@@ -593,6 +683,11 @@
                     <span class="ll-docs-pill"><i class="bi bi-code-slash"></i> Markdown rendered</span>
                 </div>
             </div>
+
+            <nav class="ll-docs-toc" id="ll-doc-toc" hidden aria-label="On this page">
+                <span class="ll-docs-toc-title"><i class="bi bi-list-nested"></i> On this page</span>
+                <div class="ll-docs-toc-links" id="ll-doc-toc-links"></div>
+            </nav>
 
             <div id="ll-doc-article">
                 @if($selectedDocument)
@@ -646,8 +741,21 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function setCategoryExpanded(categorySection, expanded) {
+            const toggle = categorySection.querySelector('[data-docs-toggle]');
+            const collapse = categorySection.querySelector('[data-docs-collapse]');
+
+            if (!toggle || !collapse) {
+                return;
+            }
+
+            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            collapse.style.display = expanded ? '' : 'none';
+        }
+
         function applyFilters() {
             const term = (searchInput.value || '').trim().toLowerCase();
+            const filtering = term !== '' || activeCategory !== 'all';
 
             root.querySelectorAll('.ll-docs-category').forEach(categorySection => {
                 const categorySlug = categorySection.dataset.category;
@@ -673,7 +781,73 @@
                 });
 
                 categorySection.classList.toggle('is-hidden', visibleLinks === 0);
+
+                // While filtering, open any category that still has matches so the
+                // results are visible. With no filter, restore the default state
+                // (only the active doc's category is open) to keep the list compact.
+                if (filtering) {
+                    setCategoryExpanded(categorySection, visibleLinks > 0);
+                } else {
+                    setCategoryExpanded(categorySection, categorySection.dataset.defaultOpen === '1');
+                }
             });
+        }
+
+        function buildToc() {
+            const toc = document.getElementById('ll-doc-toc');
+            const list = document.getElementById('ll-doc-toc-links');
+            const prose = root.querySelector('#ll-doc-article .ll-doc-article-prose');
+
+            if (!toc || !list) {
+                return;
+            }
+
+            list.innerHTML = '';
+
+            const headings = prose ? prose.querySelectorAll('h2, h3') : [];
+
+            if (!headings.length) {
+                toc.hidden = true;
+                return;
+            }
+
+            const used = {};
+
+            headings.forEach(function (heading) {
+                let id = heading.id;
+
+                if (!id) {
+                    id = (heading.textContent || '')
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '') || 'section';
+
+                    if (used[id]) {
+                        id = id + '-' + (++used[id]);
+                    } else {
+                        used[id] = 1;
+                    }
+
+                    heading.id = id;
+                }
+
+                const anchor = document.createElement('a');
+                anchor.href = '#' + id;
+                anchor.textContent = heading.textContent;
+
+                if (heading.tagName.toLowerCase() === 'h3') {
+                    anchor.classList.add('is-sub');
+                }
+
+                anchor.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+
+                list.appendChild(anchor);
+            });
+
+            toc.hidden = false;
         }
 
         function closeResults() {
@@ -792,11 +966,14 @@
                 if (pushedPath) {
                     setCurrentDoc(pushedPath);
                 }
+
+                buildToc();
             }
         });
 
         applyFilters();
         setCurrentDoc(root.dataset.selectedDoc || '');
+        buildToc();
     })();
 </script>
 

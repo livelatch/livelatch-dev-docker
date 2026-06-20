@@ -11,6 +11,12 @@ The rule is simple:
 
 ## Timeline Digest
 
+### 2026-06-20
+
+- Wrote down the LatchDeck "claim a card" product design as three planning docs: how viewers redeem cards through many different doors (live chat, a Livelatch page block, the viewer portal, QR codes, creator hand-outs, and partner apps) that all run through one shared piece of logic; how each individual card copy gets a permanent ID and ownership history without using blockchain; and how a card's rarity and "perceived value" is scored so a viewer feels special holding a rare card from a big creator.
+- Also covered the supporting mechanics: collectible packs earned across streams, "Visibility Cards" that double as a creator-discovery tool, and cards that can require actions like sending gifts or watching for a while.
+- Tidied up the in-app documentation viewer because it was getting hard to navigate: the category list now stays collapsed until you need it, shows how many docs are in each section, and every article now has an "On this page" mini-menu to jump between headings.
+
 ### 2026-06-17
 
 - Development moved from ChatGPT/Codex to Claude, starting with this session.
