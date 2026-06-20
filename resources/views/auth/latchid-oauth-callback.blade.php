@@ -153,6 +153,10 @@
 
             var client = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
                 auth: {
+                    // PKCE (authorization-code) flow. The verifier stored in
+                    // localStorage when sign in started (same origin) is read here
+                    // to exchange the ?code= for a session. Keeps tokens out of URLs.
+                    flowType: 'pkce',
                     // We exchange the OAuth code manually below, so disable the
                     // automatic URL detection. Running both races to consume the
                     // same single-use code and intermittently fails the sign in.

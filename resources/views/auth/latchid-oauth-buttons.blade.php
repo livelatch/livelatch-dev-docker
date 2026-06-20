@@ -57,6 +57,10 @@
 
                     return window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
                         auth: {
+                            // PKCE (authorization-code) flow: the provider returns
+                            // ?code= instead of a #access_token fragment, so tokens
+                            // never land in the URL. Must match the callback client.
+                            flowType: 'pkce',
                             detectSessionInUrl: false,
                             persistSession: true,
                             autoRefreshToken: true

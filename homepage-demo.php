@@ -735,7 +735,17 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 message.textContent = 'Opening Google sign in...';
 
                 try {
-                    var client = window.supabase.createClient(latchIdConfig.supabaseUrl, latchIdConfig.supabaseAnonKey);
+                    var client = window.supabase.createClient(latchIdConfig.supabaseUrl, latchIdConfig.supabaseAnonKey, {
+                        auth: {
+                            // PKCE (authorization-code) flow so the OAuth token is
+                            // never placed in the URL fragment. Same origin as the
+                            // /callback page, so the verifier round-trips.
+                            flowType: 'pkce',
+                            detectSessionInUrl: false,
+                            persistSession: true,
+                            autoRefreshToken: true
+                        }
+                    });
                     var result = await client.auth.signInWithOAuth({
                         provider: 'google',
                         options: { redirectTo: latchIdConfig.redirectTo }
