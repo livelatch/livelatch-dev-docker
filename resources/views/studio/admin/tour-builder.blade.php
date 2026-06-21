@@ -54,6 +54,8 @@
     .tb-tabs{display:flex;gap:6px}
     .tb-tab{padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:.8rem;font-weight:600}
     .tb-tab.active{color:var(--text);border-color:var(--primary)}
+    .tb-chk{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text);padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);cursor:pointer}
+    .tb-chk input{width:16px;height:16px}
     .tb-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ok);color:#062b13;padding:9px 16px;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
     .tb-toast.show{opacity:1}
 </style>
@@ -65,6 +67,7 @@
         <button id="tb-load" class="tb-btn">↻ Load</button>
         <button id="tb-pick" class="tb-btn">🎯 Pick element</button>
         <button id="tb-add" class="tb-btn">＋ Blank step</button>
+        <button id="tb-style" class="tb-btn">⚙ Style</button>
         <div class="grow"></div>
         <button id="tb-preview" class="tb-btn primary">▶ Preview tour</button>
         <button id="tb-export" class="tb-btn ok">⤓ Export code</button>
@@ -74,7 +77,7 @@
         <div id="tb-steps" class="tb-steps"></div>
         <div class="tb-stage">
             <iframe id="tb-frame" src="/dashboard"></iframe>
-            <div id="tb-pickhint" class="tb-pickhint" style="display:none">Pick mode ON — click any element in the page to capture it as a step. Press Esc to stop.</div>
+            <div id="tb-pickhint" class="tb-pickhint" style="display:none">Pick mode ON — click an element to capture it. Click a menu's chevron to expand it, or <b>Alt-click</b> to interact without capturing. Esc to stop.</div>
         </div>
     </div>
 
@@ -96,6 +99,46 @@
         </div>
     </div>
 
+    <div id="tb-style-modal" class="tb-modal">
+        <div class="tb-modal-card">
+            <div class="tb-modal-head">
+                <h2>⚙ Tour style &amp; animation</h2>
+                <div class="grow" style="flex:1"></div>
+                <button id="tb-style-preview" class="tb-btn primary">▶ Preview</button>
+                <button id="tb-style-reset" class="tb-btn">Reset</button>
+                <button id="tb-style-close" class="tb-btn">Done</button>
+            </div>
+            <div style="overflow:auto;padding:16px">
+                <div class="tb-row" style="grid-template-columns:1fr 1fr 1fr;gap:14px">
+                    <label class="tb-chk"><input type="checkbox" data-s="animate"> Animate transitions</label>
+                    <label class="tb-chk"><input type="checkbox" data-s="smoothScroll"> Smooth scroll</label>
+                    <label class="tb-chk"><input type="checkbox" data-s="showProgress"> Show progress</label>
+                </div>
+                <div class="tb-row" style="margin-top:14px">
+                    <div class="tb-field"><label>Overlay color</label><input type="color" data-s="overlayColor"></div>
+                    <div class="tb-field"><label>Overlay opacity (<span data-out="overlayOpacity"></span>)</label><input type="range" min="0" max="1" step="0.05" data-s="overlayOpacity"></div>
+                </div>
+                <div class="tb-row" style="margin-top:14px">
+                    <div class="tb-field"><label>Stage padding (px)</label><input type="number" min="0" max="40" data-s="stagePadding"></div>
+                    <div class="tb-field"><label>Stage corner radius (px)</label><input type="number" min="0" max="40" data-s="stageRadius"></div>
+                </div>
+                <div class="tb-row" style="margin-top:14px">
+                    <div class="tb-field"><label>Progress text</label><input data-s="progressText" placeholder="{{ '{{current}} of {{total}}' }}"></div>
+                    <div class="tb-field"><label>Popover CSS class</label><input data-s="popoverClass" placeholder="ll-tour"></div>
+                </div>
+                <div class="tb-row" style="grid-template-columns:1fr 1fr 1fr;margin-top:14px">
+                    <div class="tb-field"><label>Prev button</label><input data-s="prevBtnText" placeholder="Previous"></div>
+                    <div class="tb-field"><label>Next button</label><input data-s="nextBtnText" placeholder="Next"></div>
+                    <div class="tb-field"><label>Done button</label><input data-s="doneBtnText" placeholder="Done"></div>
+                </div>
+                <div class="tb-field" style="margin-top:14px">
+                    <label>Custom CSS — target <code style="color:var(--primary-2)">.ll-tour</code> (or your popover class). Use <code style="color:var(--primary-2)">.driver-popover-title</code>, <code style="color:var(--primary-2)">.driver-popover-description</code>, <code style="color:var(--primary-2)">.driver-popover-navigation-btns button</code>.</label>
+                    <textarea data-s="customCss" style="min-height:150px;font-family:ui-monospace,Menlo,Consolas,monospace"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="tb-toast" class="tb-toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.js.iife.js"></script>
@@ -106,6 +149,17 @@
     const frame = $("tb-frame");
     let steps = [];          // {selector,title,description,side,align}
     let picking = false;
+
+    /* ---------- tour style / animation settings ---------- */
+    const DEFAULTS = {
+        animate: true, smoothScroll: true, showProgress: true,
+        overlayColor: '#04122b', overlayOpacity: 0.7,
+        stagePadding: 8, stageRadius: 10,
+        progressText: '', popoverClass: 'll-tour',
+        prevBtnText: '', nextBtnText: '', doneBtnText: '',
+        customCss: ''
+    };
+    let settings = Object.assign({}, DEFAULTS);
 
     /* ---------- selector generation (runs against the iframe document) ---------- */
     function cssEscape(s){ return (window.CSS && CSS.escape) ? CSS.escape(s) : s.replace(/([^\w-])/g,'\\$1'); }
@@ -146,6 +200,10 @@
         try { return frame.contentDocument || frame.contentWindow.document; }
         catch(e){ return null; }
     }
+    function framePath(){
+        try { return frame.contentWindow.location.pathname || '/'; }
+        catch(e){ return ($("tb-url").value || '/dashboard').split('?')[0]; }
+    }
 
     /* ---------- pick mode (injected highlight + click capture) ---------- */
     let hoverEl = null;
@@ -157,11 +215,17 @@
     function onFrameMove(e){ if(picking) setHover(e.target); }
     function onFrameClick(e){
         if(!picking) return;
+        // Alt-click = interact with the page (expand menus, open things) without capturing.
+        if(e.altKey) return;
+        // Let expander controls (sidebar chevrons, <summary>, aria-expanded toggles)
+        // do their normal thing so you can open a menu and then pick its items.
+        const expander = e.target.closest('[data-ll-nav-toggle], [aria-expanded], summary, .ll-nav-group-button');
+        if(expander){ toast('Expanded — now pick an item inside'); return; }
         e.preventDefault(); e.stopPropagation();
         const doc = frameDoc();
         const sel = buildSelector(doc, e.target);
         const text = (e.target.innerText||'').trim().replace(/\s+/g,' ').slice(0,60);
-        addStep({ selector: sel, title: text ? ('"'+text+'"') : 'New step', description: '' });
+        addStep({ selector: sel, title: text ? ('"'+text+'"') : 'New step', description: '', page: framePath() });
         toast('Captured: '+sel);
     }
     function onFrameKey(e){ if(e.key === 'Escape') setPicking(false); }
@@ -184,7 +248,7 @@
 
     /* ---------- steps model + render ---------- */
     function addStep(s){
-        steps.push(Object.assign({ selector:'', title:'New step', description:'', side:'bottom', align:'start' }, s));
+        steps.push(Object.assign({ selector:'', title:'New step', description:'', side:'bottom', align:'start', page: framePath() }, s));
         render(); persist();
     }
     function render(){
@@ -206,6 +270,10 @@
                     <button class="tb-mini" data-act="down" title="Move down">▼</button>
                     <button class="tb-mini" data-act="del"  title="Delete">✕</button>
                 </div>
+                <div class="tb-field">
+                    <label>Page <button class="tb-mini" data-act="goto" title="Load this page in the preview" style="float:right;width:auto;padding:0 8px;height:20px;font-size:.7rem">↗ open</button></label>
+                    <input data-f="page" value="${escapeAttr(s.page||'')}" placeholder="/dashboard">
+                </div>
                 <div class="tb-field"><label>Element selector</label><input data-f="selector" value="${escapeAttr(s.selector)}"></div>
                 <div class="tb-field"><label>Popover title</label><input data-f="title" value="${escapeAttr(s.title)}"></div>
                 <div class="tb-field"><label>Description</label><textarea data-f="description">${escapeHtml(s.description)}</textarea></div>
@@ -225,6 +293,7 @@
         else if(act==='up' && i>0){ [steps[i-1],steps[i]]=[steps[i],steps[i-1]]; }
         else if(act==='down' && i<steps.length-1){ [steps[i+1],steps[i]]=[steps[i],steps[i+1]]; }
         else if(act==='hl'){ flash(steps[i].selector); return; }
+        else if(act==='goto'){ const p = steps[i].page || '/dashboard'; $("tb-url").value = p; setPicking(false); frame.src = p; toast('Loading '+p); return; }
         render(); persist();
     }
     function flash(sel){
@@ -252,25 +321,84 @@
         sc.onload = () => cb(win.driver.js.driver);
         doc.body.appendChild(sc);
     }
+    function driverConfig(){
+        const c = {
+            animate: !!settings.animate,
+            smoothScroll: !!settings.smoothScroll,
+            showProgress: !!settings.showProgress,
+            allowClose: true,
+            overlayColor: settings.overlayColor,
+            overlayOpacity: Number(settings.overlayOpacity),
+            stagePadding: Number(settings.stagePadding),
+            stageRadius: Number(settings.stageRadius),
+            popoverClass: settings.popoverClass || 'll-tour'
+        };
+        if(settings.progressText) c.progressText = settings.progressText;
+        if(settings.prevBtnText) c.prevBtnText = settings.prevBtnText;
+        if(settings.nextBtnText) c.nextBtnText = settings.nextBtnText;
+        if(settings.doneBtnText) c.doneBtnText = settings.doneBtnText;
+        return c;
+    }
+    function injectTourCss(doc){
+        if(!doc) return;
+        let st = doc.getElementById('tb-tour-css');
+        if(!st){ st = doc.createElement('style'); st.id = 'tb-tour-css'; doc.head.appendChild(st); }
+        st.textContent = settings.customCss || '';
+    }
+    let previewAll = null, previewResumeIdx = null;
     function preview(){
-        if(!steps.length){ toast('Add a step first'); return; }
+        const all = toDriverSteps();
+        if(!all.length){ toast('Add a step first'); return; }
         setPicking(false);
+        previewAll = all;
+        runPreviewFrom(0);
+    }
+    function runPreviewFrom(startIdx){
+        const all = previewAll || [];
+        if(startIdx >= all.length){ toast('Tour preview complete'); return; }
+        const cur = normPath(framePath());
+        // Skip to the first step at/after startIdx that lives on the current page.
+        let i = startIdx;
+        while(i < all.length && all[i].page && normPath(all[i].page) !== cur) i++;
+        if(i >= all.length){ toast('No more steps on this page'); return; }
+        // Step is on another page → navigate there, then resume.
+        if(all[i].page && normPath(all[i].page) !== cur){
+            previewResumeIdx = i; setPicking(false); frame.src = all[i].page; return;
+        }
+        // Collect the contiguous run of steps on this page.
+        const seg = []; let j = i;
+        while(j < all.length && (!all[j].page || normPath(all[j].page) === cur)){ seg.push(all[j]); j++; }
+        const segEnd = j, lastK = seg.length - 1;
         ensureDriverInFrame((driver) => {
-            const d = driver({ showProgress:true, allowClose:true, steps: toDriverSteps() });
+            injectTourCss(frameDoc());
+            let d;
+            const dSteps = seg.map((s, k) => {
+                if(k === lastK && segEnd < all.length){
+                    // Last step of this page, but more pages remain → advance + navigate.
+                    return { element: s.element, popover: s.popover, onNextClick: () => {
+                        previewResumeIdx = segEnd;
+                        const next = all[segEnd].page || cur;
+                        d.destroy();
+                        frame.src = next;
+                    }};
+                }
+                return { element: s.element, popover: s.popover };
+            });
+            d = driver(Object.assign(driverConfig(), { steps: dSteps }));
             d.drive();
         });
     }
 
     /* ---------- export ---------- */
     function toDriverSteps(){
-        return steps.filter(s=>s.selector).map(s => ({
+        return steps.filter(s=>s.selector).map(s => Object.assign({
             element: s.selector,
             popover: Object.assign(
                 { title: s.title||'', description: s.description||'' },
                 s.side ? { side: s.side } : {},
                 s.align ? { align: s.align } : {}
             )
-        }));
+        }, s.page ? { page: normPath(s.page) } : {}));
     }
     function stepsLiteral(indent){
         const pad = ' '.repeat(indent);
@@ -279,67 +407,87 @@
             const parts = [`element: ${js(s.element)}`,
                 `popover: { title: ${js(p.title)}, description: ${js(p.description)}`
                 + (p.side?`, side: ${js(p.side)}`:'') + (p.align?`, align: ${js(p.align)}`:'') + ` }`];
+            if(s.page) parts.push(`page: ${js(s.page)}`);
             return `${pad}{ ${parts.join(', ')} }`;
         }).join(',\n');
     }
+    function normPath(p){ return (p||'').split('?')[0].split('#')[0].replace(/\/+$/,'') || '/'; }
+    function configLiteral(indent){
+        return JSON.stringify(driverConfig(), null, 2).replace(/\n/g, '\n'+' '.repeat(indent));
+    }
+    function cssBlock(){ return (settings.customCss||'').trim(); }
+
     function exportScript(){
+        const css = cssBlock();
         return `<!-- 1. Include once (e.g. in layouts/sidebar.blade.php <head>) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.css"/>
 <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.js.iife.js"><\/script>
-
+${css ? '<style>\n'+css+'\n<\/style>\n' : ''}
 <!-- 2. Start the tour for first-time users -->
 <script>
 (function(){
   const KEY = 'll_studio_tour_done';
   if (localStorage.getItem(KEY)) return;            // already seen it
   const driver = window.driver.js.driver;
-  const tour = driver({
-    showProgress: true,
-    allowClose: true,
+  const config = Object.assign(${configLiteral(2)}, {
     onDestroyed: () => localStorage.setItem(KEY, '1'),
     steps: [
 ${stepsLiteral(6)}
     ],
   });
+  const tour = driver(config);
   // Wait for the page to settle before starting.
   window.addEventListener('load', () => setTimeout(() => tour.drive(), 600));
 })();
 <\/script>`;
     }
     function exportModule(){
+        const css = cssBlock();
         return `import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
-
+${css ? '\n// Add this CSS to a stylesheet:\n/*\n'+css+'\n*/\n' : ''}
 const TOUR_KEY = "ll_studio_tour_done";
 
 export function startStudioTour(force = false) {
   if (!force && localStorage.getItem(TOUR_KEY)) return;
-  const tour = driver({
-    showProgress: true,
-    allowClose: true,
+  const tour = driver(Object.assign(${configLiteral(2)}, {
     onDestroyed: () => localStorage.setItem(TOUR_KEY, "1"),
     steps: [
 ${stepsLiteral(6)}
     ],
-  });
+  }));
   tour.drive();
 }`;
     }
-    function exportJson(){ return JSON.stringify(toDriverSteps(), null, 2); }
+    function exportJson(){
+        return JSON.stringify({ config: driverConfig(), steps: toDriverSteps(), customCss: settings.customCss||'' }, null, 2);
+    }
 
     function exportClaude(){
         const url = $("tb-url").value || '/dashboard';
-        return `Update the Livelatch studio onboarding tour.
+        const css = (settings.customCss||'').trim();
+        return `Update the Livelatch studio onboarding tour (driver.js).
 
-In resources/views/partials/studio-tour.blade.php, replace the "var steps = [];"
-array with EXACTLY the steps below (keep everything else in that file as-is —
-the driver.js includes, the localStorage gate, and the window-load trigger):
+In resources/views/partials/studio-tour.blade.php there are three generated
+regions delimited by comment markers. Replace ONLY the contents between each
+marker pair, and leave the rest of the file (driver includes, localStorage gate,
+window-load trigger) unchanged.
 
-var steps = ${JSON.stringify(toDriverSteps(), null, 2)};
+1) Between /* GENERATED:CONFIG */ and /* /GENERATED:CONFIG */ set:
 
-These steps were built against the page "${url}". Don't invent or reorder
-selectors, and leave the existing data-tour attributes in the markup intact.
-After editing, summarise what changed.`;
+    var config = ${configLiteral(4)};
+
+2) Between /* GENERATED:STEPS */ and /* /GENERATED:STEPS */ set:
+
+    var steps = ${JSON.stringify(toDriverSteps(), null, 2)};
+
+3) Between {{ '{{-- GENERATED:STYLE --}}' }} and {{ '{{-- /GENERATED:STYLE --}}' }} set the <style data-ll-tour-style> contents to:
+
+${css ? css : '(empty — no custom CSS)'}
+
+Built against the page "${url}". Don't invent or reorder selectors, and leave the
+existing data-tour attributes in the markup intact. After editing, summarise what
+changed.`;
     }
 
     const exporters = { claude: exportClaude, script: exportScript, module: exportModule, json: exportJson };
@@ -352,8 +500,33 @@ After editing, summarise what changed.`;
 
     /* ---------- persistence (localStorage so you don't lose work on reload) ---------- */
     const STORE='ll_tour_builder_steps';
+    const STORE_S='ll_tour_builder_settings';
     function persist(){ try{ localStorage.setItem(STORE, JSON.stringify(steps)); }catch(e){} }
-    function restore(){ try{ const r=localStorage.getItem(STORE); if(r) steps=JSON.parse(r)||[]; }catch(e){} }
+    function persistSettings(){ try{ localStorage.setItem(STORE_S, JSON.stringify(settings)); }catch(e){} }
+    function restore(){
+        try{ const r=localStorage.getItem(STORE); if(r) steps=JSON.parse(r)||[]; }catch(e){}
+        try{ const r=localStorage.getItem(STORE_S); if(r) settings=Object.assign({}, DEFAULTS, JSON.parse(r)||{}); }catch(e){}
+    }
+
+    /* ---------- style modal ---------- */
+    function syncStyleForm(){
+        document.querySelectorAll('#tb-style-modal [data-s]').forEach(inp => {
+            const k = inp.dataset.s, v = settings[k];
+            if(inp.type === 'checkbox') inp.checked = !!v; else inp.value = v == null ? '' : v;
+        });
+        const o = document.querySelector('[data-out="overlayOpacity"]'); if(o) o.textContent = settings.overlayOpacity;
+    }
+    function bindStyleForm(){
+        document.querySelectorAll('#tb-style-modal [data-s]').forEach(inp => {
+            inp.addEventListener('input', () => {
+                const k = inp.dataset.s;
+                settings[k] = inp.type === 'checkbox' ? inp.checked : inp.value;
+                if(k === 'overlayOpacity'){ const o=document.querySelector('[data-out="overlayOpacity"]'); if(o) o.textContent=inp.value; }
+                persistSettings();
+            });
+        });
+    }
+    function openStyle(){ syncStyleForm(); $("tb-style-modal").classList.add('show'); }
 
     /* ---------- helpers ---------- */
     function js(v){ return JSON.stringify(v == null ? '' : v); }
@@ -368,6 +541,10 @@ After editing, summarise what changed.`;
     $("tb-url").addEventListener('keydown', e => { if(e.key==='Enter') $("tb-load").click(); });
     $("tb-pick").addEventListener('click', () => setPicking(!picking));
     $("tb-add").addEventListener('click', () => addStep({ selector:'', title:'New step' }));
+    $("tb-style").addEventListener('click', openStyle);
+    $("tb-style-close").addEventListener('click', () => $("tb-style-modal").classList.remove('show'));
+    $("tb-style-preview").addEventListener('click', () => { $("tb-style-modal").classList.remove('show'); preview(); });
+    $("tb-style-reset").addEventListener('click', () => { settings = Object.assign({}, DEFAULTS); persistSettings(); syncStyleForm(); toast('Style reset to defaults'); });
     $("tb-preview").addEventListener('click', preview);
     $("tb-export").addEventListener('click', showExport);
     $("tb-close").addEventListener('click', () => $("tb-modal").classList.remove('show'));
@@ -379,9 +556,14 @@ After editing, summarise what changed.`;
         t.classList.add('active'); curTab = t.dataset.tab; renderTab();
     }));
     document.addEventListener('keydown', e => { if(e.key==='Escape') setPicking(false); });
-    frame.addEventListener('load', () => { bindFrame(); if(picking) setPicking(true); });
+    frame.addEventListener('load', () => {
+        bindFrame();
+        if(picking) setPicking(true);
+        $("tb-url").value = framePath();
+        if(previewResumeIdx != null){ const idx = previewResumeIdx; previewResumeIdx = null; setTimeout(() => runPreviewFrom(idx), 400); }
+    });
 
-    restore(); render();
+    restore(); render(); bindStyleForm(); syncStyleForm();
 })();
 </script>
 </body>
