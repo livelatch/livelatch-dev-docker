@@ -729,8 +729,8 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             </form>
 
             <form class="ll-auth-step" data-ll-code-form hidden>
-                <p>Enter the 6-digit code we sent to <strong data-ll-email-display></strong>.</p>
-                <input class="ll-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="Sign-in code" data-ll-code>
+                <p>Enter the code we sent to <strong data-ll-email-display></strong>.</p>
+                <input class="ll-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" aria-label="Sign-in code" data-ll-code>
                 <div class="ll-auth-actions">
                     <button class="ll-button ll-button-primary" type="submit" data-ll-code-submit>Verify code</button>
                     <button class="ll-button ll-button-ghost ll-button-sm" type="button" data-ll-code-back>Use a different email</button>
@@ -932,7 +932,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                     pendingEmail = email;
                     if (emailDisplay) emailDisplay.textContent = email;
                     showStep(codeForm);
-                    notify('We emailed a 6-digit code to ' + email + '.');
+                    notify('We emailed a sign-in code to ' + email + '.');
                     window.setTimeout(function () { if (codeInput) codeInput.focus(); }, 20);
                 } catch (error) {
                     notify('<strong>Could not send your code.</strong> ' + (error && error.message ? error.message : 'Please try again.'), true);
@@ -951,12 +951,21 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 notify('Verifying your code...');
 
                 try {
+                    // New signups verify as type 'email'; fall back to 'signup'
+                    // for the first-time confirmation token if 'email' is rejected.
                     var result = await getClient().auth.verifyOtp({
                         email: pendingEmail,
                         token: token,
                         type: 'email'
                     });
-                    if (result.error) throw result.error;
+                    if (result.error) {
+                        var retry = await getClient().auth.verifyOtp({
+                            email: pendingEmail,
+                            token: token,
+                            type: 'signup'
+                        });
+                        if (retry.error) throw result.error;
+                    }
 
                     // Session established. Offer passkey setup before finishing.
                     showStep(passkeyStep);
