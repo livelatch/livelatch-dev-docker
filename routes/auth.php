@@ -48,9 +48,12 @@ Route::post('/validate-handle', [RegisteredUserController::class, 'validateHandl
         });
     }
 
-Route::get($login, [AuthenticatedSessionController::class, 'create'])
-                ->middleware('guest')
-                ->name('login');
+// LatchID is the only sign-in path: bypass the Laravel password login page and
+// send guests to the homepage where the LatchID modal (Google / email / passkey)
+// lives. The route name stays 'login' so auth-middleware redirects keep working.
+Route::get($login, function () {
+    return redirect('/');
+})->middleware('guest')->name('login');
 
 Route::post($login, [AuthenticatedSessionController::class, 'store'])
                 ->middleware('guest');

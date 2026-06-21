@@ -8,6 +8,16 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-21
+
+- Agent: Claude
+- Added an email + passkey LatchID sign-in path alongside the existing Google option, using **native Supabase passkeys** (beta, shipped 2026-05-28, usable as a primary sign-in). Decided against Pocket ID (would have been a second IdP needing user-sync) and Laravel-side WebAuthn (Alex intends to leave Laravel one day) — Supabase stays the single source of truth for all users. Captured the decision in agent memory.
+- `homepage-demo.php`: reworked the auth modal into three options — *Continue with Google* (unchanged PKCE OAuth redirect), *Sign in with a passkey* (`signInWithPasskey()` for returning users), and *Continue with email* (`signInWithOtp` → 6-digit code → `verifyOtp` → skippable passkey-enroll prompt via `registerPasskey()`). The shared client opts into the beta with `experimental: { passkey: true }`. OTP/passkey logins return the session in-page (no redirect), so a new `completeLogin()` helper POSTs straight to the existing `/api/latchid/session`; added a `<meta name="csrf-token">` so the guest POST passes CSRF. No backend/controller change needed — passkey/OTP sessions flow through the existing Supabase-session pipeline.
+- `routes/auth.php`: bypassed the Laravel password login — `GET /login` now `redirect('/')` to the homepage modal, keeping the `login` route name so auth-middleware redirects still work. `POST /login` left intact but effectively dead (no form posts to it).
+- `resources/views/studio/account/latchid.blade.php`: added a Passkeys management section (list / add / remove per device) and opted the page's Supabase client into `experimental: { passkey: true }`. Gracefully degrades to a "sign back in on this device" message when no Supabase session is present in local storage (dashboard passkey ops require a live browser session).
+- Still required (operator, Supabase dashboard): enable Passkeys (BETA) with Relying Party ID `livelatch.com`; enable Email provider and switch the OTP template to `{{ .Token }}`; configure Spacemail SMTP (`mail.spacemail.com`, `hello@livelatch.com`) + SPF/DKIM. Beta API may change without notice — pin the exact `supabase-js` CDN version (currently `@2`) once verified. End-to-end browser verification deferred until the dashboard settings are on.
+- Validation: `php -l homepage-demo.php` and `php -l routes/auth.php` clean; `php artisan view:clear`.
+
 ### 2026-06-20
 
 - Agent: Claude

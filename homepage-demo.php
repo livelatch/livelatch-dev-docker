@@ -39,6 +39,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?php echo function_exists('csrf_token') ? htmlspecialchars(csrf_token(), ENT_QUOTES) : ''; ?>">
     <title>Livelatch — one simple link for everything you share</title>
     <meta name="description" content="Livelatch gives you one friendly page for your links, socials and shops. Set it up in minutes, make it yours, and share a single link everywhere.">
     <link rel="icon" type="image/png" href="/logos/livelatch_social_icon.png">
@@ -472,6 +473,46 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             padding: 12px 14px;
         }
         .ll-demo-message.ll-visible { display: block; }
+        .ll-or {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 18px 0 4px;
+            color: var(--ll-muted);
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+        .ll-or::before, .ll-or::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--ll-border);
+        }
+        .ll-auth-step { margin-top: 18px; }
+        .ll-auth-step[hidden] { display: none; }
+        .ll-auth-step h3 { margin: 0 0 6px; font-size: 1.1rem; }
+        .ll-auth-step p { margin: 0 0 12px; color: var(--ll-muted); font-size: .92rem; }
+        .ll-input {
+            width: 100%;
+            margin-bottom: 12px;
+            border: 1px solid var(--ll-border);
+            border-radius: var(--ll-button-radius);
+            background: var(--ll-surface-solid);
+            color: var(--ll-text);
+            min-height: 52px;
+            padding: 14px 16px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .ll-input:focus {
+            outline: none;
+            border-color: color-mix(in srgb, var(--ll-primary) 55%, var(--ll-border));
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-primary) 18%, transparent);
+        }
+        .ll-input[data-ll-code] { letter-spacing: .35em; text-align: center; font-size: 1.25rem; }
+        .ll-auth-step .ll-button { width: 100%; }
+        .ll-auth-actions { display: flex; flex-direction: column; gap: 8px; }
 
         @media (max-width: 980px) {
             .ll-hero-grid, .ll-footer-grid { grid-template-columns: 1fr; }
@@ -665,7 +706,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 <div>
                     <span class="ll-kicker">LatchID</span>
                     <h2 id="llModalTitle">Welcome to Livelatch</h2>
-                    <p>Use your Google account to create a new Livelatch page or log back in.</p>
+                    <p>Create your LatchID with Google or your email. Email sign-ups can set up a passkey for fast, password-free logins.</p>
                 </div>
                 <button class="ll-close" type="button" data-ll-close-modal aria-label="Close">&times;</button>
             </header>
@@ -674,6 +715,37 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09a6.6 6.6 0 0 1 0-4.18V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
                 <span>Continue with Google</span>
             </button>
+
+            <button class="ll-provider" type="button" data-ll-passkey-signin>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M3 20c0-3.3 2.7-6 6-6 1.2 0 2.3.35 3.2.95" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17 13.5a2.5 2.5 0 0 0-2.5 2.5c0 1 .6 1.9 1.5 2.3V21l1 1 1-1 .8-.8-.8-.8.8-.8-.9-.9c.55-.45.9-1.13.9-1.9A2.5 2.5 0 0 0 17 13.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                <span>Sign in with a passkey</span>
+            </button>
+
+            <div class="ll-or" aria-hidden="true">or</div>
+
+            <form class="ll-auth-step" data-ll-email-form>
+                <input class="ll-input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" data-ll-email required>
+                <button class="ll-button ll-button-primary" type="submit" data-ll-email-submit>Email me a sign-in code</button>
+            </form>
+
+            <form class="ll-auth-step" data-ll-code-form hidden>
+                <p>Enter the 6-digit code we sent to <strong data-ll-email-display></strong>.</p>
+                <input class="ll-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" aria-label="Sign-in code" data-ll-code>
+                <div class="ll-auth-actions">
+                    <button class="ll-button ll-button-primary" type="submit" data-ll-code-submit>Verify code</button>
+                    <button class="ll-button ll-button-ghost ll-button-sm" type="button" data-ll-code-back>Use a different email</button>
+                </div>
+            </form>
+
+            <div class="ll-auth-step" data-ll-passkey-step hidden>
+                <h3>Set up a passkey</h3>
+                <p>Use Face ID, Touch ID, Windows Hello or a security key to sign in next time — no codes, no passwords.</p>
+                <div class="ll-auth-actions">
+                    <button class="ll-button ll-button-primary" type="button" data-ll-passkey-enroll>Set up a passkey</button>
+                    <button class="ll-button ll-button-ghost ll-button-sm" type="button" data-ll-passkey-skip>Maybe later</button>
+                </div>
+            </div>
+
             <div class="ll-demo-message" data-ll-demo-message></div>
             <p class="ll-modal-fine">By continuing you agree to our Terms and Privacy notice.</p>
         </div>
@@ -688,19 +760,72 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             var latchIdConfig = {
                 supabaseUrl: <?php echo json_encode($llSupabaseUrl); ?>,
                 supabaseAnonKey: <?php echo json_encode($llSupabaseAnonKey); ?>,
-                redirectTo: 'https://dev.livelatch.com/callback/google'
+                redirectTo: 'https://dev.livelatch.com/callback/google',
+                sessionEndpoint: '/api/latchid/session',
+                dashboardUrl: '/dashboard'
             };
+
+            var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            var csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
 
             var modal = document.getElementById('llAuthModal');
             var openButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-open-modal]'));
             var closeButtons = Array.prototype.slice.call(document.querySelectorAll('[data-ll-close-modal]'));
             var providerButton = document.querySelector('[data-ll-provider]');
+            var passkeySigninButton = document.querySelector('[data-ll-passkey-signin]');
+            var emailForm = document.querySelector('[data-ll-email-form]');
+            var emailInput = document.querySelector('[data-ll-email]');
+            var codeForm = document.querySelector('[data-ll-code-form]');
+            var codeInput = document.querySelector('[data-ll-code]');
+            var emailDisplay = document.querySelector('[data-ll-email-display]');
+            var codeBackButton = document.querySelector('[data-ll-code-back]');
+            var passkeyStep = document.querySelector('[data-ll-passkey-step]');
+            var passkeyEnrollButton = document.querySelector('[data-ll-passkey-enroll]');
+            var passkeySkipButton = document.querySelector('[data-ll-passkey-skip]');
             var message = document.querySelector('[data-ll-demo-message]');
             var lastFocused = null;
+            var pendingEmail = '';
+            var sharedClient = null;
+
+            function configured() {
+                return latchIdConfig.supabaseUrl && latchIdConfig.supabaseAnonKey
+                    && window.supabase && window.supabase.createClient;
+            }
+
+            // Single client for the email + passkey flows. Opts into the beta
+            // passkey API and keeps the session in this page (no redirect needed).
+            function getClient() {
+                if (!sharedClient) {
+                    sharedClient = window.supabase.createClient(latchIdConfig.supabaseUrl, latchIdConfig.supabaseAnonKey, {
+                        auth: {
+                            flowType: 'pkce',
+                            detectSessionInUrl: false,
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            experimental: { passkey: true }
+                        }
+                    });
+                }
+                return sharedClient;
+            }
+
+            function notify(html, isError) {
+                if (!message) return;
+                message.classList.add('ll-visible');
+                message.innerHTML = html;
+                message.style.color = isError ? 'var(--ll-danger, #c0392b)' : '';
+            }
+
+            function showStep(step) {
+                [emailForm, codeForm, passkeyStep].forEach(function (el) {
+                    if (el) el.hidden = (el !== step);
+                });
+            }
 
             function openModal() {
                 lastFocused = document.activeElement;
                 modal.setAttribute('aria-hidden', 'false');
+                showStep(emailForm);
                 window.setTimeout(function () {
                     if (providerButton) providerButton.focus();
                 }, 20);
@@ -717,17 +842,42 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 }
             }
 
+            // Hand the Supabase session to Laravel, which creates/links the
+            // LatchID user and logs them in. Shared by Google's callback page
+            // and the in-page email/passkey flows.
+            async function completeLogin(session, user) {
+                var metadata = (user && user.user_metadata) || {};
+                var response = await fetch(latchIdConfig.sessionEndpoint, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        supabase_user_id: user.id,
+                        email: user.email,
+                        name: metadata.full_name || metadata.name || '',
+                        avatar_url: metadata.avatar_url || '',
+                        access_token: session.access_token
+                    })
+                });
+
+                var payload = await response.json().catch(function () { return {}; });
+                if (!response.ok || !payload.success) {
+                    throw new Error(payload.message || 'We could not finish signing you in.');
+                }
+
+                window.location.assign(payload.redirect || latchIdConfig.dashboardUrl);
+            }
+
             async function handleGoogle() {
                 if (!message || !providerButton) return;
                 message.classList.add('ll-visible');
 
-                if (!latchIdConfig.supabaseUrl || !latchIdConfig.supabaseAnonKey) {
-                    message.innerHTML = '<strong>Get started is not available yet.</strong> Please try again shortly.';
-                    return;
-                }
-
-                if (!window.supabase || !window.supabase.createClient) {
-                    message.innerHTML = '<strong>Get started is not available yet.</strong> Please refresh and try again.';
+                if (!configured()) {
+                    notify('<strong>Get started is not available yet.</strong> Please refresh and try again.');
                     return;
                 }
 
@@ -754,7 +904,131 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                     if (result.error) throw result.error;
                 } catch (error) {
                     providerButton.disabled = false;
-                    message.innerHTML = '<strong>Google sign in failed.</strong> ' + (error && error.message ? error.message : 'Please try again.');
+                    notify('<strong>Google sign in failed.</strong> ' + (error && error.message ? error.message : 'Please try again.'), true);
+                }
+            }
+
+            async function handleEmailSubmit(event) {
+                event.preventDefault();
+                if (!configured()) {
+                    notify('<strong>Email sign in is not available yet.</strong> Please refresh and try again.', true);
+                    return;
+                }
+
+                var email = (emailInput.value || '').trim();
+                if (!email) return;
+
+                var submit = emailForm.querySelector('[data-ll-email-submit]');
+                if (submit) submit.disabled = true;
+                notify('Sending your sign-in code...');
+
+                try {
+                    var result = await getClient().auth.signInWithOtp({
+                        email: email,
+                        options: { shouldCreateUser: true }
+                    });
+                    if (result.error) throw result.error;
+
+                    pendingEmail = email;
+                    if (emailDisplay) emailDisplay.textContent = email;
+                    showStep(codeForm);
+                    notify('We emailed a 6-digit code to ' + email + '.');
+                    window.setTimeout(function () { if (codeInput) codeInput.focus(); }, 20);
+                } catch (error) {
+                    notify('<strong>Could not send your code.</strong> ' + (error && error.message ? error.message : 'Please try again.'), true);
+                } finally {
+                    if (submit) submit.disabled = false;
+                }
+            }
+
+            async function handleCodeSubmit(event) {
+                event.preventDefault();
+                var token = (codeInput.value || '').trim();
+                if (!token) return;
+
+                var submit = codeForm.querySelector('[data-ll-code-submit]');
+                if (submit) submit.disabled = true;
+                notify('Verifying your code...');
+
+                try {
+                    var result = await getClient().auth.verifyOtp({
+                        email: pendingEmail,
+                        token: token,
+                        type: 'email'
+                    });
+                    if (result.error) throw result.error;
+
+                    // Session established. Offer passkey setup before finishing.
+                    showStep(passkeyStep);
+                    notify('You are signed in. Set up a passkey for faster logins next time.');
+                    window.setTimeout(function () { if (passkeyEnrollButton) passkeyEnrollButton.focus(); }, 20);
+                } catch (error) {
+                    notify('<strong>That code did not work.</strong> ' + (error && error.message ? error.message : 'Please try again.'), true);
+                } finally {
+                    if (submit) submit.disabled = false;
+                }
+            }
+
+            async function finishWithCurrentSession() {
+                var sessionResult = await getClient().auth.getSession();
+                if (sessionResult.error) throw sessionResult.error;
+                var session = sessionResult.data.session;
+                var userResult = await getClient().auth.getUser();
+                if (userResult.error) throw userResult.error;
+                if (!session || !userResult.data.user) {
+                    throw new Error('Your session expired. Please sign in again.');
+                }
+                await completeLogin(session, userResult.data.user);
+            }
+
+            async function handlePasskeyEnroll() {
+                passkeyEnrollButton.disabled = true;
+                if (passkeySkipButton) passkeySkipButton.disabled = true;
+                notify('Follow your browser prompt to create a passkey...');
+
+                try {
+                    var result = await getClient().auth.registerPasskey();
+                    if (result && result.error) throw result.error;
+                    notify('Passkey saved. Finishing sign in...');
+                    await finishWithCurrentSession();
+                } catch (error) {
+                    passkeyEnrollButton.disabled = false;
+                    if (passkeySkipButton) passkeySkipButton.disabled = false;
+                    notify('<strong>Could not set up the passkey.</strong> ' + (error && error.message ? error.message : 'You can try again or continue without one.'), true);
+                }
+            }
+
+            async function handlePasskeySkip() {
+                passkeySkipButton.disabled = true;
+                if (passkeyEnrollButton) passkeyEnrollButton.disabled = true;
+                notify('Finishing sign in...');
+                try {
+                    await finishWithCurrentSession();
+                } catch (error) {
+                    notify('<strong>Could not finish signing you in.</strong> ' + (error && error.message ? error.message : 'Please try again.'), true);
+                }
+            }
+
+            async function handlePasskeySignin() {
+                if (!configured()) {
+                    notify('<strong>Passkey sign in is not available yet.</strong> Please refresh and try again.', true);
+                    return;
+                }
+                passkeySigninButton.disabled = true;
+                notify('Follow your browser prompt to sign in with a passkey...');
+
+                try {
+                    var result = await getClient().auth.signInWithPasskey();
+                    if (result && result.error) throw result.error;
+                    var data = result && result.data ? result.data : {};
+                    if (data.session && data.user) {
+                        await completeLogin(data.session, data.user);
+                    } else {
+                        await finishWithCurrentSession();
+                    }
+                } catch (error) {
+                    passkeySigninButton.disabled = false;
+                    notify('<strong>Passkey sign in failed.</strong> ' + (error && error.message ? error.message : 'Try a code instead.'), true);
                 }
             }
 
@@ -766,9 +1040,18 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 button.addEventListener('click', closeModal);
             });
 
-            if (providerButton) {
-                providerButton.addEventListener('click', handleGoogle);
-            }
+            if (providerButton) providerButton.addEventListener('click', handleGoogle);
+            if (passkeySigninButton) passkeySigninButton.addEventListener('click', handlePasskeySignin);
+            if (emailForm) emailForm.addEventListener('submit', handleEmailSubmit);
+            if (codeForm) codeForm.addEventListener('submit', handleCodeSubmit);
+            if (codeBackButton) codeBackButton.addEventListener('click', function () {
+                showStep(emailForm);
+                notify('');
+                message.classList.remove('ll-visible');
+                if (emailInput) emailInput.focus();
+            });
+            if (passkeyEnrollButton) passkeyEnrollButton.addEventListener('click', handlePasskeyEnroll);
+            if (passkeySkipButton) passkeySkipButton.addEventListener('click', handlePasskeySkip);
 
             modal.addEventListener('click', function (event) {
                 if (event.target === modal) closeModal();

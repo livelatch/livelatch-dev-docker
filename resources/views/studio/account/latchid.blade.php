@@ -292,6 +292,23 @@
             @endforeach
         </section>
 
+        <section class="ll-latchid-card" data-passkey-section @if(!$latchIdConfigured) hidden @endif>
+            <div class="ll-latchid-card-top">
+                <span class="ll-latchid-icon"><i class="bi bi-fingerprint"></i></span>
+                <div>
+                    <h3>Passkeys</h3>
+                    <p>Sign in with Face ID, Touch ID, Windows Hello or a security key — no codes or passwords. Add one per device you use.</p>
+                </div>
+            </div>
+            <div class="alert alert-danger mb-0 d-none" data-passkey-error role="alert"></div>
+            <div data-passkey-list>
+                <p class="ll-latchid-meta mb-0" data-passkey-loading>Loading your passkeys…</p>
+            </div>
+            <button type="button" class="btn btn-primary w-100" data-passkey-add>
+                <i class="bi bi-plus-circle"></i> Add a passkey
+            </button>
+        </section>
+
         <div class="ll-latchid-note">
             TikTok linking is handled through a Supabase Edge Function and stored in LatchID. YouTube API access uses Google OAuth through Supabase Auth with read-only YouTube scopes. Disconnect flows, consent audit history, and richer provider metadata still need a dedicated account-management pass before launch.
         </div>
@@ -331,7 +348,8 @@
                     auth: {
                         detectSessionInUrl: false,
                         persistSession: true,
-                        autoRefreshToken: true
+                        autoRefreshToken: true,
+                        experimental: { passkey: true }
                     }
                 });
             }
@@ -412,6 +430,106 @@
                     showError(error && error.message ? error.message : 'Could not connect this LatchID provider.');
                 }
             });
+
+            // ---- Passkey management ----
+            var passkeySection = document.querySelector('[data-passkey-section]');
+            if (passkeySection) {
+                var passkeyClient = null;
+                var listEl = passkeySection.querySelector('[data-passkey-list]');
+                var addButton = passkeySection.querySelector('[data-passkey-add]');
+                var errorEl = passkeySection.querySelector('[data-passkey-error]');
+
+                function passkeyError(msg) {
+                    if (!errorEl) return;
+                    if (!msg) { errorEl.classList.add('d-none'); return; }
+                    errorEl.textContent = msg;
+                    errorEl.classList.remove('d-none');
+                }
+
+                function getPasskeyClient() {
+                    if (!passkeyClient) passkeyClient = client();
+                    return passkeyClient;
+                }
+
+                function escapeHtml(value) {
+                    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                    });
+                }
+
+                function renderPasskeys(passkeys) {
+                    if (!passkeys || !passkeys.length) {
+                        listEl.innerHTML = '<p class="ll-latchid-meta mb-0">No passkeys yet. Add one so you can sign in without a code.</p>';
+                        return;
+                    }
+                    var rows = passkeys.map(function (pk) {
+                        var name = escapeHtml(pk.friendly_name || pk.friendlyName || 'Passkey');
+                        var created = pk.created_at ? new Date(pk.created_at).toLocaleDateString() : '';
+                        return '<div class="d-flex align-items-center justify-content-between gap-2 py-2 border-bottom">'
+                            + '<div><div>' + name + '</div>'
+                            + (created ? '<div class="ll-latchid-meta">Added ' + escapeHtml(created) + '</div>' : '')
+                            + '</div>'
+                            + '<button type="button" class="btn btn-light btn-sm" data-passkey-remove="' + escapeHtml(pk.id) + '">Remove</button>'
+                            + '</div>';
+                    });
+                    listEl.innerHTML = rows.join('');
+                }
+
+                async function loadPasskeys() {
+                    passkeyError('');
+                    try {
+                        var authClient = getPasskeyClient();
+                        var sessionResult = await authClient.auth.getSession();
+                        if (!sessionResult.data || !sessionResult.data.session) {
+                            listEl.innerHTML = '<p class="ll-latchid-meta mb-0">Sign out and back in with LatchID on this device to manage passkeys here.</p>';
+                            if (addButton) addButton.disabled = true;
+                            return;
+                        }
+                        var result = await authClient.auth.passkey.list();
+                        if (result.error) throw result.error;
+                        renderPasskeys(result.data || []);
+                    } catch (error) {
+                        listEl.innerHTML = '';
+                        passkeyError(error && error.message ? error.message : 'Could not load your passkeys.');
+                    }
+                }
+
+                if (addButton) {
+                    addButton.addEventListener('click', async function () {
+                        passkeyError('');
+                        addButton.disabled = true;
+                        addButton.setAttribute('aria-busy', 'true');
+                        try {
+                            var result = await getPasskeyClient().auth.registerPasskey();
+                            if (result && result.error) throw result.error;
+                            await loadPasskeys();
+                        } catch (error) {
+                            passkeyError(error && error.message ? error.message : 'Could not add a passkey.');
+                        } finally {
+                            addButton.disabled = false;
+                            addButton.removeAttribute('aria-busy');
+                        }
+                    });
+                }
+
+                listEl.addEventListener('click', async function (event) {
+                    var removeButton = event.target.closest('[data-passkey-remove]');
+                    if (!removeButton) return;
+                    passkeyError('');
+                    removeButton.disabled = true;
+                    try {
+                        var passkeyId = removeButton.getAttribute('data-passkey-remove');
+                        var result = await getPasskeyClient().auth.passkey.delete({ passkeyId: passkeyId });
+                        if (result && result.error) throw result.error;
+                        await loadPasskeys();
+                    } catch (error) {
+                        removeButton.disabled = false;
+                        passkeyError(error && error.message ? error.message : 'Could not remove that passkey.');
+                    }
+                });
+
+                loadPasskeys();
+            }
         }());
     </script>
 @endif
