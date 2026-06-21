@@ -74,14 +74,10 @@ class ResendContactService
             ],
         ];
 
-        // Upsert: create first, fall back to update-by-email when the contact
-        // already exists in the audience.
+        // Upsert: update-by-email first (idempotent), then create when the contact
+        // doesn't exist yet (404). Update-first avoids a misleading "already
+        // exists" path and makes re-runs cheap and deterministic.
         $audience = static::audienceId();
-        $create = static::request('post', "/audiences/{$audience}/contacts", $payload);
-
-        if ($create && $create->successful()) {
-            return $create->json('data.id') ?? $create->json('id');
-        }
 
         $update = static::request(
             'patch',
@@ -91,6 +87,14 @@ class ResendContactService
 
         if ($update && $update->successful()) {
             return $update->json('data.id') ?? $update->json('id');
+        }
+
+        if ($update && $update->status() === 404) {
+            $create = static::request('post', "/audiences/{$audience}/contacts", $payload);
+
+            if ($create && $create->successful()) {
+                return $create->json('data.id') ?? $create->json('id');
+            }
         }
 
         return null;
@@ -176,32 +180,69 @@ class ResendContactService
         return trim((string) config('services.resend.audience_id'));
     }
 
+    /**
+     * Monotonic timestamp (seconds) of the last Resend call in this process, used
+     * to keep the backfill loop under Resend's 2 requests/second limit.
+     */
+    private static ?float $lastRequestAt = null;
+
+    /** Minimum spacing between requests (~1.8 req/s, safely under the 2/s cap). */
+    private const MIN_REQUEST_INTERVAL = 0.55;
+
+    /** Statuses that are expected control-flow, not failures worth logging. */
+    private const QUIET_STATUSES = [404, 409];
+
+    private static function throttle(): void
+    {
+        if (self::$lastRequestAt !== null) {
+            $elapsed = microtime(true) - self::$lastRequestAt;
+
+            if ($elapsed < self::MIN_REQUEST_INTERVAL) {
+                usleep((int) ((self::MIN_REQUEST_INTERVAL - $elapsed) * 1_000_000));
+            }
+        }
+
+        self::$lastRequestAt = microtime(true);
+    }
+
     private static function request(string $method, string $path, array $body = [])
     {
+        $url = self::BASE_URL . $path;
+        $attempt = 0;
+
         try {
-            $request = Http::withToken(static::apiKey())->acceptJson()->timeout(10);
+            while (true) {
+                $attempt++;
+                static::throttle();
 
-            $url = self::BASE_URL . $path;
+                $request = Http::withToken(static::apiKey())->acceptJson()->timeout(10);
 
-            $response = match ($method) {
-                'get' => $request->get($url),
-                'post' => $request->post($url, $body),
-                'patch' => $request->patch($url, $body),
-                default => null,
-            };
+                $response = match ($method) {
+                    'get' => $request->get($url),
+                    'post' => $request->post($url, $body),
+                    'patch' => $request->patch($url, $body),
+                    default => null,
+                };
 
-            // Conflicts (e.g. property/contact already exists) are expected during
-            // idempotent upserts; do not log them as failures.
-            if ($response && !$response->successful() && $response->status() !== 409) {
-                Log::warning('ResendContactService: request failed', [
-                    'method' => $method,
-                    'path' => $path,
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
+                // Resend rate limit: back off and retry a few times before giving up.
+                if ($response && $response->status() === 429 && $attempt < 4) {
+                    $retryAfter = (float) ($response->header('Retry-After') ?: 1);
+                    usleep((int) (max($retryAfter, 1.0) * 1_000_000));
+                    continue;
+                }
+
+                if ($response && !$response->successful()
+                    && !in_array($response->status(), self::QUIET_STATUSES, true)) {
+                    Log::warning('ResendContactService: request failed', [
+                        'method' => $method,
+                        'path' => $path,
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+                }
+
+                return $response;
             }
-
-            return $response;
         } catch (\Throwable $e) {
             Log::warning('ResendContactService: request threw', [
                 'method' => $method,
