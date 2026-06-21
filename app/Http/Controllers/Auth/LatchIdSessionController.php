@@ -35,6 +35,7 @@ class LatchIdSessionController extends Controller
             'provider_refresh_token' => ['nullable', 'string'],
             'provider_expires_at' => ['nullable', 'integer'],
             'provider_scopes' => ['nullable'],
+            'marketing_opt_in' => ['nullable', 'boolean'],
         ]);
 
         $supabaseUser = $this->verifySupabaseUser($validated['access_token']);
@@ -50,9 +51,14 @@ class LatchIdSessionController extends Controller
         $redirectTo = $this->resolveRedirectTo($request, $validated['redirect_to'] ?? null);
         $currentUser = Auth::user();
         $isNewUser = false;
+        // Marketing opt-in defaults to on when the field is absent (signup checkbox
+        // is pre-checked; the login path sends no value).
+        $marketingOptIn = array_key_exists('marketing_opt_in', $validated) && $validated['marketing_opt_in'] !== null
+            ? (bool) $validated['marketing_opt_in']
+            : true;
 
         try {
-        $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser, &$isNewUser) {
+        $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser, $marketingOptIn, &$isNewUser) {
             $user = User::where('supabase_user_id', $validated['supabase_user_id'])->first();
 
             if ($currentUser) {
@@ -119,6 +125,7 @@ class LatchIdSessionController extends Controller
                     'supabase_user_id' => $validated['supabase_user_id'],
                     'littlelink_name' => $this->uniqueLittlelinkName($requestEmail),
                     'email_verified_at' => now(),
+                    'marketing_opt_in' => $marketingOptIn,
                 ];
 
                 if (!empty($validated['avatar_url'])) {
@@ -157,6 +164,7 @@ class LatchIdSessionController extends Controller
         // billing:backfill-stripe command.
         if ($isNewUser) {
             $this->provisionBilling($user);
+            $this->provisionEmailPreferences($user, $marketingOptIn);
         }
 
         Auth::login($user);
@@ -212,6 +220,36 @@ class LatchIdSessionController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::warning('LatchID signup: Stripe billing provisioning failed; user can be backfilled later.', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Persist the new user's email preferences in Supabase and mirror them to
+     * Resend. Best-effort and outside the database transaction: a Supabase or
+     * Resend hiccup must not roll back or 500 signup. The backfill command can
+     * reconcile contacts later.
+     */
+    private function provisionEmailPreferences(User $user, bool $marketingOptIn): void
+    {
+        if (empty($user->supabase_user_id)) {
+            return;
+        }
+
+        try {
+            \App\Services\EmailPreferenceService::upsert($user->supabase_user_id, [
+                'marketing_opt_in' => $marketingOptIn,
+                'notification_emails' => true,
+            ]);
+
+            \App\Services\ResendContactService::syncUser($user, [
+                'marketing_opt_in' => $marketingOptIn,
+                'notification_emails' => true,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LatchID signup: email preference provisioning failed.', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);

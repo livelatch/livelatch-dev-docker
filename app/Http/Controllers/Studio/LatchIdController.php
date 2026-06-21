@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Studio;
 
 use App\Http\Controllers\Controller;
+use App\Services\EmailPreferenceService;
 use App\Services\LatchIdTikTokAccountService;
 use Illuminate\Http\Request;
 
@@ -13,10 +14,12 @@ class LatchIdController extends Controller
         $user = $request->user();
         $latchIdUserId = $user?->supabase_user_id;
         $tikTokAccount = $tikTokAccounts->findForLatchId($latchIdUserId);
+        $emailPreferences = EmailPreferenceService::getFor($latchIdUserId);
 
         return view('studio.account.latchid', [
             'tikTokAccount' => $tikTokAccount,
             'tikTokAuthorizeUrl' => $this->tikTokAuthorizeUrl($latchIdUserId, url('/studio/latchid')),
+            'emailPreferences' => $emailPreferences,
         ]);
     }
 

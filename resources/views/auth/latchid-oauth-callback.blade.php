@@ -202,6 +202,20 @@
             }
 
             var metadata = user.user_metadata || {};
+
+            // Marketing opt-in captured before the OAuth redirect (defaults to
+            // opted-in when not present). Consumed once, then cleared.
+            var marketingOptIn = true;
+            try {
+                var storedMarketing = window.localStorage.getItem('ll_marketing_opt_in');
+                if (storedMarketing !== null) {
+                    marketingOptIn = storedMarketing === '1';
+                    window.localStorage.removeItem('ll_marketing_opt_in');
+                }
+            } catch (storageError) {
+                marketingOptIn = true;
+            }
+
             var response = await fetch(config.sessionEndpoint, {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -221,6 +235,7 @@
                     provider_refresh_token: session.provider_refresh_token || '',
                     provider_expires_at: session.expires_at || null,
                     provider_scopes: session.provider_scopes || '',
+                    marketing_opt_in: marketingOptIn,
                     redirect_to: callbackRedirectTo()
                 })
             });

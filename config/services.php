@@ -74,4 +74,16 @@ return [
         'host' => env('POSTHOG_HOST', 'https://eu.i.posthog.com'),
     ],
 
+    // Resend transactional email + audience/contact sync.
+    //
+    // api_key must be a full-access key (Contacts/Audiences/Topics scopes) for
+    // ResendContactService; the same key is used to send service and
+    // notification emails server-side over the HTTP API. audience_id is the
+    // Resend audience that Livelatch contacts are imported into.
+    'resend' => [
+        'api_key' => env('RESEND_FULL_API_KEY'),
+        'audience_id' => env('RESEND_AUDIENCE_ID'),
+        'from' => env('RESEND_FROM', 'Livelatch <hello@livelatch.com>'),
+    ],
+
 ];

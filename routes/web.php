@@ -244,6 +244,8 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                 ]);
             });
             Route::get('/studio/latchid', [LatchIdController::class, 'edit'])->name('studio.latchid');
+            Route::post('/studio/latchid/email-preferences', [\App\Http\Controllers\Studio\EmailPreferenceController::class, 'update'])
+                ->name('studio.latchid.email-preferences');
 
             // Notification center (Supabase-backed). The modal fetches these.
             Route::get('/studio/notifications', [NotificationController::class, 'index'])->name('studio.notifications');

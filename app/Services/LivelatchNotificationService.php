@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -224,7 +225,64 @@ class LivelatchNotificationService
             return null;
         }
 
-        return $response->json()[0] ?? null;
+        $notification = $response->json()[0] ?? null;
+
+        // Targeted notifications (user_id set) are also emailed when the user has
+        // notification emails enabled. Global notifications stay in-app only.
+        if ($notification && !empty($payload['user_id'])) {
+            static::maybeEmailNotification($payload['user_id'], $notification);
+        }
+
+        return $notification;
+    }
+
+    /**
+     * Best-effort: email a targeted notification to the user when their
+     * preferences allow it. Failures never affect notification publishing.
+     */
+    private static function maybeEmailNotification(string $latchIdUserId, array $notification): void
+    {
+        try {
+            $prefs = EmailPreferenceService::getFor($latchIdUserId);
+
+            if (empty($prefs['notification_emails'])) {
+                return;
+            }
+
+            $user = User::where('supabase_user_id', $latchIdUserId)->first();
+            $email = $user ? strtolower(trim((string) $user->email)) : '';
+
+            if ($email === '') {
+                return;
+            }
+
+            $title = (string) ($notification['title'] ?? 'New notification');
+            $message = trim((string) ($notification['message'] ?? ''));
+            $actionUrl = trim((string) ($notification['action_url'] ?? ''));
+
+            $html = '<h2 style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:18px;color:#111;">'
+                . e($title) . '</h2>';
+
+            if ($message !== '') {
+                $html .= '<p style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#333;">'
+                    . nl2br(e($message)) . '</p>';
+            }
+
+            if ($actionUrl !== '') {
+                $html .= '<p style="margin:0 0 16px;"><a href="' . e($actionUrl)
+                    . '" style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#2563eb;">View in Livelatch</a></p>';
+            }
+
+            $html .= '<p style="margin:24px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#888;">'
+                . 'You receive these because notification emails are on in your LatchID settings.</p>';
+
+            ResendContactService::send([$email], $title, $html, $message !== '' ? $message : $title);
+        } catch (\Throwable $e) {
+            Log::warning('LivelatchNotificationService: notification email failed', [
+                'user_id' => $latchIdUserId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

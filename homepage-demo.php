@@ -491,6 +491,18 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
         }
         .ll-auth-step { margin-top: 18px; }
         .ll-auth-step[hidden] { display: none; }
+        .ll-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 10px 0 4px;
+            color: var(--ll-muted);
+            font-size: .82rem;
+            line-height: 1.4;
+            text-align: left;
+            cursor: pointer;
+        }
+        .ll-checkbox input { margin-top: 2px; flex: 0 0 auto; }
         .ll-auth-step h3 { margin: 0 0 6px; font-size: 1.1rem; }
         .ll-auth-step p { margin: 0 0 12px; color: var(--ll-muted); font-size: .92rem; }
         .ll-input {
@@ -725,6 +737,10 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
 
             <form class="ll-auth-step" data-ll-email-form>
                 <input class="ll-input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" data-ll-email required>
+                <label class="ll-checkbox">
+                    <input type="checkbox" data-ll-marketing checked>
+                    <span>Send me product news and occasional marketing emails. You can opt out anytime.</span>
+                </label>
                 <button class="ll-button ll-button-primary" type="submit" data-ll-email-submit>Email me a sign-in code</button>
             </form>
 
@@ -847,6 +863,11 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             // and the in-page email/passkey flows.
             async function completeLogin(session, user) {
                 var metadata = (user && user.user_metadata) || {};
+                // Marketing opt-in from the email step (pre-checked). Absent for
+                // returning passkey users, where the server keeps their stored
+                // preference and this default is ignored for existing accounts.
+                var marketingBox = document.querySelector('[data-ll-marketing]');
+                var marketingOptIn = marketingBox ? marketingBox.checked : true;
                 var response = await fetch(latchIdConfig.sessionEndpoint, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -860,7 +881,8 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                         email: user.email,
                         name: metadata.full_name || metadata.name || '',
                         avatar_url: metadata.avatar_url || '',
-                        access_token: session.access_token
+                        access_token: session.access_token,
+                        marketing_opt_in: marketingOptIn
                     })
                 });
 

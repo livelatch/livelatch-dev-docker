@@ -57,6 +57,8 @@ class RegisteredUserController extends Controller
             'littlelink_name' => $request->littlelink_name,
             'password' => Hash::make($request->password),
             'role' => 'user',
+            // Marketing opt-in defaults to on; the signup checkbox is pre-checked.
+            'marketing_opt_in' => $request->boolean('marketing_opt_in', true),
         ]));
 
         $user->block = $block;

@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'supabase_user_id',
         'email_verified_at',
         'littlelink_name',
+        'marketing_opt_in',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'marketing_opt_in' => 'boolean',
     ];
     public function billing()
     {

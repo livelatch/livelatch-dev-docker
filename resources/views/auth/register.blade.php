@@ -81,7 +81,13 @@ foreach($pages as $page)
                         <label class="form-check-label" for="remember_me">{{__('messages.Remember Me')}}</label>
                       </div>
                     </div>
-                  </div>                  
+                    <div class="col-lg-12">
+                      <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="marketing_opt_in" id="marketing_opt_in" value="1" {{ old('marketing_opt_in', '1') ? 'checked' : '' }} data-latchid-marketing>
+                        <label class="form-check-label" for="marketing_opt_in">{{__('messages.Send me product news and occasional marketing emails. You can opt out anytime.')}}</label>
+                      </div>
+                    </div>
+                  </div>
                 <div class="d-flex justify-content-center">
                   <button id="submit-btn" type="submit" class="btn btn-primary">{{__('messages.Sign Up')}}</button>
                 </div>

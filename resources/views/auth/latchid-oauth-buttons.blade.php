@@ -78,6 +78,19 @@
                     var provider = button.getAttribute('data-latchid-provider');
                     var redirectTo = config.callbackBaseUrl + '/' + encodeURIComponent(provider);
 
+                    // Persist the marketing opt-in choice across the OAuth redirect so
+                    // the callback can pass it to the session endpoint for new users.
+                    // Absent checkbox (e.g. the login page) leaves the stored value
+                    // untouched and the server falls back to the opted-in default.
+                    try {
+                        var marketingBox = document.querySelector('[data-latchid-marketing]');
+                        if (marketingBox) {
+                            window.localStorage.setItem('ll_marketing_opt_in', marketingBox.checked ? '1' : '0');
+                        }
+                    } catch (storageError) {
+                        // Ignore storage failures; default applies server-side.
+                    }
+
                     button.disabled = true;
                     button.setAttribute('aria-busy', 'true');
 

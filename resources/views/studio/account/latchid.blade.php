@@ -11,6 +11,7 @@
     $hasLatchId = $user && filled($user->supabase_user_id);
     $latchIdConfigured = filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'));
     $tikTokConnected = !empty($tikTokAccount);
+    $emailPreferences = $emailPreferences ?? ['marketing_opt_in' => true, 'notification_emails' => true];
     $connections = [
         ['name' => 'Google and YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-google', 'enabled' => true],
         ['name' => 'Discord', 'provider' => 'discord', 'icon' => 'bi bi-discord', 'enabled' => true],
@@ -158,6 +159,11 @@
                 LatchID connection updated.
             </div>
         @endif
+        @if(session('status') === 'email-preferences-updated')
+            <div class="alert alert-success mb-0">
+                Email preferences saved.
+            </div>
+        @endif
         @if(request('tiktok_linked') === '1')
             <div class="alert alert-success mb-0">
                 TikTok connected successfully.
@@ -290,6 +296,47 @@
                     @endif
                 </article>
             @endforeach
+        </section>
+
+        <section class="ll-latchid-card">
+            <div class="ll-latchid-card-top">
+                <span class="ll-latchid-icon"><i class="bi bi-envelope-paper"></i></span>
+                <div>
+                    <h3>Email preferences</h3>
+                    <p>Choose which emails Livelatch sends you. Service messages about outages, maintenance and security are always sent and can't be turned off.</p>
+                </div>
+            </div>
+            @if($hasLatchId)
+                <form method="POST" action="{{ route('studio.latchid.email-preferences') }}" class="d-grid gap-3">
+                    @csrf
+                    <label class="d-flex align-items-start gap-2 mb-0">
+                        <input type="checkbox" class="form-check-input mt-1" name="marketing_opt_in" value="1" @checked(!empty($emailPreferences['marketing_opt_in']))>
+                        <span>
+                            <strong>Marketing emails</strong>
+                            <span class="d-block ll-latchid-meta">Product news, tips and occasional announcements.</span>
+                        </span>
+                    </label>
+                    <label class="d-flex align-items-start gap-2 mb-0">
+                        <input type="checkbox" class="form-check-input mt-1" name="notification_emails" value="1" @checked(!empty($emailPreferences['notification_emails']))>
+                        <span>
+                            <strong>Notification emails</strong>
+                            <span class="d-block ll-latchid-meta">Get an email copy of notifications sent directly to you.</span>
+                        </span>
+                    </label>
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-shield-check mt-1" style="color: var(--ll-muted);"></i>
+                        <span>
+                            <strong>Service &amp; security emails</strong>
+                            <span class="d-block ll-latchid-meta">Outages, maintenance and account security — always on.</span>
+                        </span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check2"></i> Save email preferences
+                    </button>
+                </form>
+            @else
+                <p class="ll-latchid-meta mb-0">Sign in with LatchID to manage your email preferences.</p>
+            @endif
         </section>
 
         <section class="ll-latchid-card" data-passkey-section @if(!$latchIdConfigured) hidden @endif>
