@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\SocialLinksController;
+use App\Http\Controllers\Studio\SocialsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\Auth\LatchIdSessionController;
@@ -261,7 +263,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
                 ->where('path', '.*')
                 ->name('docs.show');
             Route::view('/studio/feedback', 'studio.growth.feedback');
-            Route::view('/studio/socials', 'studio.community.socials');
+            Route::get('/studio/socials', [SocialsController::class, 'index'])->name('studio.socials');
             Route::view('/studio/affiliate-program', 'studio.growth.affiliate-program');
             Route::view('/studio/creator-program', 'studio.growth.creator-program');
 
@@ -321,6 +323,8 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::get('/admin/site', [AdminController::class, 'showSite'])->name('showSite');
         Route::post('/admin/site', [AdminController::class, 'editSite'])->name('editSite');
         Route::view('/admin/dev-tools', 'studio.admin.dev-tools')->name('admin.dev-tools');
+        Route::get('/admin/socials', [SocialLinksController::class, 'edit'])->name('admin.socials');
+        Route::post('/admin/socials', [SocialLinksController::class, 'update'])->name('admin.socials.update');
         Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');
         Route::get('/admin/site/delavatar', [AdminController::class, 'delAvatar'])->name('delAvatar');
         Route::get('/admin/site/delfavicon', [AdminController::class, 'delFavicon'])->name('delFavicon');
