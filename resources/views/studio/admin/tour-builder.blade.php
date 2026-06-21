@@ -1,3 +1,4 @@
+@verbatim
 <!doctype html>
 <html lang="en">
 <head>
@@ -123,7 +124,7 @@
                     <div class="tb-field"><label>Stage corner radius (px)</label><input type="number" min="0" max="40" data-s="stageRadius"></div>
                 </div>
                 <div class="tb-row" style="margin-top:14px">
-                    <div class="tb-field"><label>Progress text</label><input data-s="progressText" placeholder="{{ '{{current}} of {{total}}' }}"></div>
+                    <div class="tb-field"><label>Progress text</label><input data-s="progressText" placeholder="{{current}} of {{total}}"></div>
                     <div class="tb-field"><label>Popover CSS class</label><input data-s="popoverClass" placeholder="ll-tour"></div>
                 </div>
                 <div class="tb-row" style="grid-template-columns:1fr 1fr 1fr;margin-top:14px">
@@ -481,7 +482,7 @@ window-load trigger) unchanged.
 
     var steps = ${JSON.stringify(toDriverSteps(), null, 2)};
 
-3) Between {{ '{{-- GENERATED:STYLE --}}' }} and {{ '{{-- /GENERATED:STYLE --}}' }} set the <style data-ll-tour-style> contents to:
+3) Between {{-- GENERATED:STYLE --}} and {{-- /GENERATED:STYLE --}} set the <style data-ll-tour-style> contents to:
 
 ${css ? css : '(empty — no custom CSS)'}
 
@@ -568,3 +569,4 @@ changed.`;
 </script>
 </body>
 </html>
+@endverbatim
