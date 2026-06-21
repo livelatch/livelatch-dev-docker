@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,7 @@ class LivelatchSocialService
             'threads' => ['name' => 'Threads', 'icon' => 'bi bi-threads', 'embed' => 'threads'],
             'reddit' => ['name' => 'Reddit', 'icon' => 'bi bi-reddit', 'embed' => 'reddit'],
             'bluesky' => ['name' => 'Bluesky', 'icon' => 'bi bi-clouds-fill', 'embed' => 'none'],
-            'discord' => ['name' => 'Discord', 'icon' => 'bi bi-discord', 'embed' => 'none'],
+            'discord' => ['name' => 'Discord', 'icon' => 'bi bi-discord', 'embed' => 'none', 'widget' => 'discord'],
         ];
     }
 
@@ -42,7 +43,7 @@ class LivelatchSocialService
     public static function all(): array
     {
         $response = static::request('get', [
-            'select' => 'platform,handle,profile_url,featured_post_url,display_order,is_active',
+            'select' => 'platform,handle,profile_url,featured_post_url,widget_id,display_order,is_active',
             'order' => 'display_order.asc',
         ]);
 
@@ -79,7 +80,8 @@ class LivelatchSocialService
 
         foreach ($platforms as $key => $meta) {
             $row = $stored[$key] ?? null;
-            if (!$row || empty($row['is_active']) || empty($row['profile_url'])) {
+            $hasTarget = !empty($row['profile_url']) || !empty($row['widget_id']);
+            if (!$row || empty($row['is_active']) || !$hasTarget) {
                 continue;
             }
 
@@ -88,9 +90,11 @@ class LivelatchSocialService
                 'name' => $meta['name'],
                 'icon' => $meta['icon'],
                 'embed' => $meta['embed'],
+                'widget' => $meta['widget'] ?? 'none',
                 'handle' => $row['handle'] ?? '',
-                'profile_url' => $row['profile_url'],
+                'profile_url' => $row['profile_url'] ?? '',
                 'featured_post_url' => $row['featured_post_url'] ?? '',
+                'widget_id' => $row['widget_id'] ?? '',
                 'display_order' => (int) ($row['display_order'] ?? 0),
             ];
         }
@@ -118,15 +122,18 @@ class LivelatchSocialService
 
             $profileUrl = static::cleanUrl($attrs['profile_url'] ?? null);
             $featuredUrl = static::cleanUrl($attrs['featured_post_url'] ?? null);
+            // Discord widget id: digits only (the guild/server ID).
+            $widgetId = preg_replace('/\D+/', '', (string) ($attrs['widget_id'] ?? '')) ?: null;
 
             $payload[] = [
                 'platform' => $platform,
                 'handle' => trim((string) ($attrs['handle'] ?? '')) ?: null,
                 'profile_url' => $profileUrl,
                 'featured_post_url' => $featuredUrl,
+                'widget_id' => $widgetId,
                 'display_order' => (int) ($attrs['display_order'] ?? 0),
-                // Only active when it actually has a profile link to point at.
-                'is_active' => !empty($attrs['is_active']) && $profileUrl !== null,
+                // Active when it has somewhere to point: a profile link or a widget.
+                'is_active' => !empty($attrs['is_active']) && ($profileUrl !== null || $widgetId !== null),
                 'updated_at' => now()->toIso8601String(),
             ];
         }
@@ -143,6 +150,62 @@ class LivelatchSocialService
         );
 
         return (bool) ($response && $response->successful());
+    }
+
+    /**
+     * Fetch Discord's public server widget JSON (requires "Enable Server Widget"
+     * in the server's settings). Cached briefly so the socials page doesn't hit
+     * Discord on every request. Returns null when unavailable.
+     *
+     * @return array{name:string,instant_invite:?string,presence_count:int,members:array}|null
+     */
+    public static function discordWidget(string $serverId): ?array
+    {
+        $serverId = preg_replace('/\D+/', '', $serverId);
+        if ($serverId === '') {
+            return null;
+        }
+
+        return Cache::remember('discord_widget_' . $serverId, 60, function () use ($serverId) {
+            try {
+                $response = Http::acceptJson()->timeout(5)
+                    ->get("https://discord.com/api/guilds/{$serverId}/widget.json");
+            } catch (\Throwable $e) {
+                Log::warning('LivelatchSocialService: Discord widget fetch failed', ['error' => $e->getMessage()]);
+
+                return null;
+            }
+
+            if (!$response->successful()) {
+                // 403/404 usually means the server widget is not enabled.
+                Log::info('LivelatchSocialService: Discord widget unavailable', [
+                    'status' => $response->status(),
+                ]);
+
+                return null;
+            }
+
+            $data = $response->json();
+            if (!is_array($data)) {
+                return null;
+            }
+
+            $members = [];
+            foreach (array_slice($data['members'] ?? [], 0, 12) as $member) {
+                $members[] = [
+                    'username' => (string) ($member['username'] ?? ''),
+                    'avatar_url' => (string) ($member['avatar_url'] ?? ''),
+                    'status' => (string) ($member['status'] ?? 'online'),
+                ];
+            }
+
+            return [
+                'name' => (string) ($data['name'] ?? 'Discord'),
+                'instant_invite' => $data['instant_invite'] ?? null,
+                'presence_count' => (int) ($data['presence_count'] ?? count($data['members'] ?? [])),
+                'members' => $members,
+            ];
+        });
     }
 
     private static function cleanUrl(?string $url): ?string

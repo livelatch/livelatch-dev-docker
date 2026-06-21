@@ -77,6 +77,14 @@
                                    name="socials[{{ $key }}][featured_post_url]"
                                    value="{{ $row['featured_post_url'] ?? '' }}" placeholder="https://... (a single post)">
                         </div>
+                    @elseif(($meta['widget'] ?? null) === 'discord')
+                        <div>
+                            <label for="widget_{{ $key }}">Discord Server ID (native widget)</label>
+                            <input type="text" inputmode="numeric" class="form-control" id="widget_{{ $key }}"
+                                   name="socials[{{ $key }}][widget_id]"
+                                   value="{{ $row['widget_id'] ?? '' }}" placeholder="e.g. 123456789012345678">
+                            <p class="text-muted small mt-1 mb-0">Enable <strong>Server Settings → Widget → Enable Server Widget</strong> in Discord first (no API key needed). The Profile URL above can be your invite link as a fallback.</p>
+                        </div>
                     @else
                         <div class="d-flex align-items-end">
                             <p class="text-muted small mb-2">No post embed for {{ $meta['name'] }} — shows a follow card only.</p>

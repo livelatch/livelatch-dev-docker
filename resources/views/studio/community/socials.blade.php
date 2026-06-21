@@ -75,6 +75,18 @@
     .ll-social-embed blockquote { margin: 0 auto !important; }
 
     .ll-social-empty { padding: 24px 16px; text-align: center; color: var(--ll-muted); font-size: 0.9rem; }
+
+    .ll-discord { display: grid; gap: 12px; }
+    .ll-discord-online { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; color: var(--ll-text); }
+    .ll-discord-dot { width: 10px; height: 10px; border-radius: 999px; background: #23a55a; box-shadow: 0 0 0 3px rgba(35,165,90,0.18); }
+    .ll-discord-members { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ll-discord-avatar { width: 34px; height: 34px; border-radius: 999px; object-fit: cover; border: 2px solid var(--ll-surface-solid); background: color-mix(in srgb, var(--ll-text) 8%, transparent); }
+    .ll-discord-join {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 42px; border-radius: 12px; font-weight: 600; text-decoration: none;
+        color: #fff; background: #5865F2;
+    }
+    .ll-discord-join:hover { color: #fff; opacity: 0.92; }
 </style>
 
 <div class="container-fluid content-inner mt-n5 py-0">
@@ -105,18 +117,54 @@
                         @php
                             $post = $social['featured_post_url'] ?? '';
                             $host = $social['profile_url'] ? parse_url($social['profile_url'], PHP_URL_HOST) : '';
+                            $discord = $social['discord'] ?? null;
+                            $isDiscord = ($social['widget'] ?? '') === 'discord';
+                            // Discord can join via the widget's instant invite if no profile URL is set.
+                            $followUrl = $social['profile_url'] ?: ($isDiscord && $discord ? ($discord['instant_invite'] ?? '') : '');
+                            $followLabel = $isDiscord ? 'Join' : 'Follow';
                         @endphp
                         <article class="ll-social-card">
                             <div class="ll-social-head">
                                 <span class="ll-social-icon"><i class="{{ $social['icon'] }}"></i></span>
                                 <div class="ll-social-meta">
-                                    <h4>{{ $social['name'] }}</h4>
+                                    <h4>{{ $isDiscord && $discord ? $discord['name'] : $social['name'] }}</h4>
                                     <p>{{ $social['handle'] ?: $host }}</p>
                                 </div>
-                                <a class="ll-social-follow" href="{{ $social['profile_url'] }}" target="_blank" rel="noopener noreferrer">
-                                    <i class="bi bi-plus-lg"></i> Follow
-                                </a>
+                                @if($followUrl)
+                                    <a class="ll-social-follow" href="{{ $followUrl }}" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi {{ $isDiscord ? 'bi-box-arrow-in-right' : 'bi-plus-lg' }}"></i> {{ $followLabel }}
+                                    </a>
+                                @endif
                             </div>
+
+                            @if($isDiscord)
+                                <div class="ll-social-embed">
+                                    @if($discord)
+                                        <div class="ll-discord">
+                                            <div class="ll-discord-online">
+                                                <span class="ll-discord-dot"></span>
+                                                {{ number_format($discord['presence_count']) }} online
+                                            </div>
+                                            @if(!empty($discord['members']))
+                                                <div class="ll-discord-members">
+                                                    @foreach($discord['members'] as $member)
+                                                        <img class="ll-discord-avatar" src="{{ $member['avatar_url'] }}"
+                                                             alt="{{ $member['username'] }}" title="{{ $member['username'] }}"
+                                                             loading="lazy" referrerpolicy="no-referrer">
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                            @if($followUrl)
+                                                <a class="ll-discord-join" href="{{ $followUrl }}" target="_blank" rel="noopener noreferrer">
+                                                    <i class="bi bi-discord"></i> Join the server
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <p class="ll-social-empty mb-0">Live member info is unavailable. Make sure the server widget is enabled in Discord.</p>
+                                    @endif
+                                </div>
+                            @endif
 
                             @if($post)
                                 <div class="ll-social-embed">
