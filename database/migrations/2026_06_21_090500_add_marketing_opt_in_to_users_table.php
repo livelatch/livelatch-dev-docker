@@ -17,7 +17,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'marketing_opt_in')) {
-                $table->boolean('marketing_opt_in')->default(true);
+                $table->boolean('marketing_opt_in')->default(false);
             }
         });
     }

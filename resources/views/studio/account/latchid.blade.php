@@ -11,7 +11,7 @@
     $hasLatchId = $user && filled($user->supabase_user_id);
     $latchIdConfigured = filled(config('services.supabase.url')) && filled(config('services.supabase.anon_key'));
     $tikTokConnected = !empty($tikTokAccount);
-    $emailPreferences = $emailPreferences ?? ['marketing_opt_in' => true, 'notification_emails' => true];
+    $emailPreferences = $emailPreferences ?? ['marketing_opt_in' => false, 'notification_emails' => true];
     $connections = [
         ['name' => 'Google and YouTube', 'provider' => 'youtube', 'icon' => 'bi bi-google', 'enabled' => true],
         ['name' => 'Discord', 'provider' => 'discord', 'icon' => 'bi bi-discord', 'enabled' => true],

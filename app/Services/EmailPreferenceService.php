@@ -22,16 +22,17 @@ class EmailPreferenceService
     private const TABLE = 'user_email_preferences';
 
     /**
-     * Default preferences applied when a user has no row yet. Marketing is opt-in
-     * but defaults to ON (the signup checkbox is pre-checked); notification
-     * emails default to ON.
+     * Default preferences applied when a user has no row yet. Marketing is
+     * explicit opt-in and defaults to OFF (the signup checkbox is unticked, per
+     * GDPR — a user with no stored consent must never be treated as opted in);
+     * notification emails (activity on the user's own account) default to ON.
      *
      * @return array{marketing_opt_in:bool,notification_emails:bool}
      */
     public static function defaults(): array
     {
         return [
-            'marketing_opt_in' => true,
+            'marketing_opt_in' => false,
             'notification_emails' => true,
         ];
     }
@@ -72,7 +73,7 @@ class EmailPreferenceService
         }
 
         return [
-            'marketing_opt_in' => (bool) ($row['marketing_opt_in'] ?? true),
+            'marketing_opt_in' => (bool) ($row['marketing_opt_in'] ?? false),
             'notification_emails' => (bool) ($row['notification_emails'] ?? true),
             'resend_contact_id' => $row['resend_contact_id'] ?? null,
             'synced_at' => $row['synced_at'] ?? null,

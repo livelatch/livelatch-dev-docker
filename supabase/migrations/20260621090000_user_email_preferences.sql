@@ -3,7 +3,8 @@
 -- Two email classes drive sending:
 --   * Service emails (outages, maintenance, security, billing) are mandatory and
 --     are NOT represented here -- every user always receives them.
---   * Marketing emails are opt-in and default to ON (marketing_opt_in).
+--   * Marketing emails are explicit opt-in and default to OFF (marketing_opt_in) --
+--     a user with no stored consent is never treated as opted in (GDPR).
 --   * Targeted notification emails (a notification with user_id set) are gated by
 --     notification_emails.
 --
@@ -18,7 +19,7 @@
 create table if not exists public.user_email_preferences (
     user_id uuid primary key
         references auth.users (id) on delete cascade,
-    marketing_opt_in boolean not null default true,
+    marketing_opt_in boolean not null default false,
     notification_emails boolean not null default true,
     resend_contact_id text,
     synced_at timestamptz,

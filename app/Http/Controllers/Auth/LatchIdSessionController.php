@@ -51,11 +51,12 @@ class LatchIdSessionController extends Controller
         $redirectTo = $this->resolveRedirectTo($request, $validated['redirect_to'] ?? null);
         $currentUser = Auth::user();
         $isNewUser = false;
-        // Marketing opt-in defaults to on when the field is absent (signup checkbox
-        // is pre-checked; the login path sends no value).
+        // Marketing opt-in is explicit (GDPR): the signup checkbox is unticked and
+        // defaults to OFF when the field is absent. Only applied to new users
+        // (see provisionEmailPreferences below); the login path sends no value.
         $marketingOptIn = array_key_exists('marketing_opt_in', $validated) && $validated['marketing_opt_in'] !== null
             ? (bool) $validated['marketing_opt_in']
-            : true;
+            : false;
 
         try {
         $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser, $marketingOptIn, &$isNewUser) {

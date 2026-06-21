@@ -738,8 +738,8 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             <form class="ll-auth-step" data-ll-email-form>
                 <input class="ll-input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" data-ll-email required>
                 <label class="ll-checkbox">
-                    <input type="checkbox" data-ll-marketing checked>
-                    <span>Send me product news and occasional marketing emails. You can opt out anytime.</span>
+                    <input type="checkbox" data-ll-marketing>
+                    <span>Send me product news and occasional marketing emails (optional). We'll always email you about account and service matters.</span>
                 </label>
                 <button class="ll-button ll-button-primary" type="submit" data-ll-email-submit>Email me a sign-in code</button>
             </form>
@@ -863,11 +863,12 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             // and the in-page email/passkey flows.
             async function completeLogin(session, user) {
                 var metadata = (user && user.user_metadata) || {};
-                // Marketing opt-in from the email step (pre-checked). Absent for
-                // returning passkey users, where the server keeps their stored
-                // preference and this default is ignored for existing accounts.
+                // Marketing opt-in from the email step (unticked by default —
+                // explicit opt-in for GDPR). Absent for returning passkey users,
+                // where the server keeps their stored preference; default false
+                // here so we never silently opt anyone in.
                 var marketingBox = document.querySelector('[data-ll-marketing]');
-                var marketingOptIn = marketingBox ? marketingBox.checked : true;
+                var marketingOptIn = marketingBox ? marketingBox.checked : false;
                 var response = await fetch(latchIdConfig.sessionEndpoint, {
                     method: 'POST',
                     credentials: 'same-origin',
