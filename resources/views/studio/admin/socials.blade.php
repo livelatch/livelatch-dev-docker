@@ -23,6 +23,25 @@
     .ll-as-row-top h3 { margin: 0; font-size: 1rem; }
     .ll-as-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
     .ll-as-fields label { font-size: 0.82rem; font-weight: 600; color: var(--ll-muted); display: block; margin-bottom: 4px; }
+
+    /* Clearer on/off toggle than the default faint Bootstrap switch. */
+    .ll-as-row-top .form-switch { padding-left: 0; display: inline-flex; align-items: center; gap: 10px; }
+    .ll-as-row-top .form-switch .form-check-input {
+        width: 46px; height: 26px; margin: 0; flex: 0 0 auto;
+        background-color: color-mix(in srgb, var(--ll-text) 22%, transparent);
+        border: none; border-radius: 999px; cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+        transition: background-color .15s ease, background-position .15s ease;
+    }
+    .ll-as-row-top .form-switch .form-check-input:checked {
+        background-color: #23a55a;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    }
+    .ll-as-row-top .form-switch .form-check-input:focus {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-primary) 30%, transparent);
+        border: none;
+    }
+    .ll-as-row-top .form-switch .form-check-label { font-weight: 600; color: var(--ll-text); cursor: pointer; }
 </style>
 
 <div class="container-fluid content-inner mt-n5 py-0">

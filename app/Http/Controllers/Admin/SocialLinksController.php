@@ -30,6 +30,7 @@ class SocialLinksController extends Controller
                 'handle' => $entry['handle'] ?? null,
                 'profile_url' => $entry['profile_url'] ?? null,
                 'featured_post_url' => $entry['featured_post_url'] ?? null,
+                'widget_id' => $entry['widget_id'] ?? null,
                 'is_active' => !empty($entry['is_active']),
                 'display_order' => $order++,
             ];

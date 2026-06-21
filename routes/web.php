@@ -203,6 +203,8 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
 
             // LatchDeck (Encore-backed). The hub page is state-driven by the
             // creator's access status; all data lives behind the LatchDeck API.
+            Route::view('/studio/latchapps', 'studio.latchapps')->name('studio.latchapps');
+            Route::view('/studio/fax', 'studio.fax')->name('studio.fax');
             Route::get('/studio/latchdeck', [LatchDeckController::class, 'index'])->name('studio.latchdeck');
             Route::post('/studio/latchdeck/request-access', [LatchDeckController::class, 'requestAccess'])->name('studio.latchdeck.requestAccess');
             Route::post('/studio/latchdeck/cards', [LatchDeckController::class, 'storeCard'])->name('studio.latchdeck.cards.store');

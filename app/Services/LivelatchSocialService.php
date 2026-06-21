@@ -132,8 +132,9 @@ class LivelatchSocialService
                 'featured_post_url' => $featuredUrl,
                 'widget_id' => $widgetId,
                 'display_order' => (int) ($attrs['display_order'] ?? 0),
-                // Active when it has somewhere to point: a profile link or a widget.
-                'is_active' => !empty($attrs['is_active']) && ($profileUrl !== null || $widgetId !== null),
+                // Store the admin's intent as-is; the display layer (activeForDisplay)
+                // decides whether the row actually has somewhere to point.
+                'is_active' => !empty($attrs['is_active']),
                 'updated_at' => now()->toIso8601String(),
             ];
         }
