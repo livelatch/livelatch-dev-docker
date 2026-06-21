@@ -180,6 +180,13 @@ class StudioNavigation extends Component
                         'active' => request()->segment(2) === 'dev-tools',
                         'skeleton' => '#ll-page-skeleton',
                     ],
+                    [
+                        'label' => 'Tour Builder',
+                        'icon' => 'bi bi-signpost-split-fill',
+                        'url' => url('admin/tour-builder'),
+                        'active' => request()->segment(2) === 'tour-builder',
+                        'external' => true,
+                    ],
                 ],
             ];
         }

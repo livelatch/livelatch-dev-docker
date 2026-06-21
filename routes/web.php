@@ -325,6 +325,7 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::get('/admin/site', [AdminController::class, 'showSite'])->name('showSite');
         Route::post('/admin/site', [AdminController::class, 'editSite'])->name('editSite');
         Route::view('/admin/dev-tools', 'studio.admin.dev-tools')->name('admin.dev-tools');
+        Route::view('/admin/tour-builder', 'studio.admin.tour-builder')->name('admin.tour-builder');
         Route::get('/admin/socials', [SocialLinksController::class, 'edit'])->name('admin.socials');
         Route::post('/admin/socials', [SocialLinksController::class, 'update'])->name('admin.socials.update');
         Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');

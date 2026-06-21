@@ -2672,5 +2672,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
     @stack('sidebar-scripts')
     @livewireScripts
+    @include('partials.studio-tour')
 </body>
 </html>
