@@ -11,7 +11,93 @@
 <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.js.iife.js"></script>
 
 {{-- GENERATED:STYLE --}}
-<style data-ll-tour-style></style>
+<style data-ll-tour-style>
+/* ── Livelatch liquid-glass tour ───────────────────────────── */
+.driver-popover.ll-tour {
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--ll-surface-solid, #fff) 74%, transparent),
+      color-mix(in srgb, var(--ll-primary, #0092ec) 14%, transparent));
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid color-mix(in srgb, var(--ll-primary-2, #0ce5de) 38%, rgba(255,255,255,.45));
+  border-radius: 20px;
+  box-shadow:
+    0 24px 60px rgba(0, 7, 61, .28),
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 0 32px color-mix(in srgb, var(--ll-primary-2, #0ce5de) 10%, transparent);
+  color: var(--ll-text, #00073d);
+  padding: 18px 18px 14px;
+}
+
+/* glossy sheen across the top (kept inside the rounded corners) */
+.driver-popover.ll-tour::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 46%;
+  border-radius: 20px 20px 40px 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,.38), transparent);
+  pointer-events: none;
+}
+
+.driver-popover.ll-tour .driver-popover-title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: -.02em;
+  color: var(--ll-text, #00073d);
+}
+.driver-popover.ll-tour .driver-popover-description {
+  color: color-mix(in srgb, var(--ll-text, #00073d) 72%, transparent);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.driver-popover.ll-tour .driver-popover-progress-text {
+  color: var(--ll-primary, #0092ec);
+  font-weight: 700;
+  font-size: .72rem;
+}
+
+/* buttons */
+.driver-popover.ll-tour .driver-popover-navigation-btns button {
+  text-shadow: none;
+  border-radius: 12px;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 600;
+  padding: 7px 14px;
+  color: var(--ll-text, #00073d);
+  border: 1px solid color-mix(in srgb, var(--ll-primary, #0092ec) 22%, transparent);
+  background: color-mix(in srgb, var(--ll-surface-solid, #fff) 65%, transparent);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.driver-popover.ll-tour .driver-popover-navigation-btns button:hover { transform: translateY(-1px); }
+.driver-popover.ll-tour .driver-popover-navigation-btns button.driver-popover-next-btn {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--ll-primary, #0092ec), var(--ll-primary-2, #0ce5de));
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--ll-primary, #0092ec) 35%, transparent);
+}
+
+.driver-popover.ll-tour .driver-popover-close-btn {
+  color: color-mix(in srgb, var(--ll-text, #00073d) 55%, transparent);
+}
+.driver-popover.ll-tour .driver-popover-close-btn:hover { color: var(--ll-text, #00073d); }
+
+/* tint the little arrow to match the glass on every side */
+.driver-popover.ll-tour .driver-popover-arrow-side-top.driver-popover-arrow    { border-top-color:    color-mix(in srgb, var(--ll-surface-solid,#fff) 74%, transparent); }
+.driver-popover.ll-tour .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: color-mix(in srgb, var(--ll-surface-solid,#fff) 74%, transparent); }
+.driver-popover.ll-tour .driver-popover-arrow-side-left.driver-popover-arrow   { border-left-color:   color-mix(in srgb, var(--ll-surface-solid,#fff) 74%, transparent); }
+.driver-popover.ll-tour .driver-popover-arrow-side-right.driver-popover-arrow  { border-right-color:  color-mix(in srgb, var(--ll-surface-solid,#fff) 74%, transparent); }
+
+/* the highlighted target — glowing brand ring instead of a hard box */
+.driver-active-element {
+  border-radius: 14px !important;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ll-primary-2, #0ce5de) 65%, transparent),
+    0 0 30px color-mix(in srgb, var(--ll-primary, #0092ec) 45%, transparent) !important;
+}
+</style>
 {{-- /GENERATED:STYLE --}}
 
 <script>
@@ -20,19 +106,51 @@
 
     /* GENERATED:CONFIG */
     var config = {
-        animate: true,
-        smoothScroll: true,
-        showProgress: true,
-        overlayColor: '#04122b',
-        overlayOpacity: 0.7,
-        stagePadding: 8,
-        stageRadius: 10,
-        popoverClass: 'll-tour'
+        "animate": true,
+        "smoothScroll": true,
+        "showProgress": true,
+        "allowClose": true,
+        "overlayColor": "#011228",
+        "overlayOpacity": 0.9,
+        "stagePadding": 8,
+        "stageRadius": 10,
+        "popoverClass": "ll-tour"
     };
     /* /GENERATED:CONFIG */
 
     /* GENERATED:STEPS */
-    var steps = [];
+    var steps = [
+        {
+            "element": "section.ll-dashboard-hero",
+            "popover": {
+                "title": "Hi There!",
+                "description": "Welcome to Livelatch",
+                "side": "bottom",
+                "align": "start"
+            },
+            "page": "/dashboard"
+        },
+        {
+            "element": "#ll-content",
+            "popover": {
+                "title": "This is your dashboard",
+                "description": "All the main info you need, all in one place!",
+                "side": "bottom",
+                "align": "start"
+            },
+            "page": "/dashboard"
+        },
+        {
+            "element": "aside.ll-sidebar",
+            "popover": {
+                "title": "Explore",
+                "description": "Take a look around live latch. I'll be here to explain what you're looking at :)",
+                "side": "bottom",
+                "align": "center"
+            },
+            "page": "/dashboard"
+        }
+    ];
     /* /GENERATED:STEPS */
 
     var AT_KEY = 'll_studio_tour_at'; // multi-page progress pointer (index into steps)
