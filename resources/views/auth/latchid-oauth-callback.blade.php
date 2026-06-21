@@ -203,9 +203,9 @@
 
             var metadata = user.user_metadata || {};
 
-            // Marketing opt-in captured before the OAuth redirect (defaults to
-            // opted-in when not present). Consumed once, then cleared.
-            var marketingOptIn = true;
+            // Marketing opt-in captured before the OAuth redirect (explicit opt-in:
+            // defaults to OFF when not present). Consumed once, then cleared.
+            var marketingOptIn = false;
             try {
                 var storedMarketing = window.localStorage.getItem('ll_marketing_opt_in');
                 if (storedMarketing !== null) {
@@ -213,7 +213,20 @@
                     window.localStorage.removeItem('ll_marketing_opt_in');
                 }
             } catch (storageError) {
-                marketingOptIn = true;
+                marketingOptIn = false;
+            }
+
+            // Cookie/analytics consent from the homepage banner. Kept (not cleared)
+            // so PostHog stays consistent across pages.
+            var cookieConsent = null;
+            try {
+                var storedConsent = window.localStorage.getItem('ll_cookie_consent');
+                if ((storedConsent === 'all' || storedConsent === 'deny')
+                    && window.localStorage.getItem('ll_cookie_consent_version') === (window.LL_COOKIE_CONSENT_VERSION || '1')) {
+                    cookieConsent = storedConsent;
+                }
+            } catch (storageError) {
+                cookieConsent = null;
             }
 
             var response = await fetch(config.sessionEndpoint, {
@@ -236,6 +249,7 @@
                     provider_expires_at: session.expires_at || null,
                     provider_scopes: session.provider_scopes || '',
                     marketing_opt_in: marketingOptIn,
+                    cookie_consent: cookieConsent,
                     redirect_to: callbackRedirectTo()
                 })
             });

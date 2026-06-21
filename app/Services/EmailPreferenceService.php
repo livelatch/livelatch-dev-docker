@@ -34,6 +34,7 @@ class EmailPreferenceService
         return [
             'marketing_opt_in' => false,
             'notification_emails' => true,
+            'cookie_consent' => null,
         ];
     }
 
@@ -57,7 +58,7 @@ class EmailPreferenceService
         }
 
         $response = static::request('get', [
-            'select' => 'marketing_opt_in,notification_emails,resend_contact_id,synced_at',
+            'select' => 'marketing_opt_in,notification_emails,cookie_consent,resend_contact_id,synced_at',
             'user_id' => 'eq.' . $latchIdUserId,
             'limit' => 1,
         ]);
@@ -75,6 +76,7 @@ class EmailPreferenceService
         return [
             'marketing_opt_in' => (bool) ($row['marketing_opt_in'] ?? false),
             'notification_emails' => (bool) ($row['notification_emails'] ?? true),
+            'cookie_consent' => $row['cookie_consent'] ?? null,
             'resend_contact_id' => $row['resend_contact_id'] ?? null,
             'synced_at' => $row['synced_at'] ?? null,
             'exists' => true,
@@ -104,6 +106,11 @@ class EmailPreferenceService
             if (array_key_exists($key, $attributes)) {
                 $payload[$key] = $attributes[$key];
             }
+        }
+
+        if (array_key_exists('cookie_consent', $attributes)) {
+            $consent = $attributes['cookie_consent'];
+            $payload['cookie_consent'] = in_array($consent, ['all', 'deny'], true) ? $consent : null;
         }
 
         $response = static::request(

@@ -526,6 +526,27 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
         .ll-auth-step .ll-button { width: 100%; }
         .ll-auth-actions { display: flex; flex-direction: column; gap: 8px; }
 
+        .ll-cookie {
+            position: fixed;
+            left: 18px;
+            bottom: 18px;
+            z-index: 60;
+            width: min(380px, calc(100% - 36px));
+            border: 1px solid var(--ll-border);
+            border-radius: var(--ll-radius-sm);
+            background: var(--ll-surface-solid);
+            box-shadow: var(--ll-shadow);
+            padding: 16px 18px;
+        }
+        .ll-cookie[hidden] { display: none; }
+        .ll-cookie p { margin: 0 0 12px; font-size: 0.86rem; color: var(--ll-muted); }
+        .ll-cookie p a { color: var(--ll-primary); text-decoration: underline; }
+        .ll-cookie-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        @media (prefers-reduced-motion: no-preference) {
+            .ll-cookie { animation: ll-cookie-in 220ms ease both; }
+            @keyframes ll-cookie-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        }
+
         @media (max-width: 980px) {
             .ll-hero-grid, .ll-footer-grid { grid-template-columns: 1fr; }
             .ll-steps, .ll-products, .ll-plans { grid-template-columns: 1fr; }
@@ -767,6 +788,46 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
         </div>
     </div>
 
+    <aside class="ll-cookie" id="llCookie" role="dialog" aria-label="Cookie choices" aria-live="polite" hidden>
+        <p>
+            We use analytics cookies to understand how Livelatch is used. While we're in
+            alpha, allowing this genuinely helps us see what's working and build a better
+            product. You can decline and still browse normally. Our cookie use may change —
+            if it does, we'll ask you to choose again.
+            <a href="/legal/privacy" hx-get="/legal/privacy" hx-target="#ll-legal-panel" hx-swap="innerHTML">Learn more</a>.
+        </p>
+        <div class="ll-cookie-actions">
+            <button class="ll-button ll-button-ghost ll-button-sm" type="button" data-ll-cookie="deny">Decline</button>
+            <button class="ll-button ll-button-primary ll-button-sm" type="button" data-ll-cookie="all">Allow all</button>
+        </div>
+    </aside>
+
+    <script>
+        (function () {
+            'use strict';
+            var banner = document.getElementById('llCookie');
+            if (!banner) return;
+
+            // No PostHog (no key) => no analytics cookies => nothing to consent to.
+            if (typeof window.llReadCookieConsent !== 'function') return;
+
+            // Only show until the visitor has made a choice (for the current
+            // consent version). Lives on the homepage only.
+            if (window.llReadCookieConsent()) return;
+
+            banner.hidden = false;
+            banner.addEventListener('click', function (event) {
+                var button = event.target.closest('[data-ll-cookie]');
+                if (!button) return;
+                var choice = button.getAttribute('data-ll-cookie');
+                if (typeof window.llSetCookieConsent === 'function') {
+                    window.llSetCookieConsent(choice);
+                }
+                banner.hidden = true;
+            });
+        }());
+    </script>
+
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -869,6 +930,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                 // here so we never silently opt anyone in.
                 var marketingBox = document.querySelector('[data-ll-marketing]');
                 var marketingOptIn = marketingBox ? marketingBox.checked : false;
+                var cookieConsent = (typeof window.llReadCookieConsent === 'function') ? window.llReadCookieConsent() : null;
                 var response = await fetch(latchIdConfig.sessionEndpoint, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -883,7 +945,8 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                         name: metadata.full_name || metadata.name || '',
                         avatar_url: metadata.avatar_url || '',
                         access_token: session.access_token,
-                        marketing_opt_in: marketingOptIn
+                        marketing_opt_in: marketingOptIn,
+                        cookie_consent: cookieConsent
                     })
                 });
 

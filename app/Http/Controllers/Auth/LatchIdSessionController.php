@@ -36,6 +36,7 @@ class LatchIdSessionController extends Controller
             'provider_expires_at' => ['nullable', 'integer'],
             'provider_scopes' => ['nullable'],
             'marketing_opt_in' => ['nullable', 'boolean'],
+            'cookie_consent' => ['nullable', 'string', 'in:all,deny'],
         ]);
 
         $supabaseUser = $this->verifySupabaseUser($validated['access_token']);
@@ -57,6 +58,10 @@ class LatchIdSessionController extends Controller
         $marketingOptIn = array_key_exists('marketing_opt_in', $validated) && $validated['marketing_opt_in'] !== null
             ? (bool) $validated['marketing_opt_in']
             : false;
+
+        // Cookie/analytics consent relayed from the homepage banner (null when the
+        // visitor never saw or answered it). Mirrored for signed-in users only.
+        $cookieConsent = $validated['cookie_consent'] ?? null;
 
         try {
         $user = DB::transaction(function () use ($validated, $requestEmail, $currentUser, $supabaseUser, $marketingOptIn, &$isNewUser) {
@@ -165,7 +170,11 @@ class LatchIdSessionController extends Controller
         // billing:backfill-stripe command.
         if ($isNewUser) {
             $this->provisionBilling($user);
-            $this->provisionEmailPreferences($user, $marketingOptIn);
+            $this->provisionEmailPreferences($user, $marketingOptIn, $cookieConsent);
+        } elseif ($cookieConsent !== null) {
+            // Keep a returning user's latest cookie choice in sync without
+            // touching their other preferences.
+            $this->persistCookieConsent($user, $cookieConsent);
         }
 
         Auth::login($user);
@@ -233,7 +242,7 @@ class LatchIdSessionController extends Controller
      * Resend hiccup must not roll back or 500 signup. The backfill command can
      * reconcile contacts later.
      */
-    private function provisionEmailPreferences(User $user, bool $marketingOptIn): void
+    private function provisionEmailPreferences(User $user, bool $marketingOptIn, ?string $cookieConsent = null): void
     {
         if (empty($user->supabase_user_id)) {
             return;
@@ -243,6 +252,7 @@ class LatchIdSessionController extends Controller
             \App\Services\EmailPreferenceService::upsert($user->supabase_user_id, [
                 'marketing_opt_in' => $marketingOptIn,
                 'notification_emails' => true,
+                'cookie_consent' => $cookieConsent,
             ]);
 
             \App\Services\ResendContactService::syncUser($user, [
@@ -251,6 +261,24 @@ class LatchIdSessionController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::warning('LatchID signup: email preference provisioning failed.', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function persistCookieConsent(User $user, string $cookieConsent): void
+    {
+        if (empty($user->supabase_user_id)) {
+            return;
+        }
+
+        try {
+            \App\Services\EmailPreferenceService::upsert($user->supabase_user_id, [
+                'cookie_consent' => $cookieConsent,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LatchID: cookie consent sync failed.', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
