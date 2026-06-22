@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserBilling;
 use App\Services\BillingProfileService;
+use App\Services\StripePlanResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
@@ -100,7 +101,9 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        $plan = $this->planForSubscription($subscription, $eventType);
+        $plan = $eventType === 'customer.subscription.deleted'
+            ? 'free'
+            : StripePlanResolver::planForSubscription($subscription);
 
         $priceId = $subscription->items->data[0]->price->id ?? $billing->stripe_price_id;
         $status = $eventType === 'customer.subscription.deleted'
@@ -132,32 +135,4 @@ class StripeWebhookController extends Controller
         ]);
     }
 
-    /**
-     * Derive the plan key from a subscription. A subscription on the Pro price
-     * that is in a live state is 'pro'; anything else (free price, canceled,
-     * unpaid, deleted) is 'free'. Fails safe to 'free'.
-     *
-     * @param  \Stripe\Subscription  $subscription
-     */
-    private function planForSubscription($subscription, string $eventType): string
-    {
-        if ($eventType === 'customer.subscription.deleted') {
-            return 'free';
-        }
-
-        $liveStatuses = ['active', 'trialing', 'past_due'];
-        if (!in_array($subscription->status ?? '', $liveStatuses, true)) {
-            return 'free';
-        }
-
-        $proPriceId = (string) config('billing.pro_price_id');
-
-        foreach ($subscription->items->data ?? [] as $item) {
-            if (($item->price->id ?? null) === $proPriceId && $proPriceId !== '') {
-                return 'pro';
-            }
-        }
-
-        return 'free';
-    }
 }

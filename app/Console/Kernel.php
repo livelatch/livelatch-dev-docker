@@ -24,7 +24,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Self-heal backstop for the Stripe plan-sync pipeline. The webhook
+        // (StripeWebhookController) is the real-time sync; this daily reconcile
+        // only fixes drift from any webhook Stripe failed to deliver. Idempotent
+        // — a no-op on a normal day. Requires a `schedule:run` tick on Railway.
+        $schedule->command('billing:sync-supabase')
+            ->dailyAt('03:00')
+            ->withoutOverlapping();
     }
 
     /**

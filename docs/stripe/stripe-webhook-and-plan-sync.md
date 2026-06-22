@@ -59,11 +59,32 @@ endpoint signing secret with `Stripe\Webhook::constructEvent()`. If
 unverified payloads. Non-subscription events are still ACKed with 200 so Stripe
 does not disable the endpoint.
 
-## Reconcile backstop
+## Reconcile commands (two different jobs)
 
-`php artisan billing:sync-supabase [--dry-run]` mirrors every
-`user_billing.plan_key` into `profiles.plan_key`. Use it to (a) fix existing rows
-after this change and (b) run daily as a self-heal for any missed webhook.
+There are **two** reconcile commands and they are not interchangeable:
+
+- `php artisan billing:reconcile-stripe [--dry-run]` — pulls the **truth from
+  Stripe** into both stores. Queries each customer's subscriptions via the Stripe
+  API, derives the plan, and writes `user_billing.plan_key` (MySQL) **and**
+  `profiles.plan_key` (Supabase). This is what fixes plan changes that happened
+  while the webhook was dead (e.g. a customer set to Pro in Stripe whose MySQL row
+  still says `free`). A customer can hold more than one subscription — signup
+  creates a Free sub and `checkoutPro()` adds a second Pro sub on the same
+  customer — so this scans all of them and resolves to `pro` if any live one is on
+  the Pro price.
+- `php artisan billing:sync-supabase [--dry-run]` — mirrors **MySQL →
+  Supabase** only. It does *not* talk to Stripe, so it can only ever propagate
+  whatever `user_billing.plan_key` already holds. Run `reconcile-stripe` first if
+  MySQL itself is stale; use `sync-supabase` for the cheap daily self-heal once
+  MySQL is trusted as correct (kept current by the webhook).
+
+It is registered in `app/Console/Kernel.php` to run `dailyAt('03:00')`. This is a
+backstop, **not** the sync mechanism — the webhook is the real-time path, and the
+daily run is a no-op on a normal day. **Caveat:** Laravel scheduling only fires if
+something runs `php artisan schedule:run` every minute. At time of writing the
+schedule was otherwise empty, so a `schedule:run` cron must be added on Railway
+(one cron ticking every minute) for this — and future scheduled jobs (weekly
+digest, the planned Latch On lifecycle worker) — to actually run.
 
 ## Code map
 
@@ -73,7 +94,9 @@ after this change and (b) run daily as a self-heal for any missed webhook.
 | Route (`POST /stripe/webhook`) | `routes/web.php` |
 | CSRF exemption | `app/Http/Middleware/VerifyCsrfToken.php` |
 | Supabase mirror service | `app/Services/BillingProfileService.php` |
-| Reconcile command | `app/Console/Commands/SyncBillingToSupabase.php` |
+| Plan derivation (shared) | `app/Services/StripePlanResolver.php` |
+| Reconcile from Stripe (truth) | `app/Console/Commands/ReconcileStripePlans.php` |
+| Mirror MySQL → Supabase | `app/Console/Commands/SyncBillingToSupabase.php` |
 | Signup seed (`free`) | `app/Http/Controllers/Auth/LatchIdSessionController.php` (`provisionBilling`) |
 | Supabase column | `supabase/migrations/20260622090000_add_plan_key_to_profiles.sql` |
 
@@ -90,8 +113,10 @@ after this change and (b) run daily as a self-heal for any missed webhook.
    `customer.subscription.created/updated/deleted` (and re-enable it if Stripe
    already disabled it), then copy its signing secret.
 2. Set `STRIPE_WEBHOOK_SECRET` on Railway.
-3. Run `php artisan billing:sync-supabase` once to backfill `profiles.plan_key`
-   for the existing rows.
+3. Run `php artisan billing:reconcile-stripe` once to pull current plans from
+   Stripe into MySQL + Supabase (this is what fixes the existing Pro customer
+   whose MySQL row still says `free`). `billing:sync-supabase` alone does **not**
+   fix that — it only mirrors MySQL, which was stale.
 4. Test: set a sandbox customer to Pro → watch `user_billing` and
    `profiles.plan_key` both flip to `pro`.
 
