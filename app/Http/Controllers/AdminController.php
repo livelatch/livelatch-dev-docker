@@ -41,9 +41,76 @@ class AdminController extends Controller
   }
 
   // Users page
-  public function users()
+  public function users(Request $request)
   {
-    return view("panel/users");
+    $data = $this->buildUsersTableData($request);
+
+    // HTMX in-page swaps (search / sort / pagination) only need the table partial.
+    if ($request->header("HX-Target") === "ll-users-table") {
+      return view("panel.partials.users-table", $data);
+    }
+
+    return view("panel/users", $data);
+  }
+
+  /**
+   * Build the filtered / sorted / paginated user listing shared by the full
+   * page render and every HTMX partial swap.
+   */
+  private function buildUsersTableData(Request $request): array
+  {
+    $sortable = [
+      "id" => "id",
+      "name" => "name",
+      "email" => "email",
+      "littlelink_name" => "littlelink_name",
+      "role" => "role",
+      "block" => "block",
+      "email_verified_at" => "email_verified_at",
+      "created_at" => "created_at",
+      "updated_at" => "updated_at",
+    ];
+
+    $search = trim((string) $request->query("search", ""));
+    $sort = $request->query("sort", "created_at");
+    $sort = array_key_exists($sort, $sortable) ? $sort : "created_at";
+    $direction =
+      strtolower((string) $request->query("direction", "asc")) === "desc"
+        ? "desc"
+        : "asc";
+
+    $perPage = (int) $request->query("perPage", 50);
+    if (!in_array($perPage, [25, 50, 100, 250, 500], true)) {
+      $perPage = 50;
+    }
+
+    $query = User::query()
+      ->with("roles")
+      ->withCount("links")
+      ->withSum("links", "click_number");
+
+    if ($search !== "") {
+      $query->where(function ($q) use ($search) {
+        $q->where("id", "like", "%{$search}%")
+          ->orWhere("name", "like", "%{$search}%")
+          ->orWhere("email", "like", "%{$search}%")
+          ->orWhere("littlelink_name", "like", "%{$search}%")
+          ->orWhere("role", "like", "%{$search}%");
+      });
+    }
+
+    $users = $query
+      ->orderBy($sortable[$sort], $direction)
+      ->paginate($perPage)
+      ->withQueryString();
+
+    return [
+      "users" => $users,
+      "search" => $search,
+      "sort" => $sort,
+      "direction" => $direction,
+      "perPage" => $perPage,
+    ];
   }
 
   // Send test mail
@@ -83,6 +150,10 @@ class AdminController extends Controller
 
     User::where("id", $id)->update(["block" => $block]);
 
+    if ($request->header("HX-Target") === "ll-users-table") {
+      return view("panel.partials.users-table", $this->buildUsersTableData($request));
+    }
+
     return redirect("admin/users/all");
   }
 
@@ -117,6 +188,10 @@ class AdminController extends Controller
     }
 
     User::where("id", $id)->update(["email_verified_at" => $verify]);
+
+    if ($request->header("HX-Target") === "ll-users-table") {
+      return view("panel.partials.users-table", $this->buildUsersTableData($request));
+    }
   }
 
   //Create new user from the Admin Panel
@@ -194,6 +269,10 @@ class AdminController extends Controller
     $user->forceDelete();
 
     Schema::enableForeignKeyConstraints();
+
+    if ($request->header("HX-Target") === "ll-users-table") {
+      return view("panel.partials.users-table", $this->buildUsersTableData($request));
+    }
   }
 
   //Show user to edit

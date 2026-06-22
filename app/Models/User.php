@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use App\Models\UserBilling;
 use App\Models\Role;
+use App\Models\Link;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -81,6 +82,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
+    /** Links owned by this user (used for admin listing counts). */
+    public function links()
+    {
+        return $this->hasMany(Link::class, 'user_id');
+    }
+
     /** True if the user holds the given role key. */
     public function hasRole(string $key): bool
     {
@@ -140,6 +147,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $this->syncLegacyRoleColumn();
+        $this->pushRolesToSupabase();
     }
 
     /**
@@ -178,6 +186,24 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($drop) {
             $this->roles()->detach($drop->id);
         }
+
+        $this->pushRolesToSupabase();
+    }
+
+    /**
+     * Push the user's current role-key set to the Supabase profiles.roles
+     * mirror so non-Laravel consumers can gate on roles natively. Best-effort:
+     * a Supabase outage never fails the local role change. No-op without a
+     * linked LatchID (supabase_user_id).
+     */
+    public function pushRolesToSupabase(): void
+    {
+        if (!$this->supabase_user_id) {
+            return;
+        }
+
+        $keys = $this->roles()->pluck('key')->all();
+        \App\Services\RoleProfileService::setRoles($this->supabase_user_id, $keys);
     }
     public function visits()
     {

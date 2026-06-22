@@ -61,6 +61,15 @@ Manage Users (`/admin/users/all`):
 
 A single `php artisan migrate` does everything: the backfill migration `2026_06_22_120200_backfill_role_user.php` runs `RoleSeeder` then populates `role_user` from existing `users.role` and `plan_key`, so no user loses access. `RoleSeeder` is also wired into `DatabaseSeeder` for fresh installs and is idempotent (re-run to update labels/colours).
 
+## Supabase mirror
+
+`public.profiles.roles` (a `text[]` of role keys) is a **read-only mirror** of `role_user`, so non-Laravel consumers (Encore, the viewer portal, edge functions) can gate on roles without touching Railway MySQL. Railway stays the source of truth.
+
+- Written by `App\Services\RoleProfileService::setRoles()` (twin of `BillingProfileService`).
+- Pushed by `User::pushRolesToSupabase()` on every membership change (`syncAssignableRoles`, `syncPlanRoles`). Best-effort: a Supabase outage never fails the local change; the backfill migration and any future reconcile re-push.
+- No-op for users without a linked `supabase_user_id`.
+- Example gate in Postgres/edge: `'staff' = any(roles)`.
+
 ## Extending
 
 Add a role: append a row to `RoleSeeder::run()` and re-run the seeder (`php artisan db:seed --class=RoleSeeder`). Add a `Role::` constant for it. To gate something, branch on `$user->hasRole('your_key')`.

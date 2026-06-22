@@ -1,183 +1,167 @@
-<?php use App\Models\User; ?>
-
 @extends('layouts.sidebar')
 
 @section('content')
+<style data-ll-admin-users-style>
+    .ll-users { display: grid; gap: 18px; }
+    .ll-users .ll-u-header h2 { margin: 0 0 4px; color: var(--ll-text); display: flex; align-items: center; gap: 8px; }
+    .ll-users .ll-u-header p { margin: 0; color: var(--ll-muted); max-width: 760px; }
 
-<style>
-  [x-cloak] { display: none !important; }
+    /* Toolbar */
+    .ll-u-toolbar {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    }
+    .ll-u-search { position: relative; flex: 1 1 280px; min-width: 220px; }
+    .ll-u-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ll-muted); pointer-events: none; }
+    .ll-u-search input {
+        width: 100%; height: 44px; padding: 0 14px 0 40px;
+        border: 1px solid var(--ll-border); border-radius: 12px;
+        background: var(--ll-surface-solid); color: var(--ll-text); font-size: .92rem;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .ll-u-search input:focus { outline: none; border-color: var(--ll-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ll-primary) 25%, transparent); }
+    .ll-u-perpage {
+        height: 44px; padding: 0 12px; border-radius: 12px;
+        border: 1px solid var(--ll-border); background: var(--ll-surface-solid);
+        color: var(--ll-text); font-size: .9rem; cursor: pointer;
+    }
+    .ll-u-add {
+        height: 44px; padding: 0 18px; border-radius: 12px; border: none;
+        background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+        color: #04122b; font-weight: 700; font-size: .9rem; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px; text-decoration: none; white-space: nowrap;
+    }
+    .ll-u-add:hover { filter: brightness(1.05); color: #04122b; }
+
+    /* Card + table */
+    .ll-u-card {
+        border: 1px solid var(--ll-border); border-radius: 16px;
+        background: var(--ll-surface-solid); overflow: hidden;
+    }
+    .ll-u-table-scroll { overflow-x: auto; }
+    .ll-u-table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 900px; }
+    .ll-u-table thead th {
+        text-align: left; padding: 12px 14px; white-space: nowrap;
+        color: var(--ll-muted); font-weight: 600; font-size: .78rem;
+        text-transform: uppercase; letter-spacing: .04em;
+        border-bottom: 1px solid var(--ll-border);
+        background: color-mix(in srgb, var(--ll-text) 4%, transparent);
+        position: sticky; top: 0; z-index: 1;
+    }
+    .ll-u-table thead th a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+    .ll-u-table thead th a:hover { color: var(--ll-text); }
+    .ll-u-table thead th .ll-sort-ico { opacity: .35; font-size: .8rem; }
+    .ll-u-table thead th a.active .ll-sort-ico { opacity: 1; color: var(--ll-primary); }
+    .ll-u-table tbody td { padding: 11px 14px; border-bottom: 1px solid color-mix(in srgb, var(--ll-border) 60%, transparent); color: var(--ll-text); vertical-align: middle; white-space: nowrap; }
+    .ll-u-table tbody tr:last-child td { border-bottom: none; }
+    .ll-u-table tbody tr:hover { background: color-mix(in srgb, var(--ll-primary) 6%, transparent); }
+    .ll-u-id { color: var(--ll-muted); font-variant-numeric: tabular-nums; }
+    .ll-u-name { font-weight: 600; }
+    .ll-u-email { color: var(--ll-muted); }
+    .ll-u-page-link { color: var(--ll-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+    .ll-u-page-link:hover { text-decoration: underline; }
+
+    /* Badges */
+    .ll-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 600; line-height: 1.4; cursor: pointer; }
+    .ll-badge.is-static { cursor: default; }
+    .ll-badge-green { background: color-mix(in srgb, #23a55a 18%, transparent); color: #23a55a; }
+    .ll-badge-red { background: color-mix(in srgb, #ef4444 18%, transparent); color: #ef4444; }
+    .ll-badge-muted { background: color-mix(in srgb, var(--ll-text) 10%, transparent); color: var(--ll-muted); }
+    .ll-role-chips { display: flex; flex-wrap: wrap; gap: 4px; max-width: 220px; white-space: normal; }
+    .ll-role-chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; color: #fff; }
+
+    /* Row action buttons */
+    .ll-u-actions { display: inline-flex; gap: 6px; }
+    .ll-u-act {
+        width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--ll-border);
+        background: var(--ll-surface-solid); color: var(--ll-text);
+        display: inline-grid; place-items: center; cursor: pointer; text-decoration: none;
+        transition: background .12s ease, color .12s ease, border-color .12s ease;
+    }
+    .ll-u-act:hover { border-color: transparent; }
+    .ll-u-act.view:hover { background: #23a55a; color: #fff; }
+    .ll-u-act.edit:hover { background: var(--ll-primary); color: #fff; }
+    .ll-u-act.imp:hover { background: #6366f1; color: #fff; }
+    .ll-u-act.del:hover { background: #ef4444; color: #fff; }
+    .ll-u-act.is-disabled { opacity: .4; pointer-events: none; }
+
+    /* Footer / pagination */
+    .ll-u-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--ll-border); }
+    .ll-u-count { color: var(--ll-muted); font-size: .82rem; }
+    .ll-u-pager { display: inline-flex; align-items: center; gap: 8px; }
+    .ll-u-pager .pg {
+        height: 34px; min-width: 34px; padding: 0 12px; border-radius: 9px;
+        border: 1px solid var(--ll-border); background: var(--ll-surface-solid);
+        color: var(--ll-text); font-size: .85rem; font-weight: 600; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .ll-u-pager .pg:hover:not(.is-disabled) { border-color: var(--ll-primary); color: var(--ll-primary); }
+    .ll-u-pager .pg.is-disabled { opacity: .4; pointer-events: none; }
+    .ll-u-pager .pg-info { color: var(--ll-muted); font-size: .82rem; }
+
+    .ll-u-empty { padding: 48px 20px; text-align: center; color: var(--ll-muted); }
+    .ll-u-empty i { font-size: 1.8rem; display: block; margin-bottom: 8px; opacity: .6; }
+
+    /* Keep the table interactive but dim during HTMX swaps */
+    #ll-users-table.htmx-request { opacity: .55; transition: opacity .15s ease; }
 </style>
 
-<div class="conatiner-fluid content-inner mt-n5 py-0">
-  <div class="row">   
+<div class="container-fluid content-inner mt-n5 py-0">
+    <div class="ll-users"
+         hx-headers='{"X-CSRF-TOKEN": "{{ csrf_token() }}"}'>
 
+        <div class="ll-u-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <h2><i class="bi bi-people"></i> {{ __('messages.Manage Users') }}</h2>
+                <p>Search, sort and manage every Livelatch account. Click a status badge to toggle it, or use the row actions to view links, edit, impersonate or delete.</p>
+            </div>
+            <a href="{{ url('') }}/admin/new-user" class="ll-u-add">
+                <i class="bi bi-plus-lg"></i> {{ __('messages.Add new user') }}
+            </a>
+        </div>
 
-      <div class="col-lg-12">
-          <div class="card rounded">
-             <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-12">  
-  
-                      <section class="text-gray-400">
-                        <h2 class="mb-4 card-header"><i class="bi bi-person"> {{__('messages.Manage Users')}}</i></h2>
-                        <div class="card-body p-0 p-md-3">
+        <div class="ll-u-toolbar">
+            <label class="ll-u-search">
+                <i class="bi bi-search"></i>
+                <input type="search" name="search" value="{{ $search }}"
+                       placeholder="Search by name, email, page or role…"
+                       autocomplete="off"
+                       hx-get="{{ route('showUsers') }}"
+                       hx-trigger="input changed delay:350ms, search"
+                       hx-target="#ll-users-table"
+                       hx-swap="outerHTML"
+                       hx-include="[name='perPage']"
+                       hx-indicator="#ll-users-table">
+            </label>
 
-                        <div id="select-active" class="d-none">
-                          <h5 class="mb-2">{{__('messages.Select Action')}}:</h3>
-                          <button class="mb-3 btn btn-danger rounded-pill btn-sm">
-                              <span class="btn-inner">
-                                <svg class="icon-16" width="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M20.2871 5.24297C20.6761 5.24297 21 5.56596 21 5.97696V6.35696C21 6.75795 20.6761 7.09095 20.2871 7.09095H3.71385C3.32386 7.09095 3 6.75795 3 6.35696V5.97696C3 5.56596 3.32386 5.24297 3.71385 5.24297H6.62957C7.22185 5.24297 7.7373 4.82197 7.87054 4.22798L8.02323 3.54598C8.26054 2.61699 9.0415 2 9.93527 2H14.0647C14.9488 2 15.7385 2.61699 15.967 3.49699L16.1304 4.22698C16.2627 4.82197 16.7781 5.24297 17.3714 5.24297H20.2871ZM18.8058 19.134C19.1102 16.2971 19.6432 9.55712 19.6432 9.48913C19.6626 9.28313 19.5955 9.08813 19.4623 8.93113C19.3193 8.78413 19.1384 8.69713 18.9391 8.69713H5.06852C4.86818 8.69713 4.67756 8.78413 4.54529 8.93113C4.41108 9.08813 4.34494 9.28313 4.35467 9.48913C4.35646 9.50162 4.37558 9.73903 4.40755 10.1359C4.54958 11.8992 4.94517 16.8102 5.20079 19.134C5.38168 20.846 6.50498 21.922 8.13206 21.961C9.38763 21.99 10.6811 22 12.0038 22C13.2496 22 14.5149 21.99 15.8094 21.961C17.4929 21.932 18.6152 20.875 18.8058 19.134Z" fill="currentColor"></path>
-                                </svg>                        
-                              </span>
-                              Delete
-                          </button>
-                        </div>
+            <select name="perPage" class="ll-u-perpage"
+                    hx-get="{{ route('showUsers') }}"
+                    hx-trigger="change"
+                    hx-target="#ll-users-table"
+                    hx-swap="outerHTML"
+                    hx-include="[name='search']"
+                    hx-indicator="#ll-users-table">
+                @foreach([25, 50, 100, 250, 500] as $opt)
+                    <option value="{{ $opt }}" @selected($perPage === $opt)>{{ $opt }} / page</option>
+                @endforeach
+            </select>
+        </div>
 
-                        <livewire:user-table />
-                        
-                        <a href="{{ url('') }}/admin/new-user">+ {{__('messages.Add new user')}}</a>
-                        
-                        <script type="text/javascript">
-                          // Function to confirm and delete users
-                          var confirmIt = function(e) {
-                              e.preventDefault();
-                              if (confirm("{{ __('messages.confirm.delete.user') }}")) {
-                                  var userId = this.getAttribute('data-id');
-                                  this.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-                                  deleteUserData(userId);
-                              }
-                          };
-                      
-                          var deleteUserData = function(userId) {
-                              var xhr = new XMLHttpRequest();
-                              xhr.open('POST', `{{ route('deleteTableUser', ['id' => ':id']) }}`.replace(':id', userId), true);
-                              xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
-                              xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-                              xhr.onreadystatechange = function() {
-                                  if (xhr.readyState === 4 && xhr.status === 200) {
-                                      refreshLivewireTable();
-                                  }
-                              };
-                              xhr.send(JSON.stringify({ id: userId }));
-                          };
-                      
-                          // Function to handle user actions (verification and blocking)
-                          var handleUserClick = function(e) {
-                              e.preventDefault();
-                              var userId = this.getAttribute('data-id');
-                              this.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-                              sendUserAction(userId);
-                          };
-                      
-                          var sendUserAction = function(userId) {
-                              var xhr = new XMLHttpRequest();
-                              xhr.open('GET', userId, true);
-                              xhr.onreadystatechange = function() {
-                                  if (xhr.readyState === 4 && xhr.status === 200) {
-                                      refreshLivewireTable();
-                                  }
-                              };
-                              xhr.send();
-                          };
-                      
-                          // Attach click event listeners to elements with class 'confirmation', 'user-email', and 'user-block'
-                          var attachClickEventListeners = function(className, handler) {
-                              var elems = document.getElementsByClassName(className);
-                              for (var i = 0, l = elems.length; i < l; i++) {
-                                  elems[i].addEventListener('click', handler, false);
-                              }
-                          };
-
-                          // Function to refresh the Livewire table
-                          var refreshLivewireTable = function() {
-                            Livewire.components.getComponentsByName('user-table')[0].$wire.$refresh()
-                          };
-                      
-                          attachClickEventListeners('confirmation', confirmIt);
-                          attachClickEventListeners('user-email', handleUserClick);
-                          attachClickEventListeners('user-block', handleUserClick);
-                      </script>
-{{-- <script type="text/javascript">
-// Get the delete button div
-var deleteButtonDiv = document.getElementById('select-active');
-
-// Get all checkboxes
-var checkboxes = document.querySelectorAll('.form-check-input');
-
-// Function to check if at least one checkbox is selected
-var isAnyCheckboxSelected = function() {
-    for (var i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked) {
-            return true;
-        }
-    }
-    return false;
-};
-
-// Function to show or hide the delete button div
-var showOrHideDeleteButton = function() {
-    if (isAnyCheckboxSelected()) {
-        deleteButtonDiv.classList.remove('d-none');
-    } else {
-        setTimeout(function() {
-            deleteButtonDiv.classList.add('d-none');
-        });
-    }
-};
-
-// Add event listener to checkboxes
-for (var i = 0; i < checkboxes.length; i++) {
-    checkboxes[i].addEventListener('change', showOrHideDeleteButton);
-}
-
-// Get the delete button
-var deleteButton = deleteButtonDiv.querySelector('button');
-
-// Function to delete selected users
-var deleteSelectedUsers = function() {
-    for (var i = 0; i < checkboxes.length; i++) {
-        if (checkboxes[i].checked && checkboxes[i].getAttribute('data-id') !== null) {
-            var userId = checkboxes[i].getAttribute('data-id');
-
-            // Find the corresponding <a> element
-            var deleteButton = document.querySelector('a[data-id="' + userId + '"]');
-
-            // If the <a> element exists, add loading spinner to it
-            if (deleteButton) {
-                deleteButton.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-            }
-
-            deleteUserData(userId);
-        }
-    }
-};
-
-// Add event listener to delete button
-deleteButton.addEventListener('click', deleteSelectedUsers);
-</script> --}}
-
-                          </div>
-                </section>
-  
-                    </div>
-                </div>
-             </div>
-          </div>
-       </div>
-
-
+        @include('panel.partials.users-table')
     </div>
-  </div>
-
-@push('sidebar-stylesheets')
-<script defer src="{{url('assets/js/cdn.min.js')}}"></script>
-<script src="{{url('vendor/livewire/livewire/dist/livewire.js')}}"></script>
-@endpush
+</div>
 
 @push('sidebar-scripts')
-<livewire:scripts />
-<script src="{{url('assets/js/livewire-sortable.js')}}"></script>
+<script>
+    // Confirm before HTMX-deleting a user (htmx:confirm gives us an async hook).
+    document.body.addEventListener('htmx:confirm', function (e) {
+        if (e.target.matches('[data-ll-confirm]')) {
+            e.preventDefault();
+            if (window.confirm(e.target.getAttribute('data-ll-confirm'))) {
+                e.detail.issueRequest(true);
+            }
+        }
+    });
+</script>
 @endpush
 
 @endsection
