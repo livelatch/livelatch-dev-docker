@@ -7,6 +7,7 @@ use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\User;
 use App\Models\Link;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserTable extends DataTableComponent
 {
@@ -18,6 +19,11 @@ class UserTable extends DataTableComponent
         $this->setDefaultSort('created_at', 'asc');
         $this->setPerPageAccepted([50, 100, 250, 500, 1000, -1]);
         $this->setColumnSelectEnabled();
+    }
+
+    public function builder(): Builder
+    {
+        return User::query()->with('roles');
     }
 
     public function columns(): array
@@ -50,6 +56,20 @@ class UserTable extends DataTableComponent
             Column::make(__('messages.Role'), "role")
                 ->sortable()
                 ->searchable(),
+            Column::make(__('messages.Roles'), "id")
+                ->format(function ($value, $row) {
+                    $roles = $row->roles->sortBy('sort_order');
+                    if ($roles->isEmpty()) {
+                        return '<span class="text-muted">—</span>';
+                    }
+                    $chips = $roles->map(function ($role) {
+                        $color = $role->color ?: '#6b7280';
+                        return '<span class="badge" style="background-color:' . htmlspecialchars($color) . ';color:#fff;margin:1px;">'
+                            . htmlspecialchars($role->label) . '</span>';
+                    })->implode(' ');
+                    return '<div style="display:flex;flex-wrap:wrap;gap:2px;max-width:240px;">' . $chips . '</div>';
+                })
+                ->html(),
             Column::make(__('messages.Links'), "id")
                 ->format(function ($value, $row) {
                     $linkCount = Link::where('user_id', $row->id)->count();

@@ -201,7 +201,8 @@ class AdminController extends Controller
   {
     $id = $request->id;
 
-    $data["user"] = User::where("id", $id)->get();
+    $data["user"] = User::with("roles")->where("id", $id)->get();
+    $data["allRoles"] = \App\Models\Role::orderBy("sort_order")->get();
 
     return view("panel/edit-user", $data);
   }
@@ -306,6 +307,17 @@ class AdminController extends Controller
     }
 
     User::where("id", $id)->update($userData);
+
+    // Sync the additive role grid (Discord/LuckPerms-style). Pro/Free are
+    // auto-managed from billing and are filtered out by syncAssignableRoles,
+    // which also mirrors admin back into the legacy users.role column.
+    $targetUser = User::find($id);
+    if ($targetUser) {
+      $targetUser->syncAssignableRoles(
+        $request->input("roles", []),
+        Auth::id()
+      );
+    }
 
     if (!empty($customBackground)) {
       $directory = base_path("assets/img/background-img/");

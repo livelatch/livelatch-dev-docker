@@ -26,4 +26,16 @@ class UserBilling extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function booted(): void
+    {
+        // Whenever billing changes, reflect plan_key into pro/free role
+        // membership so the role system never drifts from Stripe.
+        static::saved(function (UserBilling $billing) {
+            $user = $billing->user;
+            if ($user) {
+                $user->syncPlanRoles();
+            }
+        });
+    }
 }

@@ -115,12 +115,33 @@
                               <textarea class="form-control" name="littlelink_description" rows="3">{{ $user->littlelink_description }}</textarea>
                             </div>
                             <div class="form-group col-lg-8">
-                              <label for="exampleFormControlSelect1">{{__('messages.Role')}}</label>
+                              <label for="exampleFormControlSelect1">{{__('messages.Legacy role')}}</label>
                               <select class="form-control" name="role">
                                 <option <?= ($user->role === strtolower('user')) ? 'selected' : '' ?>>user</option>
                                 <option <?= ($user->role === strtolower('vip')) ? 'selected' : '' ?>>vip</option>
                                 <option <?= ($user->role === strtolower('admin')) ? 'selected' : '' ?>>admin</option>
                               </select>
+                              <small class="form-text text-muted">{{__('messages.Legacy verified/admin flag. Roles below are the source of truth.')}}</small>
+                            </div>
+
+                            <div class="form-group col-lg-8">
+                              <label>{{__('messages.Roles')}}</label>
+                              @php $userRoleKeys = $user->roles->pluck('key')->all(); @endphp
+                              <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                                @foreach($allRoles as $role)
+                                  @php $checked = in_array($role->key, $userRoleKeys); @endphp
+                                  <label style="display:flex;align-items:center;gap:6px;min-width:200px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;{{ !$role->is_assignable ? 'opacity:.6;' : '' }}">
+                                    <input type="checkbox" name="roles[]" value="{{ $role->key }}"
+                                           {{ $checked ? 'checked' : '' }}
+                                           {{ !$role->is_assignable ? 'disabled' : '' }}>
+                                    <span class="badge" style="background-color:{{ $role->color ?: '#6b7280' }};color:#fff;">{{ $role->label }}</span>
+                                    @if(!$role->is_assignable)
+                                      <small class="text-muted">({{__('messages.auto')}})</small>
+                                    @endif
+                                  </label>
+                                @endforeach
+                              </div>
+                              <small class="form-text text-muted">{{__('messages.Pro / Free are synced automatically from billing and cannot be set by hand.')}}</small>
                             </div>
                             @endforeach
                             <button type="submit" class="mt-3 ml-3 btn btn-primary">{{__('messages.Save')}}</button>

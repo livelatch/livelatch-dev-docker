@@ -451,6 +451,11 @@ return [
     'Logo' => 'Logo',
     'Page description' => 'Page description',
     'Role' => 'Role',
+    'Roles' => 'Roles',
+    'Legacy role' => 'Legacy role',
+    'Legacy verified/admin flag. Roles below are the source of truth.' => 'Legacy verified/admin flag. Roles below are the source of truth.',
+    'Pro / Free are synced automatically from billing and cannot be set by hand.' => 'Pro / Free are synced automatically from billing and cannot be set by hand.',
+    'auto' => 'auto',
 
 
     /*
