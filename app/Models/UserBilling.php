@@ -21,4 +21,9 @@ class UserBilling extends Model
         'current_period_end',
         'cancel_at_period_end',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

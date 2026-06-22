@@ -13,6 +13,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\Studio\LatchDeckController;
 use App\Http\Controllers\Studio\LatchIdController;
@@ -94,6 +95,13 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
         Route::get('/panel/diagnose', function () {
             return view('panel/diagnose', []);
         });
+
+        // Stripe webhook — unauthenticated + CSRF-exempt (see VerifyCsrfToken).
+        // Authenticity is verified via the Stripe signature in the controller.
+        // Keeps user_billing.plan_key (MySQL) and profiles.plan_key (Supabase)
+        // in sync with subscription changes.
+        Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])
+            ->name('stripe.webhook');
 
         $custom_prefix = config('advanced-config.custom_url_prefix');
 

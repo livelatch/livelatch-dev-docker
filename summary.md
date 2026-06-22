@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-22
+
+- Agent: Claude
+- Built the **missing Stripe webhook handler** + plan-sync pipeline. Root cause: Stripe was configured to POST to `https://dev.livelatch.com/stripe/webhook` but no route/handler existed (HTTP 404), so Pro checkouts never propagated — every `user_billing.plan_key` stayed `free` and setting a customer to Pro in Stripe didn't sync (Stripe sent an endpoint-failing warning email that surfaced it). New `StripeWebhookController` (signature-verified via `STRIPE_WEBHOOK_SECRET`, handles `customer.subscription.created/updated/deleted`) resolves the user by `stripe_customer_id`, derives plan (Pro price + live status → `pro`, else fail-safe `free`), updates `user_billing` (MySQL), and mirrors to Supabase `public.profiles.plan_key` via new `BillingProfileService` (service-role REST, modelled on `EmailPreferenceService`, no-op if Supabase down). Route added to `routes/web.php` (public, unauthenticated) + `stripe/webhook` CSRF-exempt in `VerifyCsrfToken`. Added `profiles.plan_key text not null default 'free' check in (free,pro)` (live on `yaljyfdfnphxzuhqlbfs` + repo SQL `supabase/migrations/20260622090000_…`) so non-Laravel consumers (Encore/portal/edge fns/Latch On gate) read plan natively rather than cross-querying MySQL or polling Stripe. `UserBilling` gained a `user()` belongsTo; signup `provisionBilling` now seeds the mirror `free`; new `billing:sync-supabase {--dry-run}` reconcile command fixes existing rows + serves as daily self-heal backstop. Doc: `docs/stripe/stripe-webhook-and-plan-sync.md`.
+- Validation: `php -l` clean on all changed PHP; `route:list` shows `stripe/webhook`; `artisan list` shows `billing:sync-supabase`. Runtime steps still outstanding (not runnable from host — no docker daemon / `pdo_mysql`): set `STRIPE_WEBHOOK_SECRET` on Railway, re-enable the Stripe endpoint, run `billing:sync-supabase` once, test a Pro toggle.
+- Captured the early **fan-service layer** concept (Latch On follow + Pro newsletter, fan showcase profiles + journal, "I was there too" anonymous reactions). New concept note `docs/fanservice/fanservice-overview.md` records the guiding principle (adopt social mechanics but strip the public scoreboard — no follower counts/leaderboards; Latch On is a consent-aware Pro newsletter opt-in, one send/month; reactions are anonymous aggregate-only presence headcounts). New owner todo `docs/todos/fanservice-follow-up.md` tracks open decisions (public profile URL scheme, newsletter cap window, reaction model, Pro segmentation, UGC moderation). Docs/concept only — no code yet. Next: scope the `latch` data model + button + subscription modal.
+
 ### 2026-06-21
 
 - Agent: Claude

@@ -6,16 +6,24 @@ truth for what email a user has agreed to receive, mirrors that consent into
 Resend, and adds the plumbing to actually send service notices and notification
 emails.
 
-## The three classes of email
+## The classes of email
 
-- **Service emails** — outages, maintenance, security, billing. These are
+- **Service emails** — outages, maintenance, security, billing, and action-
+  servicing mail such as the Latch On confirm/reminder/expiry emails. These are
   mandatory: every user always receives them, and there is no opt-out. They are
   deliberately *not* represented in the preferences table.
-- **Marketing emails** — product news and announcements. Opt-in, but the signup
-  checkbox is pre-checked, so the default is "on". Governs Resend broadcasts.
+- **Marketing emails** — Livelatch's own product news and announcements. Opt-in,
+  but the signup checkbox is pre-checked, so the default is "on". Governs Resend
+  broadcasts.
 - **Notification emails** — an email copy of a notification sent directly to a
   user (a notification with `user_id` set). Gated by a per-user toggle. Global
   notifications stay in-app only.
+- **Creator newsletter emails** — a Pro creator's monthly newsletter to the fans
+  who latched onto them. This is its **own consent category, independent of
+  Livelatch marketing**: a fan who opted out of Livelatch product news may still
+  want a creator's newsletter, and vice-versa. Consent is **per-creator**, stored
+  on each `creator_latches` row (`email_opt_in`), *not* in the global
+  `user_email_preferences` table. See `docs/fanservice/fanservice-overview.md`.
 
 ## Source of truth
 

@@ -228,6 +228,10 @@ class LatchIdSessionController extends Controller
                     : null,
                 'cancel_at_period_end' => $subscription->cancel_at_period_end ?? false,
             ]);
+
+            // Mirror the starting plan into Supabase profiles so non-Laravel
+            // consumers see the new creator as 'free' immediately (best-effort).
+            \App\Services\BillingProfileService::setPlan($user->supabase_user_id, 'free');
         } catch (\Throwable $e) {
             Log::warning('LatchID signup: Stripe billing provisioning failed; user can be backfilled later.', [
                 'user_id' => $user->id,
