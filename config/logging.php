@@ -54,6 +54,15 @@ return [
             'days' => 14,
         ],
 
+        // Audit trail for the admin Shell page. Every command run from
+        // /admin/shell is recorded here with the acting admin + timestamp.
+        'shell' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/shell.log'),
+            'level' => 'info',
+            'days' => 90,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

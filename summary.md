@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-23
+
+- Agent: Claude
+- Added an **admin Shell page** (`/admin/shell`) — runs a single command inside the live Railway container and streams stdout/stderr to the browser. Reframed away from the original "SSH into the Railway session" ask: the admin panel already runs *inside* the container, so no SSH is needed; a true interactive ttyd/PTY terminal was rejected because it needs a second process + second port while Railway publishes one port and railpack owns the web-server config (would fight the "keep boot simple" runtime rule). Built instead as a one-shot streaming exec inside the existing PHP web process. `Admin\ShellController`: `index()` renders the view; `run()` validates + **audit-logs the command before executing**, then returns a chunked `StreamedResponse` running `proc_open(['bash','-lc',$cmd], …, base_path())` (stderr merged, polled 50ms, hard-killed after 120s). View `studio/admin/shell.blade.php` = xterm.js console (CDN `@xterm/xterm@5.5.0` + fit addon) reading the stream via `fetch`+`ReadableStream`, command input with ↑/↓ history, red "runs in production / every command logged / no TTY — use `railway ssh` for interactive" banner. Gated by the existing `admin` middleware (legacy `role=='admin'` — deliberately broad, owner's choice; *not* the additive role system). New dedicated `shell` log channel (`storage/logs/shell.log`, daily, 90-day retention) in `config/logging.php` records user/email/IP/command. Routes `admin.shell` + `admin.shell.run` in the admin group; "Shell" nav entry added to `StudioNavigation`. Doc: `docs/platform-runtime/admin-shell.md`.
+- Trade-off recorded: no pseudo-terminal, so `vim`/`top`/`tinker` won't work — `railway ssh` is the escape hatch for a real interactive TTY.
+- Validation: `php -l` clean on all changed PHP; `route:list` shows both shell routes; `php artisan view:cache` compiles the new Blade. Runtime check (running an actual command end-to-end in the deployed container) deferred — not runnable from host.
+
 ### 2026-06-22
 
 - Agent: Claude

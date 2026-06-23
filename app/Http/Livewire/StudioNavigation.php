@@ -187,6 +187,13 @@ class StudioNavigation extends Component
                         'active' => request()->segment(2) === 'tour-builder',
                         'external' => true,
                     ],
+                    [
+                        'label' => 'Shell',
+                        'icon' => 'bi bi-terminal-fill',
+                        'url' => url('admin/shell'),
+                        'active' => request()->segment(2) === 'shell',
+                        'skeleton' => '#ll-page-skeleton',
+                    ],
                 ],
             ];
         }

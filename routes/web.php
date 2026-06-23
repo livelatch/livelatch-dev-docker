@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\SocialLinksController;
+use App\Http\Controllers\Admin\ShellController;
 use App\Http\Controllers\Studio\SocialsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\SocialLoginController;
@@ -337,6 +338,8 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::get('/admin/socials', [SocialLinksController::class, 'edit'])->name('admin.socials');
         Route::post('/admin/socials', [SocialLinksController::class, 'update'])->name('admin.socials.update');
         Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');
+        Route::get('/admin/shell', [ShellController::class, 'index'])->name('admin.shell');
+        Route::post('/admin/shell/run', [ShellController::class, 'run'])->name('admin.shell.run');
         Route::get('/admin/site/delavatar', [AdminController::class, 'delAvatar'])->name('delAvatar');
         Route::get('/admin/site/delfavicon', [AdminController::class, 'delFavicon'])->name('delFavicon');
         Route::get('/admin/phpinfo', [AdminController::class, 'phpinfo'])->name('phpinfo');
