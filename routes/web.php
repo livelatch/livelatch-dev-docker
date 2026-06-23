@@ -344,6 +344,7 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');
         Route::get('/admin/shell', [ShellController::class, 'index'])->name('admin.shell');
         Route::post('/admin/shell/run', [ShellController::class, 'run'])->name('admin.shell.run');
+        Route::get('/admin/shell/audit', [ShellController::class, 'audit'])->name('admin.shell.audit');
         Route::get('/admin/site/delavatar', [AdminController::class, 'delAvatar'])->name('delAvatar');
         Route::get('/admin/site/delfavicon', [AdminController::class, 'delFavicon'])->name('delFavicon');
         Route::get('/admin/phpinfo', [AdminController::class, 'phpinfo'])->name('phpinfo');

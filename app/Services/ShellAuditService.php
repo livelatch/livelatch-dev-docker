@@ -23,6 +23,49 @@ class ShellAuditService
     private const TABLE = 'shell_audit_log';
 
     /**
+     * Read the most recent audit entries (newest first) for the admin UI.
+     * Returns [] when Supabase isn't configured or the request fails.
+     */
+    public static function recent(int $limit = 100): array
+    {
+        $baseUrl = rtrim((string) config('services.supabase_url'), '/');
+        $serviceKey = (string) config('services.supabase_service_role_key');
+
+        if ($baseUrl === '' || $serviceKey === '') {
+            return [];
+        }
+
+        $limit = max(1, min($limit, 500));
+        $url = $baseUrl . '/rest/v1/' . self::TABLE
+            . '?select=created_at,laravel_user_id,email,name,ip,cwd,command'
+            . '&order=created_at.desc&limit=' . $limit;
+
+        try {
+            $response = Http::withHeaders([
+                'apikey' => $serviceKey,
+                'Authorization' => 'Bearer ' . $serviceKey,
+            ])->acceptJson()->timeout(8)->get($url);
+
+            if (!$response->successful()) {
+                Log::warning('ShellAuditService: Supabase read failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (\Throwable $e) {
+            Log::warning('ShellAuditService: Supabase read threw', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
      * Record a single shell command. Returns true on a successful insert.
      */
     public static function record(array $entry): bool

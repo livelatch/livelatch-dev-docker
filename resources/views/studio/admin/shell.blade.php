@@ -111,6 +111,42 @@
 
     .ll-shell-hint { color: var(--ll-muted); font-size: 0.82rem; margin: 0; }
     .ll-shell-hint code { color: var(--ll-text); }
+
+    /* Audit log */
+    .ll-audit {
+        border: 1px solid var(--ll-border);
+        border-radius: var(--ll-radius);
+        background: var(--ll-surface-solid);
+        overflow: hidden;
+    }
+    .ll-audit-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 14px 16px; border-bottom: 1px solid var(--ll-border); flex-wrap: wrap;
+    }
+    .ll-audit-head h3 { margin: 0; color: var(--ll-text); font-size: 1.02rem; display: inline-flex; align-items: center; gap: 8px; }
+    .ll-audit-head p { margin: 2px 0 0; color: var(--ll-muted); font-size: 0.82rem; }
+    .ll-audit-scroll { overflow-x: auto; max-height: 420px; overflow-y: auto; }
+    table.ll-audit-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .ll-audit-table th, .ll-audit-table td {
+        text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--ll-border);
+        white-space: nowrap; vertical-align: top;
+    }
+    .ll-audit-table th {
+        position: sticky; top: 0; background: var(--ll-surface-solid); z-index: 1;
+        color: var(--ll-muted); font-weight: 700; font-size: 0.72rem;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .ll-audit-table td { color: var(--ll-text); }
+    .ll-audit-table td.ll-audit-cmd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        white-space: pre-wrap; word-break: break-word; max-width: 520px; color: #56b6ff;
+    }
+    .ll-audit-table td.ll-audit-cwd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        color: var(--ll-muted); font-size: 0.78rem;
+    }
+    .ll-audit-muted { color: var(--ll-muted); }
+    .ll-audit-empty { padding: 24px 16px; color: var(--ll-muted); text-align: center; }
 </style>
 
 <div class="container-fluid content-inner mt-n5 py-0">
@@ -157,6 +193,34 @@
             </button>
         </form>
         <p class="ll-shell-hint">Working dir: <code id="ll-shell-cwd">project root</code> — <code>cd</code> persists like an SSH session. Press <code>↑</code>/<code>↓</code> for history.</p>
+
+        <div class="ll-audit">
+            <div class="ll-audit-head">
+                <div>
+                    <h3><i class="bi bi-clipboard-data"></i> Audit log</h3>
+                    <p>Commands run from this shell (from Supabase <code>shell_audit_log</code>). Sign-ups, billing changes and more will join this feed later.</p>
+                </div>
+                <button type="button" class="ll-shell-ghost" id="ll-audit-refresh">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div class="ll-audit-scroll">
+                <table class="ll-audit-table">
+                    <thead>
+                        <tr>
+                            <th>When</th>
+                            <th>User</th>
+                            <th>IP</th>
+                            <th>Dir</th>
+                            <th>Command</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ll-audit-body">
+                        <tr><td colspan="5" class="ll-audit-empty">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -168,6 +232,7 @@
 
         const csrf = '{{ csrf_token() }}';
         const runUrl = '{{ route('admin.shell.run') }}';
+        const auditUrl = '{{ route('admin.shell.audit') }}';
         const FAV_KEY = 'll_shell_favourites';
         const CWD_KEY = 'll_shell_cwd';
         const CWD_MARK = '__LLCWD__';
@@ -278,8 +343,50 @@
             } finally {
                 append('\n');
                 setRunning(false);
+                // The command was just audited server-side — refresh the feed.
+                loadAudit();
             }
         }
+
+        // --- Audit log ---
+        const auditBody = document.getElementById('ll-audit-body');
+        const auditRefresh = document.getElementById('ll-audit-refresh');
+
+        function esc(v) {
+            return String(v == null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function fmtWhen(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return isNaN(d) ? esc(iso) : d.toLocaleString();
+        }
+        function auditRow(e) {
+            const who = e.email || e.name || ('user ' + (e.laravel_user_id ?? '?'));
+            return '<tr>'
+                + '<td class="ll-audit-muted">' + esc(fmtWhen(e.created_at)) + '</td>'
+                + '<td>' + esc(who) + '</td>'
+                + '<td class="ll-audit-muted">' + esc(e.ip || '') + '</td>'
+                + '<td class="ll-audit-cwd">' + esc(e.cwd || '') + '</td>'
+                + '<td class="ll-audit-cmd">' + esc(e.command || '') + '</td>'
+                + '</tr>';
+        }
+        async function loadAudit() {
+            try {
+                const res = await fetch(auditUrl, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const rows = (data.entries || []);
+                auditBody.innerHTML = rows.length
+                    ? rows.map(auditRow).join('')
+                    : '<tr><td colspan="5" class="ll-audit-empty">No audit entries yet.</td></tr>';
+            } catch (err) {
+                auditBody.innerHTML = '<tr><td colspan="5" class="ll-audit-empty">Could not load the audit log (' + esc(err.message) + ').</td></tr>';
+            }
+        }
+        auditRefresh.addEventListener('click', loadAudit);
 
         function execute(command) {
             command = (command || '').trim();
@@ -371,6 +478,7 @@
         });
 
         renderFavs();
+        loadAudit();
     })();
 </script>
 @endsection

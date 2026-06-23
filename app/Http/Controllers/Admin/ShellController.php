@@ -43,6 +43,20 @@ class ShellController extends Controller
     }
 
     /**
+     * Recent audit-log entries for the page's Audit log panel. Currently shell
+     * commands only (from Supabase shell_audit_log); other event types — sign-ups,
+     * billing changes — will be folded into this feed later.
+     */
+    public function audit()
+    {
+        $this->authorizeShellUser();
+
+        return response()->json([
+            'entries' => ShellAuditService::recent(100),
+        ]);
+    }
+
+    /**
      * Beyond the `admin` middleware, the shell is locked to specific user IDs
      * (config/shell.php). Only a session logged in as one of those IDs may load
      * the page or run a command — every other admin gets a hard 403.
