@@ -15,16 +15,34 @@ The admin panel already runs *inside* the Railway app container, so "SSH into th
 
 > The console is a plain `<pre>`, not xterm.js — xterm's FitAddon mis-sized itself inside the nested HTMX studio layout (it computed a giant width before the container had real dimensions, forcing horizontal overflow). A width-constrained `<pre>` avoids all of that and needs no CDN.
 >
-> Layout note: `.ll-shell` is a CSS grid, so its children carry `min-width: 0` — without it the `<pre>` forces a grid track wider than the viewport (grid items default to `min-width: auto`), which pushes the whole content column left under the studio sidebar. This is the same `minmax(0, …)` trick the Dev Tools page uses.
+> Layout note: the content kept rendering left, *under* the studio sidebar. Root cause was **`autofocus`** on the command input — the studio `.ll-main` is `width:100%` + `margin-left: <sidebar>` (so it inherently overflows the viewport to the right), and autofocusing the input made the browser scroll horizontally to reveal it; because the sidebar is `position: fixed`, scrolling right slides the content under it. Fix: no `autofocus`, and all programmatic `input.focus()` calls pass `{ preventScroll: true }`. The grid children also carry `min-width: 0` defensively (grid items default to `min-width: auto`, which would otherwise let the `<pre>` force an over-wide track).
 
 **Favourites:** the page has a Favourites bar (saved commands as removable chips). Saved in `localStorage` (`ll_shell_favourites`, per-browser — not server-side). Clicking a chip runs that command immediately; the `×` removes it. Type a command into the Favourites input + Save to add one.
-- Execution: `proc_open(['bash','-lc',$command], …, base_path())` with stderr merged into stdout, polled every 50ms, hard-killed after **120s** (`ShellController::TIMEOUT`).
+- Execution: `proc_open(['bash','-lc',$script], …)` with stderr merged into stdout, polled every 50ms, hard-killed after **120s** (`ShellController::TIMEOUT`).
+
+### Persistent working directory (SSH-like `cd`)
+
+Each command is a fresh process, so a naive `cd` wouldn't persist. To emulate a session the wrapper script `cd`s into the directory the *previous* command ended in (sent by the browser, default = project root), runs the command, preserves its exit code, then prints the resulting `$PWD` on a `__LLCWD__` sentinel line:
+
+```
+cd <prev-cwd> || { echo "[shell] cannot enter …"; exit 1; }
+<command>
+__ll_ec=$?
+printf "\n__LLCWD__%s\n" "$PWD"
+exit $__ll_ec
+```
+
+The browser line-buffers the stream, intercepts the `__LLCWD__` line (hides it, stores the dir in `localStorage` `ll_shell_cwd`), and sends that dir back with the next command. So `cd storage && ls` then `pwd` behaves like a real shell. The current dir is shown in the prompt (`<cwd> $ cmd`) and under the input. `exit $__ll_ec` keeps the reported exit code that of the user's command, not the trailing `pwd`. The cwd is also recorded in the audit log per command.
 
 ## Guardrails
 
 - **Auth:** the existing `admin` middleware (`role == 'admin'`) — same gate as the env editor / advanced-config file editor. *Note: this is the legacy role column, not the additive role system; deliberately broad per the owner's choice.*
 - **CSRF:** standard Laravel token on the POST.
-- **Audit:** every command is written to the dedicated `shell` log channel **before it runs** — `storage/logs/shell.log` (daily, 90-day retention), recording user id/email/name, IP, and the command. See `config/logging.php`.
+- **Audit (two sinks, both written before the command runs):**
+  1. The dedicated `shell` log channel — `storage/logs/shell-*.log` (daily, 90-day retention). Fast to tail from the page itself, but **ephemeral on Railway** — wiped on every redeploy / container recycle.
+  2. A durable off-box mirror in **Supabase `public.shell_audit_log`** via `App\Services\ShellAuditService` (service-role REST insert, RLS-on with no policies so only the service role can read/write). Best-effort: a Supabase hiccup degrades to a no-op and never blocks the command (the file channel still has it). Records `laravel_user_id`, `email`, `name`, `ip`, `cwd`, `command`, `created_at`. Migration: `supabase/migrations/20260623120000_shell_audit_log.sql` (applied live to `yaljyfdfnphxzuhqlbfs`).
+
+  Both record user id/email/name, IP, cwd, and the command. See `config/logging.php` and `ShellAuditService`.
 - **Timeout:** 120s per command.
 
 ## Files

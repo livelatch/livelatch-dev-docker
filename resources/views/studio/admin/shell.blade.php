@@ -148,7 +148,7 @@
 
         <form class="ll-shell-form" id="ll-shell-form" autocomplete="off">
             <input type="text" class="ll-shell-input" id="ll-shell-command"
-                   placeholder="e.g.  php artisan migrate --force" spellcheck="false" autofocus>
+                   placeholder="e.g.  php artisan migrate --force" spellcheck="false">
             <button type="submit" class="ll-shell-btn" id="ll-shell-run">
                 <i class="bi bi-play-fill"></i> Run
             </button>
@@ -156,7 +156,7 @@
                 <i class="bi bi-eraser"></i> Clear
             </button>
         </form>
-        <p class="ll-shell-hint">Runs from the project root via <code>bash -lc</code>. Press <code>↑</code>/<code>↓</code> for history.</p>
+        <p class="ll-shell-hint">Working dir: <code id="ll-shell-cwd">project root</code> — <code>cd</code> persists like an SSH session. Press <code>↑</code>/<code>↓</code> for history.</p>
     </div>
 </div>
 
@@ -169,6 +169,8 @@
         const csrf = '{{ csrf_token() }}';
         const runUrl = '{{ route('admin.shell.run') }}';
         const FAV_KEY = 'll_shell_favourites';
+        const CWD_KEY = 'll_shell_cwd';
+        const CWD_MARK = '__LLCWD__';
 
         const out = document.getElementById('ll-shell-out');
         const form = document.getElementById('ll-shell-form');
@@ -178,10 +180,21 @@
         const favList = document.getElementById('ll-shell-favs-list');
         const favForm = document.getElementById('ll-shell-favs-add');
         const favInput = document.getElementById('ll-shell-fav-input');
+        const cwdLabel = document.getElementById('ll-shell-cwd');
 
         const history = [];
         let histIndex = -1;
         let running = false;
+
+        // Remembered working directory (emulates a persistent SSH session).
+        let cwd = '';
+        try { cwd = localStorage.getItem(CWD_KEY) || ''; } catch (e) {}
+        function setCwd(dir) {
+            cwd = dir || '';
+            try { localStorage.setItem(CWD_KEY, cwd); } catch (e) {}
+            if (cwdLabel) cwdLabel.textContent = cwd || 'project root';
+        }
+        setCwd(cwd);
 
         function atBottom() {
             return out.scrollHeight - out.scrollTop - out.clientHeight < 40;
@@ -201,12 +214,42 @@
             runBtn.innerHTML = on
                 ? '<i class="bi bi-hourglass-split"></i> Running…'
                 : '<i class="bi bi-play-fill"></i> Run';
-            if (!on) input.focus();
+            if (!on) input.focus({ preventScroll: true });
+        }
+
+        // Process streamed output line by line so we can intercept the trailing
+        // CWD_MARK line (the shell's resulting directory) and hide it. Complete
+        // lines render immediately; only a trailing partial line is held until
+        // the next newline or stream end, which keeps output responsive.
+        function makeLineFilter() {
+            let buf = '';
+            function consume(line, withNewline) {
+                if (line.startsWith(CWD_MARK)) {
+                    setCwd(line.slice(CWD_MARK.length).trim());
+                    return;
+                }
+                append(line + (withNewline ? '\n' : ''));
+            }
+            return {
+                push(text) {
+                    buf += text;
+                    let idx;
+                    while ((idx = buf.indexOf('\n')) !== -1) {
+                        consume(buf.slice(0, idx), true);
+                        buf = buf.slice(idx + 1);
+                    }
+                },
+                end() {
+                    if (buf) consume(buf, false);
+                    buf = '';
+                },
+            };
         }
 
         async function streamRun(command) {
             setRunning(true);
-            append('$ ' + command + '\n', 'll-cmd');
+            append((cwd || '~') + ' $ ' + command + '\n', 'll-cmd');
+            const filter = makeLineFilter();
             try {
                 const res = await fetch(runUrl, {
                     method: 'POST',
@@ -215,7 +258,7 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: 'command=' + encodeURIComponent(command),
+                    body: 'command=' + encodeURIComponent(command) + '&cwd=' + encodeURIComponent(cwd),
                 });
                 if (!res.ok) {
                     append('[shell] request failed: HTTP ' + res.status + '\n', 'll-err');
@@ -225,10 +268,12 @@
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
-                        append(decoder.decode(value, { stream: true }));
+                        filter.push(decoder.decode(value, { stream: true }));
                     }
+                    filter.end();
                 }
             } catch (err) {
+                filter.end();
                 append('[shell] ' + err + '\n', 'll-err');
             } finally {
                 append('\n');
@@ -322,7 +367,7 @@
 
         clearBtn.addEventListener('click', () => {
             out.textContent = '';
-            input.focus();
+            input.focus({ preventScroll: true });
         });
 
         renderFavs();

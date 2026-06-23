@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\ShellAuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -27,6 +28,13 @@ class ShellController extends Controller
     /** Hard ceiling on how long a single command may run (seconds). */
     private const TIMEOUT = 120;
 
+    /**
+     * Sentinel the wrapper prints (on its own line) carrying the directory the
+     * shell ended in. The browser intercepts this line to remember the cwd for
+     * the next command, so `cd` appears to persist like a real SSH session.
+     */
+    private const CWD_MARK = '__LLCWD__';
+
     public function index()
     {
         return view('studio.admin.shell');
@@ -36,23 +44,31 @@ class ShellController extends Controller
     {
         $validated = $request->validate([
             'command' => 'required|string|max:4000',
+            'cwd' => 'nullable|string|max:4096',
         ]);
 
         $command = trim($validated['command']);
+        $cwd = trim((string) ($validated['cwd'] ?? ''));
         $user = Auth::user();
 
         // Audit FIRST — before a single byte executes — so an attempt is
-        // always recorded even if the command crashes the worker.
-        Log::channel('shell')->info('admin shell command', [
+        // always recorded even if the command crashes the worker. Two sinks:
+        // the container-local `shell` log channel (fast to tail, but wiped on
+        // redeploy) and a durable off-box mirror in Supabase (best-effort).
+        $entry = [
             'user_id' => $user?->id,
             'email' => $user?->email,
             'name' => $user?->name,
             'ip' => $request->ip(),
+            'cwd' => $cwd !== '' ? $cwd : base_path(),
             'command' => $command,
-        ]);
+        ];
 
-        return response()->stream(function () use ($command) {
-            $this->execStream($command);
+        Log::channel('shell')->info('admin shell command', $entry);
+        ShellAuditService::record($entry);
+
+        return response()->stream(function () use ($command, $cwd) {
+            $this->execStream($command, $cwd);
         }, 200, [
             'Content-Type' => 'text/plain; charset=utf-8',
             'Cache-Control' => 'no-cache, no-store',
@@ -61,10 +77,17 @@ class ShellController extends Controller
     }
 
     /**
-     * Run the command via `bash -lc` from the project root and echo output
-     * chunk by chunk. stderr is merged into stdout so errors stream inline.
+     * Run the command via `bash -lc` and echo output chunk by chunk. stderr is
+     * merged into stdout so errors stream inline.
+     *
+     * To emulate a persistent SSH session across stateless requests, the script
+     * first `cd`s into $cwd (the directory the previous command left us in,
+     * sent by the browser; defaults to the project root), runs the command,
+     * preserves its exit code, then prints the resulting directory on a
+     * CWD_MARK line. The browser reads that line, hides it, and sends the new
+     * directory back with the next command — so `cd storage` "sticks".
      */
-    private function execStream(string $command): void
+    private function execStream(string $command, string $cwd = ''): void
     {
         $descriptors = [
             0 => ['pipe', 'r'],
@@ -72,8 +95,20 @@ class ShellController extends Controller
             2 => ['pipe', 'w'],
         ];
 
+        $startDir = $cwd !== '' ? $cwd : base_path();
+
+        // Built as a small script: enter the prior dir (abort clearly if it's
+        // gone), run the user's command, capture its exit code, then emit the
+        // final pwd so the client can carry it forward. `exit $ec` makes the
+        // process exit code reflect the user's command, not the trailing pwd.
+        $script = 'cd ' . escapeshellarg($startDir) . ' || { echo "[shell] cannot enter ' . addslashes($startDir) . '"; exit 1; }' . "\n"
+            . $command . "\n"
+            . '__ll_ec=$?' . "\n"
+            . 'printf "\n' . self::CWD_MARK . '%s\n" "$PWD"' . "\n"
+            . 'exit $__ll_ec' . "\n";
+
         $process = @proc_open(
-            ['bash', '-lc', $command],
+            ['bash', '-lc', $script],
             $descriptors,
             $pipes,
             base_path()
