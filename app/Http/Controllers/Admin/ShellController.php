@@ -63,6 +63,15 @@ class ShellController extends Controller
      */
     private function authorizeShellUser(): void
     {
+        // Never allow shell access through an impersonated session. The
+        // Impersonate middleware rewrites Auth::id() to the target user, so an
+        // admin who "auths as" an allowlisted account would otherwise borrow its
+        // shell access. The `display_auth_nav` session flag marks an active
+        // impersonation — the shell requires a genuine first-party login.
+        if (session()->has('display_auth_nav')) {
+            abort(403);
+        }
+
         $allowed = array_map('strval', (array) config('shell.allowed_user_ids', []));
         $current = (string) (Auth::id() ?? '');
 

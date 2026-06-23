@@ -38,7 +38,9 @@ The browser line-buffers the stream, intercepts the `__LLCWD__` line (hides it, 
 
 ## Guardrails
 
-- **Auth:** the existing `admin` middleware (`role == 'admin'`), **plus a user-ID allowlist** (`config/shell.php`, `SHELL_ALLOWED_USER_IDS`, default = owner `922137`). `ShellController::authorizeShellUser()` aborts 403 on both the page and the run endpoint unless `Auth::id()` is in the list, and the nav link is hidden for everyone else (`StudioNavigation`). So even other admins can't load or use the shell — it's locked to specific accounts. (Railway caches config at build, so a runtime env change needs a redeploy; change the config default for a guaranteed value.)
+- **Auth:** the existing `admin` middleware (`role == 'admin'`), **plus a user-ID allowlist** (`config/shell.php`, `SHELL_ALLOWED_USER_IDS`, default = owner `922137`). `ShellController::authorizeShellUser()` aborts 403 on the page, the run endpoint, and the audit endpoint unless `Auth::id()` is in the list, and the nav link is hidden for everyone else (`StudioNavigation`). So even other admins can't load or use the shell — it's locked to specific accounts. (Railway caches config at build, so a runtime env change needs a redeploy; change the config default for a guaranteed value.)
+  - **Impersonation guard:** `authorizeShellUser()` also aborts 403 if `session('display_auth_nav')` is set (an active impersonation). Without this, an admin who "auths as" an allowlisted user would inherit `Auth::id()` and thus shell access — the guard requires a genuine first-party login.
+  - **CSRF:** the run/audit endpoints are *not* in `VerifyCsrfToken::$except` (only `stripe/webhook` is), so the POST is token-protected by the `web` group.
 - **CSRF:** standard Laravel token on the POST.
 - **Audit (two sinks, both written before the command runs):**
   1. The dedicated `shell` log channel — `storage/logs/shell-*.log` (daily, 90-day retention). Fast to tail from the page itself, but **ephemeral on Railway** — wiped on every redeploy / container recycle.
