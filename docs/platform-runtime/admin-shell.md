@@ -38,7 +38,7 @@ The browser line-buffers the stream, intercepts the `__LLCWD__` line (hides it, 
 
 ## Guardrails
 
-- **Auth:** the existing `admin` middleware (`role == 'admin'`) — same gate as the env editor / advanced-config file editor. *Note: this is the legacy role column, not the additive role system; deliberately broad per the owner's choice.*
+- **Auth:** the existing `admin` middleware (`role == 'admin'`), **plus a user-ID allowlist** (`config/shell.php`, `SHELL_ALLOWED_USER_IDS`, default = owner `922137`). `ShellController::authorizeShellUser()` aborts 403 on both the page and the run endpoint unless `Auth::id()` is in the list, and the nav link is hidden for everyone else (`StudioNavigation`). So even other admins can't load or use the shell — it's locked to specific accounts. (Railway caches config at build, so a runtime env change needs a redeploy; change the config default for a guaranteed value.)
 - **CSRF:** standard Laravel token on the POST.
 - **Audit (two sinks, both written before the command runs):**
   1. The dedicated `shell` log channel — `storage/logs/shell-*.log` (daily, 90-day retention). Fast to tail from the page itself, but **ephemeral on Railway** — wiped on every redeploy / container recycle.

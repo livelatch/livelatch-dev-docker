@@ -187,15 +187,21 @@ class StudioNavigation extends Component
                         'active' => request()->segment(2) === 'tour-builder',
                         'external' => true,
                     ],
-                    [
-                        'label' => 'Shell',
-                        'icon' => 'bi bi-terminal-fill',
-                        'url' => url('admin/shell'),
-                        'active' => request()->segment(2) === 'shell',
-                        'skeleton' => '#ll-page-skeleton',
-                    ],
                 ],
             ];
+
+            // The Shell is locked to specific user IDs (config/shell.php); only
+            // show the nav link to those users — everyone else gets a 403 anyway.
+            $shellAllowed = array_map('strval', (array) config('shell.allowed_user_ids', []));
+            if (in_array((string) auth()->id(), $shellAllowed, true)) {
+                $sections[array_key_last($sections)]['items'][] = [
+                    'label' => 'Shell',
+                    'icon' => 'bi bi-terminal-fill',
+                    'url' => url('admin/shell'),
+                    'active' => request()->segment(2) === 'shell',
+                    'skeleton' => '#ll-page-skeleton',
+                ];
+            }
         }
 
         return $sections;

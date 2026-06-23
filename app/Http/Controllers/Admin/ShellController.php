@@ -37,11 +37,30 @@ class ShellController extends Controller
 
     public function index()
     {
+        $this->authorizeShellUser();
+
         return view('studio.admin.shell');
+    }
+
+    /**
+     * Beyond the `admin` middleware, the shell is locked to specific user IDs
+     * (config/shell.php). Only a session logged in as one of those IDs may load
+     * the page or run a command — every other admin gets a hard 403.
+     */
+    private function authorizeShellUser(): void
+    {
+        $allowed = array_map('strval', (array) config('shell.allowed_user_ids', []));
+        $current = (string) (Auth::id() ?? '');
+
+        if ($current === '' || !in_array($current, $allowed, true)) {
+            abort(403);
+        }
     }
 
     public function run(Request $request): StreamedResponse
     {
+        $this->authorizeShellUser();
+
         $validated = $request->validate([
             'command' => 'required|string|max:4000',
             'cwd' => 'nullable|string|max:4096',
