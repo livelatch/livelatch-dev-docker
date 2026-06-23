@@ -1,9 +1,8 @@
 @extends('layouts.sidebar')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css" />
 <style data-ll-shell-style>
-    .ll-shell { display: grid; gap: 18px; }
+    .ll-shell { display: grid; gap: 18px; max-width: 100%; }
 
     .ll-shell-header h2 { margin: 0 0 4px; color: var(--ll-text); }
     .ll-shell-header p { margin: 0; color: var(--ll-muted); }
@@ -20,15 +19,28 @@
     .ll-shell-warning strong { display: block; margin-bottom: 2px; }
     .ll-shell-warning span { color: var(--ll-muted); font-size: 0.88rem; }
 
-    .ll-shell-term {
+    .ll-shell-out {
+        margin: 0;
+        height: 420px;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: auto;
+        padding: 14px 16px;
         border: 1px solid var(--ll-border);
         border-radius: var(--ll-radius);
         background: #0b0e14;
+        color: #d7dce5;
         box-shadow: var(--ll-shadow-soft);
-        padding: 12px;
-        min-height: 360px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        tab-size: 4;
     }
-    .ll-shell-term .xterm { height: 100%; }
+    .ll-shell-out .ll-cmd { color: #56b6ff; }
+    .ll-shell-out .ll-err { color: #ff6b6b; }
+    .ll-shell-out .ll-meta { color: #7c8595; }
 
     .ll-shell-form { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
     .ll-shell-input {
@@ -85,7 +97,8 @@
             </div>
         </div>
 
-        <div class="ll-shell-term"><div id="ll-shell-xterm"></div></div>
+        <pre class="ll-shell-out" id="ll-shell-out"><span class="ll-meta">Livelatch admin shell — ready.</span>
+</pre>
 
         <form class="ll-shell-form" id="ll-shell-form" autocomplete="off">
             <input type="text" class="ll-shell-input" id="ll-shell-command"
@@ -101,32 +114,16 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
 <script>
     (() => {
         const root = document.getElementById('ll-shell');
-        if (!root || root.dataset.initialized === 'true' || typeof Terminal === 'undefined') return;
+        if (!root || root.dataset.initialized === 'true') return;
         root.dataset.initialized = 'true';
 
         const csrf = '{{ csrf_token() }}';
         const runUrl = '{{ route('admin.shell.run') }}';
 
-        const term = new Terminal({
-            convertEol: true,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
-            fontSize: 13,
-            theme: { background: '#0b0e14', foreground: '#d7dce5' },
-            cursorBlink: false,
-            disableStdin: true,
-        });
-        const fit = new FitAddon.FitAddon();
-        term.loadAddon(fit);
-        term.open(document.getElementById('ll-shell-xterm'));
-        try { fit.fit(); } catch (e) {}
-        window.addEventListener('resize', () => { try { fit.fit(); } catch (e) {} });
-        term.writeln('\x1b[90mLivelatch admin shell — ready.\x1b[0m');
-
+        const out = document.getElementById('ll-shell-out');
         const form = document.getElementById('ll-shell-form');
         const input = document.getElementById('ll-shell-command');
         const runBtn = document.getElementById('ll-shell-run');
@@ -135,6 +132,17 @@
         const history = [];
         let histIndex = -1;
         let running = false;
+
+        function atBottom() {
+            return out.scrollHeight - out.scrollTop - out.clientHeight < 40;
+        }
+        function append(text, cls) {
+            const stick = atBottom();
+            const node = cls ? document.createElement('span') : document.createTextNode(text);
+            if (cls) { node.className = cls; node.textContent = text; }
+            out.appendChild(node);
+            if (stick) out.scrollTop = out.scrollHeight;
+        }
 
         function setRunning(on) {
             running = on;
@@ -148,7 +156,7 @@
 
         async function run(command) {
             setRunning(true);
-            term.writeln('\x1b[36m$ ' + command + '\x1b[0m');
+            append('$ ' + command + '\n', 'll-cmd');
             try {
                 const res = await fetch(runUrl, {
                     method: 'POST',
@@ -160,20 +168,20 @@
                     body: 'command=' + encodeURIComponent(command),
                 });
                 if (!res.ok) {
-                    term.writeln('\x1b[31m[shell] request failed: HTTP ' + res.status + '\x1b[0m');
+                    append('[shell] request failed: HTTP ' + res.status + '\n', 'll-err');
                 } else {
                     const reader = res.body.getReader();
                     const decoder = new TextDecoder();
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
-                        term.write(decoder.decode(value, { stream: true }));
+                        append(decoder.decode(value, { stream: true }));
                     }
                 }
             } catch (err) {
-                term.writeln('\x1b[31m[shell] ' + err + '\x1b[0m');
+                append('[shell] ' + err + '\n', 'll-err');
             } finally {
-                term.writeln('');
+                append('\n');
                 setRunning(false);
             }
         }
@@ -199,7 +207,10 @@
             }
         });
 
-        clearBtn.addEventListener('click', () => { term.clear(); input.focus(); });
+        clearBtn.addEventListener('click', () => {
+            out.textContent = '';
+            input.focus();
+        });
     })();
 </script>
 @endsection

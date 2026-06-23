@@ -10,8 +10,10 @@ The admin panel already runs *inside* the Railway app container, so "SSH into th
 
 ## How it works
 
-- `GET /admin/shell` → `Admin\ShellController@index` renders `studio/admin/shell.blade.php` (xterm.js console + command input).
-- `POST /admin/shell/run` → `Admin\ShellController@run` validates the command, **audit-logs it first**, then returns a chunked `StreamedResponse`. The browser reads the body via `fetch` + `ReadableStream` and writes each chunk into xterm.js.
+- `GET /admin/shell` → `Admin\ShellController@index` renders `studio/admin/shell.blade.php` (a styled `<pre>` console + command input).
+- `POST /admin/shell/run` → `Admin\ShellController@run` validates the command, **audit-logs it first**, then returns a chunked `StreamedResponse`. The browser reads the body via `fetch` + `ReadableStream` and appends each chunk into the `<pre>`, auto-scrolling.
+
+> The console is a plain `<pre>`, not xterm.js — xterm's FitAddon mis-sized itself inside the nested HTMX studio layout (it computed a giant width before the container had real dimensions, forcing horizontal overflow). A width-constrained `<pre>` avoids all of that and needs no CDN.
 - Execution: `proc_open(['bash','-lc',$command], …, base_path())` with stderr merged into stdout, polled every 50ms, hard-killed after **120s** (`ShellController::TIMEOUT`).
 
 ## Guardrails
@@ -33,4 +35,4 @@ The admin panel already runs *inside* the Railway app container, so "SSH into th
 
 - `proc_open` / `bash` must be available in the container (they are in the railpack PHP image). If `proc_open` is disabled, the page reports it instead of running.
 - Output may contain secrets (env values, keys). The page is admin-only and `no-store`, but treat the rendered output accordingly.
-- xterm.js + fit addon load from jsDelivr CDN (pinned `@xterm/xterm@5.5.0`).
+- No third-party JS — the console is a self-contained `<pre>` + a small inline streaming script.
