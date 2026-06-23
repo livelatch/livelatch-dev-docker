@@ -2,8 +2,8 @@
 
 @section('content')
 <style data-ll-shell-style>
-    .ll-shell { display: grid; gap: 18px; min-width: 0; max-width: 100%; }
-    .ll-shell > * { min-width: 0; max-width: 100%; }
+    .ll-shellpage { display: grid; gap: 18px; min-width: 0; max-width: 100%; }
+    .ll-shellpage > * { min-width: 0; max-width: 100%; }
 
     .ll-shell-header h2 { margin: 0 0 4px; color: var(--ll-text); }
     .ll-shell-header p { margin: 0; color: var(--ll-muted); }
@@ -114,7 +114,7 @@
 </style>
 
 <div class="container-fluid content-inner mt-n5 py-0">
-    <div class="ll-shell" id="ll-shell">
+    <div class="ll-shellpage" id="ll-shell">
         <div class="ll-shell-header">
             <h2><i class="bi bi-terminal-fill"></i> Shell</h2>
             <p>Run a command inside the live Railway container this site is served from. Output streams below.</p>
