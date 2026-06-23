@@ -45,6 +45,15 @@ The browser line-buffers the stream, intercepts the `__LLCWD__` line (hides it, 
   2. A durable off-box mirror in **Supabase `public.shell_audit_log`** via `App\Services\ShellAuditService` (service-role REST insert, RLS-on with no policies so only the service role can read/write). Best-effort: a Supabase hiccup degrades to a no-op and never blocks the command (the file channel still has it). Records `laravel_user_id`, `email`, `name`, `ip`, `cwd`, `command`, `created_at`. Migration: `supabase/migrations/20260623120000_shell_audit_log.sql` (applied live to `yaljyfdfnphxzuhqlbfs`).
 
   Both record user id/email/name, IP, cwd, and the command. See `config/logging.php` and `ShellAuditService`.
+
+### Audit log panel
+
+The Shell page shows an **Audit log** table reading live from Supabase
+`shell_audit_log` (newest 100). `GET /admin/shell/audit` (`admin.shell.audit`,
+same user-ID lock) returns JSON via `ShellAuditService::recent()`; the page
+renders it, refreshes on demand, and auto-refreshes after each command. This is
+intended to grow into a **general audit feed** — sign-ups, billing changes, etc.
+will be folded into the same table/service later (currently shell commands only).
 - **Timeout:** 120s per command.
 
 ## Files
