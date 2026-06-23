@@ -40,6 +40,9 @@ class Role extends Model
     public const ARTIST = 'artist';
     public const SDK = 'sdk';
     public const STAFF = 'staff';
+    // Base role for brand-new sign-ups during the alpha. Holders are gated out
+    // of the dashboard (see EnsureApproved middleware) until an admin removes it.
+    public const NOT_APPROVED = 'not_approved';
 
     public function users()
     {

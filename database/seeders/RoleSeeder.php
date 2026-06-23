@@ -15,6 +15,7 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             // key, label, description, color, is_system, is_assignable
+            [Role::NOT_APPROVED,    'Not Approved',    'New sign-up awaiting alpha-tester approval — gated out of the dashboard until removed.', '#9ca3af', false, true, 5],
             [Role::ADMIN,           'Admin',           'Full platform administrator.',                                 '#ef4444', true,  true,  10],
             [Role::PRO,             'Pro User',        'Active Livelatch Pro plan (auto-synced from Stripe billing).',  '#22c55e', true,  false, 20],
             [Role::FREE,            'Free User',       'Free Livelatch plan (auto-synced from Stripe billing).',       '#64748b', true,  false, 30],

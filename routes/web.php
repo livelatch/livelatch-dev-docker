@@ -156,7 +156,11 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             ->where(['userId' => '[0-9]+']);
     }
 
-    Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
+    Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(function () {
+
+        // Alpha gate: new sign-ups hold the `not_approved` role and are bounced
+        // here by the `approved` middleware until an admin removes the role.
+        Route::view('/pending', 'auth.pending')->name('pending');
 
         Route::group([
             'middleware' => env('REGISTER_AUTH'),
@@ -300,7 +304,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
 Route::get('/social-auth/{provider}/callback', [SocialLoginController::class, 'providerCallback']);
 Route::get('/social-auth/{provider}', [SocialLoginController::class, 'redirectToProvider'])->name('social.redirect');
 
-Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
+Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(function () {
 
     Route::group([
         'middleware' => 'admin',
@@ -347,6 +351,7 @@ Route::middleware(['auth', 'blocked', 'impersonate'])->group(function () {
         Route::post('/admin/theme', [AdminController::class, 'deleteTheme'])->name('deleteTheme');
         Route::get('/admin/theme', [AdminController::class, 'showThemes'])->name('showThemes');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
+        Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');
         Route::post('/admin/config', [AdminController::class, 'editConfig'])->name('editConfig');
         Route::get('/send-test-email', [AdminController::class, 'SendTestMail'])->name('SendTestMail');

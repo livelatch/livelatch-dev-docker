@@ -768,6 +768,15 @@ class AdminController extends Controller
     return view("/panel/config-editor");
   }
 
+  // Toggle the new-user alpha gate on/off (admin kill-switch). Stored in
+  // app_settings (DB), read by the EnsureApproved middleware.
+  public function toggleAlphaGate(request $request)
+  {
+    \App\Models\AppSetting::set('alpha_gate_enabled', $request->boolean('enabled') ? '1' : '0');
+
+    return redirect()->route('showUsers');
+  }
+
   //Shows config file editor page
   public function editConfig(request $request)
   {

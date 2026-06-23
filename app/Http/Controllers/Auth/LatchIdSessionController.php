@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\SocialAccount;
 use App\Models\User;
 use App\Models\UserBilling;
@@ -171,6 +172,20 @@ class LatchIdSessionController extends Controller
         if ($isNewUser) {
             $this->provisionBilling($user);
             $this->provisionEmailPreferences($user, $marketingOptIn, $cookieConsent);
+
+            // Alpha gate: every new sign-up starts as `not_approved` and is held
+            // on the holding page until an admin approves them (removes the role
+            // in Manage Users). Existing users never receive this. Billing/free
+            // provisioning above is unchanged — this is purely additive.
+            try {
+                $user->assignRole(Role::NOT_APPROVED);
+                $user->pushRolesToSupabase();
+            } catch (\Throwable $e) {
+                Log::warning('LatchID signup: could not assign not_approved role.', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         } elseif ($cookieConsent !== null) {
             // Keep a returning user's latest cookie choice in sync without
             // touching their other preferences.

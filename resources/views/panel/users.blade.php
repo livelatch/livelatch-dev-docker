@@ -32,6 +32,28 @@
     }
     .ll-u-add:hover { filter: brightness(1.05); color: #04122b; }
 
+    /* Alpha gate toggle */
+    .ll-alpha-gate {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+        padding: 14px 16px; border: 1px solid var(--ll-border); border-radius: 14px;
+        background: var(--ll-surface-solid);
+    }
+    .ll-alpha-gate .ll-ag-text strong { color: var(--ll-text); display: block; }
+    .ll-alpha-gate .ll-ag-text span { color: var(--ll-muted); font-size: .86rem; }
+    .ll-ag-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .ll-ag-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .ll-ag-track {
+        width: 46px; height: 26px; border-radius: 999px; position: relative;
+        background: color-mix(in srgb, var(--ll-text) 22%, transparent); transition: background .16s ease;
+    }
+    .ll-ag-track::after {
+        content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+        border-radius: 999px; background: #fff; transition: transform .16s ease;
+    }
+    .ll-ag-switch input:checked + .ll-ag-track { background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2)); }
+    .ll-ag-switch input:checked + .ll-ag-track::after { transform: translateX(20px); }
+    .ll-ag-state { font-weight: 700; color: var(--ll-text); min-width: 26px; }
+
     /* Card + table */
     .ll-u-card {
         border: 1px solid var(--ll-border); border-radius: 16px;
@@ -118,6 +140,21 @@
                 <i class="bi bi-plus-lg"></i> {{ __('messages.Add new user') }}
             </a>
         </div>
+
+        @php $alphaGateOn = \App\Models\AppSetting::getBool('alpha_gate_enabled', true); @endphp
+        <form method="POST" action="{{ route('admin.alphaGate') }}" class="ll-alpha-gate">
+            @csrf
+            <div class="ll-ag-text">
+                <strong>Alpha gating</strong>
+                <span>When on, new sign-ups are held on a waiting screen until you approve them (remove their “Not approved” role below).</span>
+            </div>
+            <label class="ll-ag-switch">
+                <input type="checkbox" name="enabled" value="1" {{ $alphaGateOn ? 'checked' : '' }}
+                       onchange="this.form.submit()">
+                <span class="ll-ag-track"></span>
+                <span class="ll-ag-state">{{ $alphaGateOn ? 'On' : 'Off' }}</span>
+            </label>
+        </form>
 
         <div class="ll-u-toolbar">
             <label class="ll-u-search">

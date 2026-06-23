@@ -67,6 +67,7 @@ class Kernel extends HttpKernel
         'link-id' => \App\Http\Middleware\LinkId::class,
 	    'admin' => \App\Http\Middleware\admin::class,
         'blocked' => \App\Http\Middleware\CheckBlockedUser::class,
+        'approved' => \App\Http\Middleware\EnsureApproved::class,
         'max.users' => \App\Http\Middleware\MaxUsers::class,
         'impersonate' => \App\Http\Middleware\Impersonate::class,
     ];
