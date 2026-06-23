@@ -14,6 +14,10 @@ The admin panel already runs *inside* the Railway app container, so "SSH into th
 - `POST /admin/shell/run` → `Admin\ShellController@run` validates the command, **audit-logs it first**, then returns a chunked `StreamedResponse`. The browser reads the body via `fetch` + `ReadableStream` and appends each chunk into the `<pre>`, auto-scrolling.
 
 > The console is a plain `<pre>`, not xterm.js — xterm's FitAddon mis-sized itself inside the nested HTMX studio layout (it computed a giant width before the container had real dimensions, forcing horizontal overflow). A width-constrained `<pre>` avoids all of that and needs no CDN.
+>
+> Layout note: `.ll-shell` is a CSS grid, so its children carry `min-width: 0` — without it the `<pre>` forces a grid track wider than the viewport (grid items default to `min-width: auto`), which pushes the whole content column left under the studio sidebar. This is the same `minmax(0, …)` trick the Dev Tools page uses.
+
+**Favourites:** the page has a Favourites bar (saved commands as removable chips). Saved in `localStorage` (`ll_shell_favourites`, per-browser — not server-side). Clicking a chip runs that command immediately; the `×` removes it. Type a command into the Favourites input + Save to add one.
 - Execution: `proc_open(['bash','-lc',$command], …, base_path())` with stderr merged into stdout, polled every 50ms, hard-killed after **120s** (`ShellController::TIMEOUT`).
 
 ## Guardrails

@@ -2,10 +2,45 @@
 
 @section('content')
 <style data-ll-shell-style>
-    .ll-shell { display: grid; gap: 18px; max-width: 100%; }
+    .ll-shell { display: grid; gap: 18px; min-width: 0; max-width: 100%; }
+    .ll-shell > * { min-width: 0; max-width: 100%; }
 
     .ll-shell-header h2 { margin: 0 0 4px; color: var(--ll-text); }
     .ll-shell-header p { margin: 0; color: var(--ll-muted); }
+
+    /* Favourites */
+    .ll-shell-favs {
+        display: grid; gap: 10px;
+        padding: 14px 16px;
+        border: 1px solid var(--ll-border);
+        border-radius: var(--ll-radius);
+        background: var(--ll-surface-solid);
+    }
+    .ll-shell-favs-title { font-weight: 600; color: var(--ll-text); display: inline-flex; align-items: center; gap: 8px; }
+    .ll-shell-favs-title i { color: var(--ll-primary); }
+    .ll-shell-favs-list { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+    .ll-shell-favs-empty { color: var(--ll-muted); font-size: 0.85rem; }
+
+    .ll-fav {
+        display: inline-flex; align-items: center; gap: 6px;
+        max-width: 100%;
+        border: 1px solid var(--ll-border); border-radius: 999px;
+        background: var(--ll-bg-soft); color: var(--ll-text);
+        padding: 5px 5px 5px 14px;
+    }
+    .ll-fav:hover { border-color: color-mix(in srgb, var(--ll-primary) 50%, var(--ll-border)); }
+    .ll-fav .ll-fav-run {
+        cursor: pointer; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.82rem;
+    }
+    .ll-fav .ll-fav-del {
+        flex: none; border: 0; background: transparent; color: var(--ll-muted);
+        width: 22px; height: 22px; border-radius: 999px; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;
+    }
+    .ll-fav .ll-fav-del:hover { color: #e5484d; background: color-mix(in srgb, #e5484d 14%, transparent); }
+    .ll-shell-favs-add { display: flex; gap: 8px; min-width: 0; }
 
     .ll-shell-warning {
         display: flex; align-items: flex-start; gap: 12px;
@@ -15,14 +50,14 @@
         background: color-mix(in srgb, #e5484d 10%, var(--ll-surface-solid));
         color: var(--ll-text);
     }
-    .ll-shell-warning i { color: #e5484d; font-size: 1.2rem; line-height: 1.4; }
+    .ll-shell-warning i { color: #e5484d; font-size: 1.2rem; line-height: 1.4; flex: none; }
     .ll-shell-warning strong { display: block; margin-bottom: 2px; }
     .ll-shell-warning span { color: var(--ll-muted); font-size: 0.88rem; }
 
     .ll-shell-out {
         margin: 0;
         height: 420px;
-        max-width: 100%;
+        width: 100%;
         box-sizing: border-box;
         overflow: auto;
         padding: 14px 16px;
@@ -36,15 +71,16 @@
         line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
+        overflow-wrap: anywhere;
         tab-size: 4;
     }
     .ll-shell-out .ll-cmd { color: #56b6ff; }
     .ll-shell-out .ll-err { color: #ff6b6b; }
     .ll-shell-out .ll-meta { color: #7c8595; }
 
-    .ll-shell-form { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+    .ll-shell-form { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; min-width: 0; }
     .ll-shell-input {
-        flex: 1; min-width: 240px;
+        flex: 1; min-width: 200px;
         min-height: 44px; padding: 0 14px;
         border: 1px solid var(--ll-border);
         border-radius: var(--ll-button-radius);
@@ -55,7 +91,7 @@
     .ll-shell-input:disabled { opacity: 0.6; }
 
     .ll-shell-btn {
-        display: inline-flex; align-items: center; gap: 8px;
+        display: inline-flex; align-items: center; gap: 8px; flex: none;
         min-height: 44px; padding: 0 18px; border: 0;
         border-radius: var(--ll-button-radius);
         background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
@@ -66,7 +102,7 @@
     .ll-shell-btn:disabled { opacity: 0.55; cursor: progress; transform: none; }
 
     .ll-shell-ghost {
-        display: inline-flex; align-items: center; gap: 8px;
+        display: inline-flex; align-items: center; gap: 8px; flex: none;
         min-height: 44px; padding: 0 16px;
         border: 1px solid var(--ll-border); border-radius: var(--ll-button-radius);
         background: var(--ll-surface-solid); color: var(--ll-text);
@@ -82,6 +118,16 @@
         <div class="ll-shell-header">
             <h2><i class="bi bi-terminal-fill"></i> Shell</h2>
             <p>Run a command inside the live Railway container this site is served from. Output streams below.</p>
+        </div>
+
+        <div class="ll-shell-favs">
+            <span class="ll-shell-favs-title"><i class="bi bi-star-fill"></i> Favourites</span>
+            <div class="ll-shell-favs-list" id="ll-shell-favs-list"></div>
+            <form class="ll-shell-favs-add" id="ll-shell-favs-add" autocomplete="off">
+                <input type="text" class="ll-shell-input" id="ll-shell-fav-input"
+                       placeholder="Save a command as a favourite…" spellcheck="false">
+                <button type="submit" class="ll-shell-ghost"><i class="bi bi-star"></i> Save</button>
+            </form>
         </div>
 
         <div class="ll-shell-warning">
@@ -122,12 +168,16 @@
 
         const csrf = '{{ csrf_token() }}';
         const runUrl = '{{ route('admin.shell.run') }}';
+        const FAV_KEY = 'll_shell_favourites';
 
         const out = document.getElementById('ll-shell-out');
         const form = document.getElementById('ll-shell-form');
         const input = document.getElementById('ll-shell-command');
         const runBtn = document.getElementById('ll-shell-run');
         const clearBtn = document.getElementById('ll-shell-clear');
+        const favList = document.getElementById('ll-shell-favs-list');
+        const favForm = document.getElementById('ll-shell-favs-add');
+        const favInput = document.getElementById('ll-shell-fav-input');
 
         const history = [];
         let histIndex = -1;
@@ -154,7 +204,7 @@
             if (!on) input.focus();
         }
 
-        async function run(command) {
+        async function streamRun(command) {
             setRunning(true);
             append('$ ' + command + '\n', 'll-cmd');
             try {
@@ -186,14 +236,77 @@
             }
         }
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const command = input.value.trim();
+        function execute(command) {
+            command = (command || '').trim();
             if (!command || running) return;
             if (history[history.length - 1] !== command) history.push(command);
             histIndex = history.length;
+            input.value = command;
+            streamRun(command);
+        }
+
+        // --- Favourites (localStorage, per-browser) ---
+        function loadFavs() {
+            try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; }
+        }
+        function saveFavs(favs) {
+            localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+        }
+        function renderFavs() {
+            const favs = loadFavs();
+            favList.innerHTML = '';
+            if (!favs.length) {
+                const empty = document.createElement('span');
+                empty.className = 'll-shell-favs-empty';
+                empty.textContent = 'No favourites yet — save a command below.';
+                favList.appendChild(empty);
+                return;
+            }
+            favs.forEach((cmd, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'll-fav';
+
+                const label = document.createElement('span');
+                label.className = 'll-fav-run';
+                label.textContent = cmd;
+                label.title = 'Run: ' + cmd;
+                label.addEventListener('click', () => execute(cmd));
+
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'll-fav-del';
+                del.title = 'Remove favourite';
+                del.innerHTML = '<i class="bi bi-x-lg"></i>';
+                del.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const arr = loadFavs();
+                    arr.splice(i, 1);
+                    saveFavs(arr);
+                    renderFavs();
+                });
+
+                chip.appendChild(label);
+                chip.appendChild(del);
+                favList.appendChild(chip);
+            });
+        }
+
+        favForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const cmd = favInput.value.trim();
+            if (!cmd) return;
+            const arr = loadFavs();
+            if (!arr.includes(cmd)) arr.push(cmd);
+            saveFavs(arr);
+            favInput.value = '';
+            renderFavs();
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const command = input.value.trim();
             input.value = '';
-            run(command);
+            execute(command);
         });
 
         input.addEventListener('keydown', (e) => {
@@ -211,6 +324,8 @@
             out.textContent = '';
             input.focus();
         });
+
+        renderFavs();
     })();
 </script>
 @endsection
