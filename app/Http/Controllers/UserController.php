@@ -132,6 +132,20 @@ class UserController extends Controller
             }
         }
 
+        $bladeThemeSetting = \App\Models\UserBladeThemeSetting::where('user_id', $id)->first();
+        if ($bladeThemeSetting) {
+            $registry = app(\App\Services\ThemeRegistry::class);
+            $slug     = $bladeThemeSetting->theme_slug;
+            if ($registry->viewExists($slug)) {
+                return view("themes.{$slug}", [
+                    'user'     => $userinfo,
+                    'links'    => $links,
+                    'settings' => $registry->resolveSettings($slug, $bladeThemeSetting->settings ?? []),
+                    'manifest' => $registry->get($slug),
+                ]);
+            }
+        }
+
         return view('linkstack.linkstack', [
             'userinfo' => $userinfo,
             'information' => $information,
@@ -173,6 +187,20 @@ class UserController extends Controller
                         $link->$key = $value;
                     }
                 }
+            }
+        }
+
+        $bladeThemeSetting = \App\Models\UserBladeThemeSetting::where('user_id', $id)->first();
+        if ($bladeThemeSetting) {
+            $registry = app(\App\Services\ThemeRegistry::class);
+            $slug     = $bladeThemeSetting->theme_slug;
+            if ($registry->viewExists($slug)) {
+                return view("themes.{$slug}", [
+                    'user'     => $userinfo,
+                    'links'    => $links,
+                    'settings' => $registry->resolveSettings($slug, $bladeThemeSetting->settings ?? []),
+                    'manifest' => $registry->get($slug),
+                ]);
             }
         }
 

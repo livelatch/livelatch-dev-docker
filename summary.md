@@ -8,6 +8,13 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-24
+
+- Agent: Claude
+- Introduced a **parallel blade theme system** alongside the existing CSS-variable theme engine, enabling full-JS, self-contained profile pages (Three.js, GSAP, Anime.js, WebGL etc.) without touching existing themes. New database table `user_blade_theme_settings` (`user_id` unique FK, `theme_slug`, `settings` JSON; migration `2026_06_24_000001`); new model `App\Models\UserBladeThemeSetting`. New `App\Services\ThemeRegistry` scans `resources/themes/*/manifest.json` at runtime (5-minute cache), resolves settings by merging user overrides onto manifest defaults, and checks view existence. `UserController::littlelink()` and `littlelinkhome()` now intercept before the existing `linkstack.linkstack` render: if the user has a `user_blade_theme_settings` row and the view exists, the blade theme is served instead — zero risk to existing users (fallthrough to original render if not set or slug unknown). New `resources/themes/<slug>/manifest.json` format declares theme name, version, author, CDN libraries, colour controls, sliders, and named presets. Theme blade views live in `resources/views/themes/` as standalone full-HTML pages (own `<html>` to `</html>`, own `<head>`, load their own scripts). Static assets (JS, CSS) live in `public/themes/<slug>/`.
+- Built the first reference theme, **Portal**: a 3D WebGL scene using [Three.js](https://threejs.org/) r158 and [GSAP](https://gsap.com/) 3.12. Scene features a rotating torus ring with inner highlight + outer atmospheric glow + translucent fill disc, a 4 000-star sphere backdrop, and a ~800-particle nebula cloud orbiting the ring. Camera floats gently. All parameters (portal colour, particle colour, particle density, animation speed) are driven by manifest controls and overridable per-user. Profile layout is a dark glassmorphism column with GSAP entrance animations (avatar → name → bio → links staggered). Four presets: default (purple/teal), neon (green/pink), fire (orange), ice (cyan). Files: `resources/themes/portal/manifest.json`, `resources/views/themes/portal.blade.php`, `public/themes/portal/portal.js`, `public/themes/portal/style.css`. PHP sanitises all settings server-side before emitting CSS vars (hex pattern check, integer clamp). Doc: `docs/themes/blade-theme-system.md`.
+- Operator step: run `php artisan migrate` on Railway to create `user_blade_theme_settings`. Activate Portal for a user by inserting a row: `user_id`, `theme_slug = 'portal'`, `settings = null` (uses manifest defaults).
+
 ### 2026-06-23
 
 - Agent: Claude
