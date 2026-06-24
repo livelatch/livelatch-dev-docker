@@ -1,0 +1,45 @@
+{
+  "name": "Frutiger Aero",
+  "slug": "aero",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Glossy skies, rising bubbles and Aero glass buttons — peak 2009 techno-optimism.",
+  "preview_gradient": "linear-gradient(160deg, #6cc6ff 0%, #8ef0c0 100%)",
+  "libraries": [],
+  "defaults": {
+    "buttonColor": "#2b9fe6",
+    "skyTop": "#6cc6ff",
+    "skyBottom": "#8ef0c0",
+    "textColor": "#0b3a5b",
+    "headingFont": "Nunito",
+    "bodyFont": "Nunito",
+    "bubbleDensity": 28,
+    "bubbleSpeed": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "buttonColor": "#2b9fe6", "skyTop": "#6cc6ff", "skyBottom": "#8ef0c0", "textColor": "#0b3a5b", "bubbleDensity": 28, "bubbleSpeed": 50 },
+    "aqua":    { "buttonColor": "#11b0c8", "skyTop": "#7fe3ff", "skyBottom": "#b9fff0", "textColor": "#063b46", "bubbleDensity": 36, "bubbleSpeed": 60 },
+    "sunset":  { "buttonColor": "#ff9b3d", "skyTop": "#ffd08a", "skyBottom": "#ffb0c8", "textColor": "#5b2a3a", "bubbleDensity": 22, "bubbleSpeed": 40 },
+    "forest":  { "buttonColor": "#39b54a", "skyTop": "#9fe0ff", "skyBottom": "#9bf0a8", "textColor": "#0c3a1c", "bubbleDensity": 30, "bubbleSpeed": 45 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "buttonColor", "label": "Primary" },
+      { "key": "skyTop",      "label": "Sky" },
+      { "key": "skyBottom",   "label": "Aqua" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Nunito", "options": ["Nunito", "Montserrat", "Poppins", "Open Sans", "Comfortaa"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Nunito", "options": ["Nunito", "Open Sans", "Roboto", "Lato"] }
+    },
+    "sliders": {
+      "bubbleDensity": { "label": "Bubble density", "min": 0, "max": 80,  "step": 2, "default": 28 },
+      "bubbleSpeed":   { "label": "Bubble speed",   "min": 0, "max": 100, "step": 1, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

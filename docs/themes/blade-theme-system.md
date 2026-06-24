@@ -207,6 +207,15 @@ The first blade theme ships as `portal`. It is a good starting point to copy whe
 - Three.js r158 via `unpkg.com`
 - GSAP 3.12.2 via `cdnjs.cloudflare.com`
 
+## Other bundled themes
+
+Both ship with **no external JS** — the animation is a self-contained 2D `<canvas>` script inlined from `assets/themes/<slug>/`, and entrance motion is pure CSS. Good templates for a "no-CDN" theme.
+
+- **Frutiger Aero** (`aero`) — glossy 2009-era skies with rising bubbles (2D canvas) and Windows 7 "Aero glass" buttons (vertical gloss gradient + top-half highlight overlay). Controls: Primary/Sky/Aqua/Text colours, heading/body fonts, bubble density + speed sliders. Presets: default, aqua, sunset, forest.
+- **Cute** (`cute`) — pastel kawaii: drifting paw prints + twinkling sparkles (2D canvas, paw colour from settings) and chunky candy buttons with a 3D bottom edge and a 🐾 glyph. Controls: Primary/Secondary/Paws/Text colours, heading/body fonts (Mochiy Pop One, Kosugi Maru, Pacifico…), density + drift sliders. Presets: default, sakura, mint, lavender. The background gradient is derived from the Primary/Secondary colours via `color-mix`, so it stays pastel for any palette.
+
+> **Google Fonts caveat.** Some display/Japanese families (Mochiy Pop One, Pacifico, Kosugi Maru) ship a **single weight**. Requesting an unavailable weight (`:wght@700`) makes the whole CSS2 request 400. So `aero`/`cute` build their font URL with **no weight axis** (`family=Name` only) — variable fonts still serve their full range, single-weight fonts just work. (Portal keeps explicit weights because Poppins/Oswald support them.)
+
 ## Activating a blade theme for a user
 
 Insert a row in `user_blade_theme_settings`:

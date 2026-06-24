@@ -1,0 +1,45 @@
+{
+  "name": "Cute",
+  "slug": "cute",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Pastel kawaii vibes — drifting paw prints and twinkling sparkles with soft anime styling.",
+  "preview_gradient": "linear-gradient(160deg, #ffd6ec 0%, #d7c7ff 100%)",
+  "libraries": [],
+  "defaults": {
+    "buttonColor": "#ff8fc7",
+    "accentColor": "#b39ddb",
+    "pawColor": "#ffffff",
+    "textColor": "#7b3f63",
+    "headingFont": "Mochiy Pop One",
+    "bodyFont": "Kosugi Maru",
+    "pawDensity": 18,
+    "driftSpeed": 45,
+    "customCss": ""
+  },
+  "presets": {
+    "default":  { "buttonColor": "#ff8fc7", "accentColor": "#b39ddb", "pawColor": "#ffffff", "textColor": "#7b3f63", "pawDensity": 18, "driftSpeed": 45 },
+    "sakura":   { "buttonColor": "#ff9ec4", "accentColor": "#ffc1d9", "pawColor": "#fff5fa", "textColor": "#8a4a66", "pawDensity": 22, "driftSpeed": 38 },
+    "mint":     { "buttonColor": "#7fd9c0", "accentColor": "#ffd1e8", "pawColor": "#ffffff", "textColor": "#2f6b5c", "pawDensity": 16, "driftSpeed": 42 },
+    "lavender": { "buttonColor": "#b39ddb", "accentColor": "#c5b3ff", "pawColor": "#ffffff", "textColor": "#4a3b6b", "pawDensity": 20, "driftSpeed": 50 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "buttonColor", "label": "Primary" },
+      { "key": "accentColor", "label": "Secondary" },
+      { "key": "pawColor",    "label": "Paws & sparkles" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Mochiy Pop One", "options": ["Mochiy Pop One", "Baloo 2", "Pacifico", "Comfortaa", "Kosugi Maru"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Kosugi Maru",   "options": ["Kosugi Maru", "Nunito", "Comfortaa", "Baloo 2"] }
+    },
+    "sliders": {
+      "pawDensity": { "label": "Paw & sparkle density", "min": 0, "max": 50,  "step": 1, "default": 18 },
+      "driftSpeed": { "label": "Drift speed",           "min": 0, "max": 100, "step": 1, "default": 45 }
+    },
+    "customCss": { "pro": true }
+  }
+}

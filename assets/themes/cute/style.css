@@ -1,0 +1,114 @@
+/* Livelatch — Cute (kawaii) theme */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  color: var(--cu-text, #7b3f63);
+  font-family: var(--cu-body-font, 'Kosugi Maru', system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(255,255,255,.5), transparent 70%),
+    linear-gradient(160deg,
+      color-mix(in srgb, var(--cu-primary, #ff8fc7) 26%, #ffffff) 0%,
+      color-mix(in srgb, var(--cu-accent, #b39ddb) 34%, #ffffff) 100%);
+  background-attachment: fixed;
+}
+
+#cute-canvas { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; pointer-events: none; }
+
+.cu-profile {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px 56px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.cu-avatar {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--cu-primary, #ff8fc7) 55%, #fff),
+    0 10px 24px rgba(150,90,140,.3);
+  animation: cu-pop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.cu-name {
+  font-family: var(--cu-heading-font, 'Mochiy Pop One', system-ui, sans-serif);
+  font-size: clamp(1.6rem, 5.2vw, 2.3rem);
+  color: var(--cu-text, #7b3f63);
+  text-align: center;
+  margin-top: 18px;
+  text-shadow: 0 2px 0 #fff, 0 3px 10px rgba(150,90,140,.25);
+  animation: cu-pop .6s .08s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.cu-bio {
+  margin-top: 8px;
+  text-align: center;
+  color: color-mix(in srgb, var(--cu-text, #7b3f63) 82%, #fff);
+  max-width: 360px;
+  line-height: 1.7;
+  animation: cu-pop .6s .16s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+.cu-links {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+/* chunky candy button with a 3D bottom edge */
+.cu-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  text-align: center;
+  font-family: var(--cu-body-font, 'Kosugi Maru', system-ui, sans-serif);
+  font-weight: 700;
+  color: #fff;
+  background: var(--cu-primary, #ff8fc7);
+  border: 2px solid #fff;
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--cu-primary, #ff8fc7) 62%, #000),
+    0 10px 18px rgba(150,90,140,.28);
+  text-shadow: 0 1px 1px rgba(150,60,110,.35);
+  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+  animation: cu-pop .55s cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay: calc(0.22s + var(--cu-i, 0) * 0.06s);
+}
+
+.cu-link::before {
+  content: "\1F43E"; /* paw prints */
+  font-size: .95em;
+  filter: saturate(0) brightness(0) invert(1);
+  opacity: .9;
+}
+
+.cu-link:nth-child(even) { background: var(--cu-accent, #b39ddb); box-shadow: 0 5px 0 color-mix(in srgb, var(--cu-accent, #b39ddb) 62%, #000), 0 10px 18px rgba(150,90,140,.28); }
+
+.cu-link:hover { transform: translateY(-3px); box-shadow: 0 8px 0 color-mix(in srgb, var(--cu-primary, #ff8fc7) 62%, #000), 0 14px 24px rgba(150,90,140,.34); }
+.cu-link:nth-child(even):hover { box-shadow: 0 8px 0 color-mix(in srgb, var(--cu-accent, #b39ddb) 62%, #000), 0 14px 24px rgba(150,90,140,.34); }
+.cu-link:active { transform: translateY(2px); box-shadow: 0 2px 0 color-mix(in srgb, var(--cu-primary, #ff8fc7) 62%, #000); }
+
+@keyframes cu-pop {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cu-avatar, .cu-name, .cu-bio, .cu-link { animation: none; }
+}
