@@ -4,7 +4,7 @@
 html, body {
   background: #000010;
   color: var(--pt-text, #ffffff);
-  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  font-family: var(--pt-body-font, 'Poppins', system-ui, -apple-system, sans-serif);
   min-height: 100%;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -48,6 +48,7 @@ html, body {
 
 /* Display name */
 .pt-name {
+  font-family: var(--pt-heading-font, 'Poppins', system-ui, sans-serif);
   font-size: clamp(1.5rem, 5vw, 2.1rem);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -85,10 +86,10 @@ html, body {
   justify-content: center;
   padding: 14px 22px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: color-mix(in srgb, var(--pt-secondary, #2a1a52) 55%, rgba(255, 255, 255, 0.04));
+  border: 1px solid color-mix(in srgb, var(--pt-secondary, #2a1a52) 70%, rgba(255, 255, 255, 0.11));
   color: var(--pt-text, #ffffff);
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: var(--pt-body-font, 'Poppins', system-ui, sans-serif);
   font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;

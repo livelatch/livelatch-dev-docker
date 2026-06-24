@@ -51,6 +51,14 @@ class StudioNavigation extends Component
                         'active' => request()->segment(2) === 'theme',
                         'skeleton' => '#ll-profile-skeleton',
                     ],
+                    [
+                        'label' => 'Themes',
+                        'icon' => 'bi bi-boxes',
+                        'url' => url('/studio/themes-beta'),
+                        'active' => request()->segment(2) === 'themes-beta',
+                        'skeleton' => '#ll-profile-skeleton',
+                        'badge' => 'Beta',
+                    ],
                 ],
             ],
             [

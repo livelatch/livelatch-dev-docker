@@ -43,6 +43,31 @@ public/
 
 Assets in `public/themes/` are served statically; the blade view loads them with `asset()`.
 
+## Theme Studio (Beta) — the editing UI
+
+The editing surface for blade themes lives at **`/studio/themes-beta`** (`Studio\BladeThemeController`, view `studio/themes-beta.blade.php`, nav entry "Themes · Beta" under MyLivelatch). It is deliberately **a separate page** from the existing CSS-variable Theme Studio at `/studio/theme` (`Studio\ThemeController`) — that page is left completely untouched while the blade system is built out. The two systems coexist; a user's public profile renders the blade theme when they have a `user_blade_theme_settings` row and falls through to the CSS-variable theme otherwise.
+
+The page is **manifest-driven**: it reads every installed theme's manifest (`ThemeRegistry::all()`) and builds the controls in the browser from `controls`, so a new theme needs no Studio code — only a manifest. Layout:
+
+- **Base themes carousel** — one card per blade theme: preview gradient, name, `@author`, and a **real usage count** (`count(*)` of `user_blade_theme_settings` rows for that slug). A 5-star rating is shown as a **display-only placeholder** ("ratings soon") — no ratings backend exists yet.
+- **Colour panel** — renders one swatch + hex field per entry in `controls.colours` (up to four: e.g. Primary / Secondary / Highlight / Text).
+- **Typography panel** — a font `<select>` per `controls.typography` slot (heading, body) with a live Heading 1 / Heading 2 / Paragraph preview.
+- **Effects panel** — a range slider per `controls.sliders` entry (e.g. particle density, animation speed).
+- **Custom CSS panel** — shown only when the manifest sets `controls.customCss.pro`. A textarea, **Pro-gated**: non-Pro users see a locked "Upgrade to Pro" overlay, and the server only persists `customCss` for Pro users.
+- **Live preview** — an `<iframe>` of `GET /studio/themes-beta/preview/{slug}`, which renders the **actual theme** (real Three.js/GSAP scene) for the signed-in user's own profile with the current *unsaved* settings passed as query params. The frame is scaled to a selectable device: **iPhone 17 Pro Max (default)**, iPad Pro, or Desktop. Edits debounce-reload the iframe.
+- **Apply / Reset** — Apply `POST`s `{ theme_slug, settings }` to `editBladeTheme` (`updateOrCreate` on `user_blade_theme_settings`); Reset `POST`s `resetBladeTheme`, which deletes the row so the profile reverts to the standard theme.
+
+### Settings sanitisation
+
+`BladeThemeController::sanitize()` validates incoming control values **against the selected theme's manifest** before they are saved or previewed — anything not declared, or failing its type rule, is dropped:
+
+- **colours** → must match `#[0-9a-fA-F]{3,8}`
+- **typography** → must be one of the slot's declared `options` (or alphanumeric/space when no options are given)
+- **sliders** → integer clamped to the declared `min`/`max`
+- **customCss** → only when the manifest opts in *and* the user is Pro; angle brackets stripped (the theme also strips them at render time, inside its `<style>` block)
+
+So stored settings are always theme-legal, and the same sanitiser runs for both the live preview and the saved value.
+
 ### manifest.json
 
 Each theme ships a manifest that declares everything the Theme Studio needs to generate the editing UI, plus what the blade itself needs to know about its own defaults.
@@ -52,12 +77,16 @@ Each theme ships a manifest that declares everything the Theme Studio needs to g
   "name": "Portal",
   "slug": "portal",
   "author": "livelatch",
-  "version": "1.0.0",
+  "authorHandle": "@livelatch",
+  "version": "1.1.0",
   "description": "...",
+  "preview_gradient": "linear-gradient(135deg, #0d001a, #8b5cf6)",
   "libraries": ["three", "gsap"],
   "defaults": {
     "portalColor": "#8b5cf6",
-    "particleCount": 800
+    "headingFont": "Poppins",
+    "particleCount": 800,
+    "customCss": ""
   },
   "presets": {
     "default": { "portalColor": "#8b5cf6", "particleCount": 800 },
@@ -65,18 +94,28 @@ Each theme ships a manifest that declares everything the Theme Studio needs to g
   },
   "controls": {
     "colours": [
-      { "key": "portalColor", "label": "Portal colour" }
+      { "key": "portalColor", "label": "Primary" }
     ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Poppins", "options": ["Poppins", "Press Start 2P", "Oswald"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Poppins", "options": ["Poppins", "Inter", "Roboto"] }
+    },
     "sliders": {
       "particleCount": { "label": "Particle density", "min": 100, "max": 2000, "step": 100, "default": 800 }
-    }
+    },
+    "customCss": { "pro": true }
   }
 }
 ```
 
 - `defaults` — the values used when a user has saved nothing (or `settings = null`).
 - `presets` — named preset sets the Studio can offer as one-click options.
-- `controls` — what editing controls to render in the Studio.
+- `controls` — what editing controls to render in the Studio:
+  - `colours` — array of `{ key, label }`; rendered as swatch + hex fields (up to four read well in the layout).
+  - `typography` — object of slots (`heading`, `body`), each `{ key, label, default, options[] }`; rendered as font selects with a live preview. The theme builds a Google Fonts request from the chosen families.
+  - `sliders` — object of `{ label, min, max, step, default }`; rendered as range inputs.
+  - `customCss` — `{ "pro": true }` to expose a Pro-gated custom-CSS textarea for the theme.
+- `preview_gradient` / `authorHandle` — cosmetic; used by the Studio carousel cards.
 
 ### ThemeRegistry service
 

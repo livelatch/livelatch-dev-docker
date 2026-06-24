@@ -2,20 +2,27 @@
   "name": "Portal",
   "slug": "portal",
   "author": "livelatch",
-  "version": "1.0.0",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.1.0",
   "description": "An immersive 3D portal with a rotating energy ring and drifting particle cloud, built with Three.js and GSAP.",
   "preview_gradient": "linear-gradient(135deg, #0d001a, #8b5cf6)",
   "libraries": ["three", "gsap"],
   "defaults": {
     "portalColor": "#8b5cf6",
+    "secondaryColor": "#2a1a52",
     "accentColor": "#0ce5de",
     "textColor": "#ffffff",
+    "headingFont": "Poppins",
+    "bodyFont": "Poppins",
     "particleCount": 800,
-    "animationSpeed": 60
+    "animationSpeed": 60,
+    "customCss": ""
   },
   "presets": {
     "default": {
       "portalColor": "#8b5cf6",
+      "secondaryColor": "#2a1a52",
       "accentColor": "#0ce5de",
       "textColor": "#ffffff",
       "particleCount": 800,
@@ -23,6 +30,7 @@
     },
     "neon": {
       "portalColor": "#00ff88",
+      "secondaryColor": "#0a2a1a",
       "accentColor": "#ff00aa",
       "textColor": "#ffffff",
       "particleCount": 1200,
@@ -30,6 +38,7 @@
     },
     "fire": {
       "portalColor": "#ff4500",
+      "secondaryColor": "#3a1200",
       "accentColor": "#ff8c00",
       "textColor": "#fff8f0",
       "particleCount": 600,
@@ -37,6 +46,7 @@
     },
     "ice": {
       "portalColor": "#00d4ff",
+      "secondaryColor": "#06243a",
       "accentColor": "#ffffff",
       "textColor": "#e0f8ff",
       "particleCount": 500,
@@ -45,13 +55,29 @@
   },
   "controls": {
     "colours": [
-      { "key": "portalColor", "label": "Portal colour" },
-      { "key": "accentColor", "label": "Particle colour" },
-      { "key": "textColor",   "label": "Text colour" }
+      { "key": "portalColor",    "label": "Primary" },
+      { "key": "secondaryColor", "label": "Secondary" },
+      { "key": "accentColor",    "label": "Highlight" },
+      { "key": "textColor",      "label": "Text" }
     ],
+    "typography": {
+      "heading": {
+        "key": "headingFont",
+        "label": "Heading",
+        "default": "Poppins",
+        "options": ["Poppins", "Press Start 2P", "Oswald", "Playfair Display", "Montserrat", "Rajdhani"]
+      },
+      "body": {
+        "key": "bodyFont",
+        "label": "Body",
+        "default": "Poppins",
+        "options": ["Poppins", "Inter", "Roboto", "Lato", "Nunito"]
+      }
+    },
     "sliders": {
-      "particleCount":  { "label": "Particle density", "min": 100,  "max": 2000, "step": 100, "default": 800 },
-      "animationSpeed": { "label": "Animation speed",  "min": 0,    "max": 100,  "step": 1,   "default": 60  }
-    }
+      "particleCount":  { "label": "Particle density", "min": 100, "max": 2000, "step": 100, "default": 800 },
+      "animationSpeed": { "label": "Animation speed",  "min": 0,   "max": 100,  "step": 1,   "default": 60  }
+    },
+    "customCss": { "pro": true }
   }
 }

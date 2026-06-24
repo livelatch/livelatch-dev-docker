@@ -20,6 +20,7 @@ use App\Http\Controllers\Studio\LatchDeckController;
 use App\Http\Controllers\Studio\LatchIdController;
 use App\Http\Controllers\Studio\NotificationController;
 use App\Http\Controllers\Studio\ThemeController;
+use App\Http\Controllers\Studio\BladeThemeController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
@@ -196,6 +197,12 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/links', [UserController::class, $LinkPage])->name($LinkPage);
             Route::get('/studio/theme', [ThemeController::class, 'edit'])->name('showTheme');
             Route::post('/studio/theme', [ThemeController::class, 'update'])->name('editTheme');
+            // Theme Studio (Beta) — new blade-based theme system, built alongside the
+            // CSS-variable studio above without touching it.
+            Route::get('/studio/themes-beta', [BladeThemeController::class, 'edit'])->name('showBladeThemes');
+            Route::post('/studio/themes-beta', [BladeThemeController::class, 'update'])->name('editBladeTheme');
+            Route::post('/studio/themes-beta/reset', [BladeThemeController::class, 'reset'])->name('resetBladeTheme');
+            Route::get('/studio/themes-beta/preview/{slug}', [BladeThemeController::class, 'preview'])->name('bladeThemePreview');
             Route::get('/deleteLink/{id}', [UserController::class, 'deleteLink'])->name('deleteLink')->middleware('link-id');
             Route::get('/upLink/{up}/{id}', [UserController::class, 'upLink'])->name('upLink')->middleware('link-id');
             Route::post('/studio/edit-link/{id}', [UserController::class, 'editLink'])->name('editLink')->middleware('link-id');

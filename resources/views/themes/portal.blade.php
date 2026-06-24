@@ -1,10 +1,24 @@
 @php
-    $s            = $settings ?? [];
-    $portalColor  = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['portalColor']  ?? '') ? $s['portalColor']  : '#8b5cf6';
-    $accentColor  = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['accentColor']  ?? '') ? $s['accentColor']  : '#0ce5de';
-    $textColor    = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['textColor']    ?? '') ? $s['textColor']    : '#ffffff';
-    $particles    = max(100, min(3000, (int) ($s['particleCount']  ?? 800)));
-    $speed        = max(0,   min(100,  (int) ($s['animationSpeed'] ?? 60)));
+    $s             = $settings ?? [];
+    $portalColor   = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['portalColor']    ?? '') ? $s['portalColor']    : '#8b5cf6';
+    $secondaryCol  = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['secondaryColor'] ?? '') ? $s['secondaryColor'] : '#2a1a52';
+    $accentColor   = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['accentColor']    ?? '') ? $s['accentColor']    : '#0ce5de';
+    $textColor     = preg_match('/^#[0-9a-fA-F]{3,8}$/', $s['textColor']      ?? '') ? $s['textColor']      : '#ffffff';
+    $particles     = max(100, min(3000, (int) ($s['particleCount']  ?? 800)));
+    $speed         = max(0,   min(100,  (int) ($s['animationSpeed'] ?? 60)));
+
+    // Fonts: allow letters/numbers/spaces only, fall back to Poppins.
+    $headingFont = preg_match('/^[A-Za-z0-9 ]{2,40}$/', $s['headingFont'] ?? '') ? $s['headingFont'] : 'Poppins';
+    $bodyFont    = preg_match('/^[A-Za-z0-9 ]{2,40}$/', $s['bodyFont']    ?? '') ? $s['bodyFont']    : 'Poppins';
+
+    // Build a single Google Fonts request covering both chosen families.
+    $fontFamilies = array_values(array_unique([$headingFont, $bodyFont]));
+    $googleFontsUrl = 'https://fonts.googleapis.com/css2?'
+        . implode('&', array_map(fn ($f) => 'family=' . str_replace(' ', '+', $f) . ':wght@400;500;600;700;800', $fontFamilies))
+        . '&display=swap';
+
+    // Pro custom CSS: strip angle brackets so it cannot break out of the <style> block.
+    $customCss = isset($s['customCss']) ? str_replace(['<', '>'], '', (string) $s['customCss']) : '';
 
     $userName = e($user->name ?? '');
     $userBio  = e($user->littlelink_description ?? '');
@@ -28,16 +42,24 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ $googleFontsUrl }}" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('themes/portal/style.css') }}">
 
   <style>
     :root {
-      --pt-portal: {{ $portalColor }};
-      --pt-accent: {{ $accentColor }};
-      --pt-text:   {{ $textColor }};
+      --pt-portal:    {{ $portalColor }};
+      --pt-secondary: {{ $secondaryCol }};
+      --pt-accent:    {{ $accentColor }};
+      --pt-text:      {{ $textColor }};
+      --pt-heading-font: "{{ $headingFont }}", system-ui, sans-serif;
+      --pt-body-font:    "{{ $bodyFont }}", system-ui, sans-serif;
     }
   </style>
+  @if($customCss !== '')
+  <style data-pt-custom-css>
+{!! $customCss !!}
+  </style>
+  @endif
 </head>
 <body>
 
