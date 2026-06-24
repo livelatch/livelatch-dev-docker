@@ -49,19 +49,23 @@ class BladeThemeController extends Controller
     {
         $user = $request->user();
 
-        $validated = $request->validate([
+        $request->validate([
             'theme_slug'         => ['required', 'string', 'max:64'],
             'settings'           => ['nullable', 'array'],
             'settings.customCss' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $slug = $validated['theme_slug'];
+        $slug = (string) $request->input('theme_slug');
 
         if (!$this->registry->get($slug) || !$this->registry->viewExists($slug)) {
             return $this->error($request, ['theme_slug' => 'That theme is not available.']);
         }
 
-        $settings = $this->sanitize($slug, $validated['settings'] ?? [], $user);
+        // NB: read settings from input(), not validated(). Declaring the nested
+        // rule `settings.customCss` makes validated() return ONLY that key under
+        // `settings`, silently dropping every other control (colours, sliders,
+        // fonts). sanitize() validates every key against the manifest anyway.
+        $settings = $this->sanitize($slug, (array) $request->input('settings', []), $user);
 
         $setting = UserBladeThemeSetting::updateOrCreate(
             ['user_id' => $user->id],

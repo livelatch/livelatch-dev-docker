@@ -593,15 +593,37 @@
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': D.csrf },
             credentials: 'same-origin',
+            redirect: 'manual',
             body: JSON.stringify(body)
-        }).then(r => {
-            if (r.ok) return r.json().catch(() => ({}));
-            return r.json().then(d => { throw d; });
+        }).then(async (r) => {
+            // A redirect (opaque/0 or 3xx) means the request was intercepted
+            // (auth/CSRF/middleware) rather than handled — treat as failure.
+            if (r.type === 'opaqueredirect' || (r.status >= 300 && r.status < 400)) {
+                throw { status: r.status || 302, message: 'Request was redirected — likely a session/permission issue.' };
+            }
+            const text = await r.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { _notJson: true, _raw: text.slice(0, 300) }; }
+            if (!r.ok || data._notJson) {
+                throw { status: r.status, data };
+            }
+            return data;
         });
     }
     function firstError(err) {
-        if (err && err.errors) { const k = Object.keys(err.errors)[0]; const v = err.errors[k]; return Array.isArray(v) ? v[0] : v; }
-        return 'Could not save — please try again.';
+        console.error('[themes-beta] save failed:', err);
+        if (err && err.data && err.data.errors) {
+            const k = Object.keys(err.data.errors)[0];
+            const v = err.data.errors[k];
+            return Array.isArray(v) ? v[0] : v;
+        }
+        if (err && err.status === 419) return 'Session expired — refresh the page and try again.';
+        if (err && err.status === 401) return 'You are signed out — refresh and sign in again.';
+        if (err && err.status === 403) return 'Not allowed to save this theme.';
+        if (err && err.status === 500) return 'Server error — the user_blade_theme_settings table may not be migrated yet.';
+        if (err && err.message) return err.message;
+        if (err && err.status) return 'Save failed (HTTP ' + err.status + ').';
+        return 'Could not save — check your connection.';
     }
 
     // ---- Helpers ----
