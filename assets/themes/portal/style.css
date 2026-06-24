@@ -79,6 +79,13 @@ html, body {
   margin-top: 30px;
 }
 
+/* Block elements (text / heading / spacer) rendered via blocks:: */
+.pt-links .ll-theme-block { text-align: center; color: var(--pt-text, #fff); }
+.pt-links .ll-theme-block .fadein { opacity: 1; }
+.pt-links .ll-theme-block h2 { font-family: var(--pt-heading-font, 'Poppins', sans-serif); color: var(--pt-text, #fff); margin: 4px 0; }
+.pt-links .ll-theme-block a { color: var(--pt-portal, #8b5cf6); font-weight: 600; }
+.pt-links .button-spacer { width: 100%; }
+
 /* Individual link button */
 .pt-link {
   display: flex;

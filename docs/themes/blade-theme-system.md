@@ -239,10 +239,31 @@ To revert a user to the standard theme, delete their row:
 DELETE FROM user_blade_theme_settings WHERE user_id = 123;
 ```
 
+## Rendering links and blocks
+
+A profile is more than buttons — LinkStack supports **block types** (`spacer`, `text`, `heading`, `email`, `telephone`, `vcard`, `link`) stored with a `custom_html` flag and rendered through the `blocks::` view namespace (registered in `AppServiceProvider`). A theme that only renders plain link anchors will **silently drop every block** (spacers, text, headings…), because those items have `custom_html` set and usually no `->link` URL.
+
+To render everything, themes delegate the link area to a shared partial instead of hand-rolling the loop:
+
+```blade
+<nav class="pt-links">
+  @include('themes.partials.links', ['links' => $links, 'linkClass' => 'pt-link'])
+</nav>
+```
+
+`resources/views/themes/partials/links.blade.php` mirrors the standard renderer: `custom_html` items go through `@includeIf('blocks::' . $link->type . '.display', …)` (wrapped in `.ll-theme-block`, with `--ll-i` index for staggered CSS), plain links/vcards render as themed `<a class="{linkClass} button-click">`, and it carries the same click-tracking script. For block libraries to load, the theme's `<head>` must also include:
+
+```blade
+@include('linkstack.modules.block-libraries', ['links' => $links])
+@stack('linkstack-head')
+```
+
+and `@stack('linkstack-body-end')` before `</body>`. (block-libraries `@push`es to those stacks, so the include must run **before** `@stack('linkstack-head')` renders — hence it lives in `<head>`.) Style the block elements per theme via `.<prefix>-links .ll-theme-block` (text, `h2`, `.button-spacer`).
+
 ## Writing a new blade theme
 
 1. Create `resources/themes/<slug>/manifest.json` following the schema above.
-2. Create `resources/views/themes/<slug>.blade.php` — a full `<!DOCTYPE html>…</html>` page.
+2. Create `resources/views/themes/<slug>.blade.php` — a full `<!DOCTYPE html>…</html>` page. Render the link area with `@include('themes.partials.links', …)` (see above) so all block types work.
 3. Put static assets in `assets/themes/<slug>/` (project-root web dir — **not** `public/`). Inline them from the blade via `public_path('assets/themes/<slug>/...')`, or reference them with `asset('assets/themes/<slug>/...')`.
 4. Call `app(ThemeRegistry::class)->clearCache()` (or wait up to 5 minutes) for the new theme to appear in `ThemeRegistry::all()`.
 

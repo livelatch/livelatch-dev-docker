@@ -71,6 +71,9 @@
 {!! $customCss !!}
   </style>
   @endif
+
+  @include('linkstack.modules.block-libraries', ['links' => $links])
+  @stack('linkstack-head')
 </head>
 <body>
 
@@ -95,16 +98,7 @@
 
     @if(count($links) > 0)
       <nav class="pt-links" id="pt-links" aria-label="Links">
-        @foreach($links as $link)
-          @if(!empty($link->link) && empty($link->custom_html))
-            <a
-              href="{{ $link->link }}"
-              class="pt-link"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-            >{{ $link->title }}</a>
-          @endif
-        @endforeach
+        @include('themes.partials.links', ['links' => $links, 'linkClass' => 'pt-link'])
       </nav>
     @endif
 
@@ -154,5 +148,6 @@
     });
   </script>
 
+  @stack('linkstack-body-end')
 </body>
 </html>

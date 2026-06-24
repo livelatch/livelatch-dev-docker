@@ -63,6 +63,9 @@
 {!! $customCss !!}
   </style>
   @endif
+
+  @include('linkstack.modules.block-libraries', ['links' => $links])
+  @stack('linkstack-head')
 </head>
 <body>
 
@@ -79,11 +82,7 @@
 
     @if(count($links) > 0)
       <nav class="cu-links" aria-label="Links">
-        @foreach($links as $i => $link)
-          @if(!empty($link->link) && empty($link->custom_html))
-            <a href="{{ $link->link }}" class="cu-link" style="--cu-i: {{ $i }}" rel="noopener noreferrer nofollow" target="_blank">{{ $link->title }}</a>
-          @endif
-        @endforeach
+        @include('themes.partials.links', ['links' => $links, 'linkClass' => 'cu-link'])
       </nav>
     @endif
   </main>
@@ -108,5 +107,6 @@
     });
   </script>
 
+  @stack('linkstack-body-end')
 </body>
 </html>
