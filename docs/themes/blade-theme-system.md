@@ -34,14 +34,16 @@ resources/views/
   themes/
     portal.blade.php      ← complete standalone HTML page
 
-public/
+assets/
   themes/
     portal/
       portal.js           ← Three.js scene
       style.css           ← layout styles
 ```
 
-Assets in `public/themes/` are served statically; the blade view loads them with `asset()`.
+> **Web root note (important).** LinkStack rebinds `path.public` to the **project root** (`bootstrap/app.php`), so `index.php` and all static assets are served from the project root — *not* `public/`. Files placed in `public/…` are **not** web-accessible. Blade theme assets therefore live in **`assets/themes/<slug>/`** (alongside the existing `assets/linkstack/…`), and `asset('assets/themes/<slug>/…')` resolves correctly. The legacy folder-theme system uses the separate root `themes/` directory; keep blade assets under `assets/themes/` to stay clear of it.
+
+To be resilient regardless of how static files are served, the theme blade **inlines its own CSS/JS** by reading them from disk (`public_path('assets/themes/<slug>/…')`, which resolves to the project root) and emitting `<style>`/`<script>` blocks, falling back to `<link>`/`<script src>` tags only if the files can't be read. Third-party libraries (Three.js, GSAP) are still loaded from their CDNs.
 
 ## Theme Studio (Beta) — the editing UI
 
@@ -189,8 +191,8 @@ The first blade theme ships as `portal`. It is a good starting point to copy whe
 **Files:**
 - `resources/themes/portal/manifest.json` — 3 colour controls, 2 sliders, 4 named presets
 - `resources/views/themes/portal.blade.php` — standalone page, loads CDNs + assets
-- `public/themes/portal/portal.js` — `window.PortalTheme` IIFE, `init(opts)` → scene
-- `public/themes/portal/style.css` — dark glassmorphism profile layout
+- `assets/themes/portal/portal.js` — `window.PortalTheme` IIFE, `init(opts)` → scene
+- `assets/themes/portal/style.css` — dark glassmorphism profile layout
 
 **Presets:**
 
@@ -232,7 +234,7 @@ DELETE FROM user_blade_theme_settings WHERE user_id = 123;
 
 1. Create `resources/themes/<slug>/manifest.json` following the schema above.
 2. Create `resources/views/themes/<slug>.blade.php` — a full `<!DOCTYPE html>…</html>` page.
-3. Put static assets in `public/themes/<slug>/` and reference them with `asset('themes/<slug>/...')`.
+3. Put static assets in `assets/themes/<slug>/` (project-root web dir — **not** `public/`). Inline them from the blade via `public_path('assets/themes/<slug>/...')`, or reference them with `asset('assets/themes/<slug>/...')`.
 4. Call `app(ThemeRegistry::class)->clearCache()` (or wait up to 5 minutes) for the new theme to appear in `ThemeRegistry::all()`.
 
 Themes authored by Alex or trusted creators are stored in the app filesystem and deployed with the app. Third-party or user-uploaded themes are not supported in the current architecture.

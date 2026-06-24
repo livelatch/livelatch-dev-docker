@@ -20,6 +20,13 @@
     // Pro custom CSS: strip angle brackets so it cannot break out of the <style> block.
     $customCss = isset($s['customCss']) ? str_replace(['<', '>'], '', (string) $s['customCss']) : '';
 
+    // Inline the theme's own CSS/JS so the page never depends on a separate
+    // static fetch. Assets live at the project-root web dir (LinkStack rebinds
+    // path.public to the project root), under assets/themes/<slug>/.
+    // Falls back to <link>/<script> tags if the files can't be read from disk.
+    $themeCss = is_file(public_path('assets/themes/portal/style.css')) ? file_get_contents(public_path('assets/themes/portal/style.css')) : null;
+    $themeJs  = is_file(public_path('assets/themes/portal/portal.js'))  ? file_get_contents(public_path('assets/themes/portal/portal.js'))  : null;
+
     $userName = e($user->name ?? '');
     $userBio  = e($user->littlelink_description ?? '');
     $handle   = $user->littlelink_name ?? '';
@@ -43,7 +50,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="{{ $googleFontsUrl }}" rel="stylesheet">
-  <link rel="stylesheet" href="{{ asset('themes/portal/style.css') }}">
+  @if($themeCss !== null)
+  <style data-pt-base>{!! $themeCss !!}</style>
+  @else
+  <link rel="stylesheet" href="{{ asset('assets/themes/portal/style.css') }}">
+  @endif
 
   <style>
     :root {
@@ -110,7 +121,11 @@
 
   <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="{{ asset('themes/portal/portal.js') }}"></script>
+  @if($themeJs !== null)
+  <script>{!! $themeJs !!}</script>
+  @else
+  <script src="{{ asset('assets/themes/portal/portal.js') }}"></script>
+  @endif
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
