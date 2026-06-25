@@ -1855,6 +1855,11 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                 <div class="ll-topbar-spacer"></div>
 
                 <div class="ll-topbar-actions d-flex align-items-center gap-2">
+                    <a href="{{ url('/studio/development-journey') }}" class="ll-journey-link" title="Development Journey">
+                        <i class="bi bi-hourglass-split"></i>
+                        <span class="ll-journey-text">Development Journey</span>
+                    </a>
+
                     <a href="{{ $profileUrl }}" target="_blank" class="ll-icon-button" aria-label="{{ __('messages.View Page') }}" title="{{ __('messages.View Page') }}">
                         <i class="bi bi-box-arrow-up-right"></i>
                     </a>
