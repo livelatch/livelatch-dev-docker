@@ -40,6 +40,8 @@ class ThemeController extends Controller
             'custom_settings.fontFamily' => ['nullable', 'regex:/^[A-Za-z0-9 ]{2,60}$/'],
             'custom_settings.effectIntensity' => ['nullable', 'integer', 'min:0', 'max:100'],
             'custom_settings.shapeIntensity' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'custom_settings.showIcons' => ['nullable', 'in:0,1'],
+            'custom_settings.iconColor' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ]);
 
         $themeVersion = ThemeVersion::query()

@@ -23,7 +23,10 @@
     }
 
     $selectedTypename = old('typename', $typename ?? 'link');
-    $blockCards = ($LinkTypes ?? collect())->map(function ($lt) use ($selectedTypename) {
+    $blockCards = ($LinkTypes ?? collect())
+        ->filter(fn ($lt) => !($lt->hidden ?? false))
+        ->values()
+        ->map(function ($lt) use ($selectedTypename) {
         if (block_text_translation_check($lt['title'])) {
             $title = bt($lt['title']);
         } else {
@@ -200,11 +203,18 @@
         text-align: left;
     }
 
+    .ll-block-option {
+        transition: border-color .14s ease, background .14s ease, transform .12s ease;
+    }
     .ll-block-option:hover,
-    .ll-block-option:focus,
+    .ll-block-option:focus {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--ll-primary) 40%, var(--ll-border));
+    }
     .ll-block-option.is-selected {
-        border-color: rgba(98, 54, 255, 0.56);
-        background: rgba(98, 54, 255, 0.08);
+        border-color: color-mix(in srgb, var(--ll-primary) 60%, var(--ll-border));
+        background: color-mix(in srgb, var(--ll-primary) 10%, transparent);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--ll-primary) 14%, transparent);
     }
 
     .ll-block-icon {
@@ -228,6 +238,48 @@
         font-size: 0.8rem;
         line-height: 1.35;
     }
+
+    /* ---- Merged "Links" form + Simple Icons picker (themes-panel language) ---- */
+    .ll-lf { display: grid; gap: 14px; }
+    .ll-lf-field { display: grid; gap: 6px; }
+    .ll-lf-field > .form-label {
+        margin: 0; color: var(--ll-muted); font-size: .68rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .04em;
+    }
+    .ll-lf .form-control, .ll-lf .ll-lf-platform {
+        width: 100%; min-height: 42px; border: 1px solid var(--ll-border); border-radius: 12px;
+        background: var(--ll-bg-soft); color: var(--ll-text); padding: 9px 12px; font-weight: 500;
+    }
+    .ll-lf-favicon-wrap { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+    .ll-lf-favicon-wrap .form-check-input { margin: 0; flex: 0 0 auto; }
+    .ll-lf-favicon-wrap .form-check-label { font-size: .85rem; color: var(--ll-muted); }
+    .ll-lf-iconrow { display: grid; grid-template-columns: 46px 1fr; gap: 8px; align-items: center; }
+    .ll-lf-iconpreview {
+        width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+        border: 1px solid var(--ll-border); background: var(--ll-surface-solid); color: var(--ll-muted);
+    }
+    .ll-lf-iconpreview img { width: 26px; height: 26px; object-fit: contain; }
+    .ll-lf-iconresults {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px;
+        margin-top: 2px; max-height: 210px; overflow: auto; padding: 2px;
+    }
+    .ll-lf-iconresults:empty { display: none; }
+    .ll-lf-iconchip {
+        aspect-ratio: 1; border: 1px solid var(--ll-border); border-radius: 12px;
+        background: var(--ll-surface-solid); display: grid; place-items: center; cursor: pointer;
+        padding: 9px; transition: border-color .14s, transform .12s, background .14s;
+    }
+    .ll-lf-iconchip:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ll-primary) 45%, var(--ll-border)); }
+    .ll-lf-iconchip.is-active { border-color: color-mix(in srgb, var(--ll-primary) 65%, var(--ll-border)); background: color-mix(in srgb, var(--ll-primary) 10%, transparent); }
+    .ll-lf-iconchip img { width: 100%; height: 100%; object-fit: contain; }
+    .ll-lf-icon-freetype {
+        grid-column: 1 / -1; text-align: left; font-size: .82rem; color: var(--ll-text);
+        border: 1px dashed color-mix(in srgb, var(--ll-primary) 40%, var(--ll-border)); border-radius: 10px;
+        padding: 8px 10px; cursor: pointer; background: color-mix(in srgb, var(--ll-primary) 6%, transparent);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .ll-lf-icon-freetype img { width: 20px; height: 20px; }
+    .ll-lf-iconpicker-hidden { display: none !important; }
 
     /* Live preview — matches the Theme Studio device switcher */
     .ll-lp-preview {
@@ -418,7 +470,15 @@
                                             <span class="ll-link-icon">
                                                 @if(in_array($buttonName, ['space', 'heading', 'text']))
                                                     <i class="bi {{ $buttonName === 'space' ? 'bi-distribute-vertical' : ($buttonName === 'heading' ? 'bi-card-heading' : 'bi-fonts') }}"></i>
-                                                @elseif($link->custom_icon && $link->type && $link->type !== 'predefined')
+                                                @elseif(\Illuminate\Support\Str::startsWith($link->custom_icon ?? '', 'si:'))
+                                                    @php
+                                                        $rowParts = explode(':', substr($link->custom_icon, 3));
+                                                        $rowSlug = preg_replace('/[^a-z0-9-]/', '', strtolower($rowParts[0] ?? ''));
+                                                        $rowHex = isset($rowParts[1]) ? preg_replace('/[^0-9A-Fa-f]/', '', $rowParts[1]) : '';
+                                                    @endphp
+                                                    <img alt="" width="16" height="16" src="https://cdn.simpleicons.org/{{ $rowSlug }}{{ $rowHex !== '' ? '/' . $rowHex : '' }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                                                    <i class="bi bi-link-45deg" style="display:none;"></i>
+                                                @elseif($link->custom_icon && $link->type && $link->type !== 'predefined' && $link->custom_icon !== 'fa-external-link')
                                                     <i class="fa {{ $link->custom_icon }}"></i>
                                                 @else
                                                     <img
@@ -596,6 +656,113 @@
             lpRenderDevices();
             lpFit();
             window.addEventListener('resize', lpFit);
+
+            // ---- Merged "Links" form: platform dropdown + Simple Icons picker ----
+            function llIconCdn(slug, hex) {
+                return 'https://cdn.simpleicons.org/' + encodeURIComponent(slug) + (hex ? '/' + encodeURIComponent(hex) : '');
+            }
+            function wireLinkForm() {
+                const lform = document.querySelector('[data-ll-link-form]');
+                if (!lform || lform.dataset.llWired === 'true') {
+                    return;
+                }
+                lform.dataset.llWired = 'true';
+
+                const platform = lform.querySelector('[data-ll-platform]');
+                const titleInput = lform.querySelector('.ll-lf-title');
+                const iconPicker = lform.querySelector('[data-ll-icon-picker]');
+                const search = lform.querySelector('[data-ll-icon-search]');
+                const results = lform.querySelector('[data-ll-icon-results]');
+                const preview = lform.querySelector('[data-ll-icon-preview]');
+                const hidden = lform.querySelector('[data-ll-icon-value]');
+                const favicon = lform.querySelector('[data-ll-favicon]');
+                const faviconWrap = lform.querySelector('.ll-lf-favicon-wrap');
+                if (!platform || !hidden) {
+                    return;
+                }
+
+                let library = [];
+                try {
+                    const raw = lform.querySelector('[data-ll-icon-library]');
+                    library = raw ? JSON.parse(raw.textContent || '[]') : [];
+                } catch (e) { library = []; }
+                const bySlug = {};
+                library.forEach(function (i) { bySlug[i.slug] = i; });
+
+                function parseVal(v) {
+                    if (!v || v.indexOf('si:') !== 0) { return null; }
+                    const parts = v.slice(3).split(':');
+                    return { slug: (parts[0] || '').toLowerCase(), hex: parts[1] || '' };
+                }
+                function renderPreview() {
+                    const parsed = parseVal(hidden.value);
+                    if (parsed && parsed.slug) {
+                        preview.innerHTML = '<img alt="" src="' + llIconCdn(parsed.slug, parsed.hex) + '">';
+                    } else {
+                        preview.innerHTML = '<i class="bi bi-image"></i>';
+                    }
+                }
+                function setIcon(slug) {
+                    // Store only the icon identity; colour + on/off live in theme settings.
+                    slug = (slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+                    hidden.value = slug ? ('si:' + slug) : '';
+                    renderPreview();
+                }
+                function markActive(chip) {
+                    results.querySelectorAll('.ll-lf-iconchip').forEach(function (c) { c.classList.toggle('is-active', c === chip); });
+                }
+                function renderResults(q) {
+                    q = (q || '').trim().toLowerCase();
+                    results.innerHTML = '';
+                    let matches = library;
+                    if (q) {
+                        matches = library.filter(function (i) { return i.slug.indexOf(q) !== -1 || i.label.toLowerCase().indexOf(q) !== -1; });
+                    }
+                    matches.slice(0, 60).forEach(function (i) {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'll-lf-iconchip';
+                        chip.title = i.label;
+                        chip.innerHTML = '<img alt="' + i.label + '" src="' + llIconCdn(i.slug, i.hex) + '">';
+                        chip.addEventListener('click', function () { setIcon(i.slug); markActive(chip); });
+                        results.appendChild(chip);
+                    });
+                    const slugified = q.replace(/[^a-z0-9-]/g, '');
+                    if (slugified && !bySlug[slugified]) {
+                        const ft = document.createElement('button');
+                        ft.type = 'button';
+                        ft.className = 'll-lf-icon-freetype';
+                        ft.innerHTML = '<img alt="" src="' + llIconCdn(slugified, '') + '" onerror="this.style.display=\'none\'"> Use &ldquo;' + slugified + '&rdquo; from Simple Icons';
+                        ft.addEventListener('click', function () { setIcon(slugified); });
+                        results.appendChild(ft);
+                    }
+                }
+                function syncMode() {
+                    const isCustom = platform.value === 'custom';
+                    const useFavicon = !!(favicon && favicon.checked);
+                    iconPicker.classList.toggle('ll-lf-iconpicker-hidden', !isCustom || useFavicon);
+                    if (faviconWrap) { faviconWrap.classList.toggle('ll-lf-iconpicker-hidden', !isCustom); }
+                    if (!isCustom) {
+                        if (favicon) { favicon.checked = false; }
+                        const opt = platform.options[platform.selectedIndex];
+                        setIcon(platform.value);
+                        if (titleInput && !titleInput.value && opt) { titleInput.value = opt.getAttribute('data-label') || ''; }
+                    }
+                }
+
+                platform.addEventListener('change', syncMode);
+                if (favicon) { favicon.addEventListener('change', syncMode); }
+                if (search) { search.addEventListener('input', function () { renderResults(search.value); }); }
+
+                const existing = parseVal(hidden.value);
+                if (existing && existing.slug && bySlug[existing.slug]) { platform.value = existing.slug; }
+                renderResults('');
+                renderPreview();
+                syncMode();
+            }
+
+            document.addEventListener('contentLoaded', wireLinkForm);
+            wireLinkForm();
 
             function loadBlockParams(typeId) {
                 if (!paramsContainer) {

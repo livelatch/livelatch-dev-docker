@@ -85,6 +85,8 @@ $customBackgroundExists = file_exists($customBackgroundPath)
   $llFontFamilyQuery = str_replace(' ', '+', $llFontFamilySafe);
   $llEffectIntensity = max(0, min(100, (int) ($llPreset['effectIntensity'] ?? 55)));
   $llShapeIntensity = max(0, min(100, (int) ($llPreset['shapeIntensity'] ?? 45)));
+  $llShowIcons = (string) ($llPreset['showIcons'] ?? '1') !== '0';
+  $llIconColorSafe = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) ($llPreset['iconColor'] ?? '')) ? $llPreset['iconColor'] : '';
 @endphp
 <style>
   @import url('https://fonts.googleapis.com/css2?family={{ $llFontFamilyQuery }}:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P:wght@400&family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&display=swap');
@@ -97,7 +99,27 @@ $customBackgroundExists = file_exists($customBackgroundPath)
     --ll-font-family: "{{ $llFontFamilySafe }}", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --ll-effect-intensity: {{ $llEffectIntensity / 100 }};
     --ll-shape-intensity: {{ $llShapeIntensity / 100 }};
+@if($llIconColorSafe)
+    --ll-icon-color: {{ $llIconColorSafe }};
+@endif
   }
+
+  /* Simple Icons link-button icons render as masks so they take the icon colour
+     (defaults to the button text colour when no --ll-icon-color is set). */
+  .container .button .ll-si-icon {
+    display: inline-block;
+    width: 1.3em; height: 1.3em;
+    vertical-align: -0.22em;
+    background-color: var(--ll-icon-color, currentColor);
+    -webkit-mask-position: center; mask-position: center;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: contain; mask-size: contain;
+  }
+@unless($llShowIcons)
+  /* Link button icons turned off in theme settings */
+  .container .button .icon,
+  .container .button .ll-si-icon { display: none !important; }
+@endunless
 
   html,
   body {

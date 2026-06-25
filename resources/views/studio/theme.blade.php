@@ -17,6 +17,9 @@
     $initialFontFamily = $customSettings['fontFamily'] ?? $selectedVersion?->manifest['fontFamilies'][0] ?? 'Inter';
     $initialEffect = $customSettings['effectIntensity'] ?? $selectedVersion?->manifest['parameters']['effectIntensity']['default'] ?? 55;
     $initialShape = $customSettings['shapeIntensity'] ?? $selectedVersion?->manifest['parameters']['shapeIntensity']['default'] ?? 45;
+    $initialShowIcons = (string) ($customSettings['showIcons'] ?? $selectedPresetValues['showIcons'] ?? '1') !== '0' ? '1' : '0';
+    $initialIconColor = $customSettings['iconColor'] ?? $selectedPresetValues['iconColor'] ?? '';
+    $initialIconColorOn = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) $initialIconColor) ? true : false;
 @endphp
 
 <style data-ll-theme-studio-style>
@@ -554,6 +557,29 @@
                     </section>
 
                     <section class="ll-theme-panel">
+                        <h2>Link icons</h2>
+                        <div class="ll-theme-control">
+                            <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
+                                <input type="checkbox" id="theme-show-icons" {{ $initialShowIcons === '1' ? 'checked' : '' }}>
+                                Show icons on link buttons
+                            </label>
+                            <input type="hidden" name="custom_settings[showIcons]" id="theme-show-icons-value" value="{{ $initialShowIcons }}">
+                        </div>
+                        <div class="ll-colour-control mt-3" id="theme-icon-color-wrap">
+                            <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
+                                <input type="checkbox" id="theme-icon-color-toggle" {{ $initialIconColorOn ? 'checked' : '' }}>
+                                Custom icon colour
+                            </label>
+                            <div class="ll-colour-row mt-2">
+                                <input type="color" id="theme-icon-color" value="{{ $initialIconColorOn ? $initialIconColor : '#ffffff' }}" {{ $initialIconColorOn ? '' : 'disabled' }}>
+                                <span class="ll-colour-value" id="theme-icon-color-value">{{ $initialIconColorOn ? $initialIconColor : 'Match button text' }}</span>
+                            </div>
+                            <input type="hidden" name="custom_settings[iconColor]" id="theme-icon-color-input" value="{{ $initialIconColorOn ? $initialIconColor : '' }}">
+                            <p class="ll-theme-muted mt-2 mb-0" style="font-size:.8rem;">Off = icons match your button text colour. Presets can set a colour too.</p>
+                        </div>
+                    </section>
+
+                    <section class="ll-theme-panel">
                         <h2>Typography</h2>
                         <div class="ll-theme-fonts" id="theme-font-list"></div>
                         <div class="ll-theme-custom-font">
@@ -662,6 +688,19 @@
             const effectLabel = document.getElementById('theme-effect-label');
             const shapeInput = document.getElementById('theme-shape');
             const shapeLabel = document.getElementById('theme-shape-label');
+            const showIconsCheckbox = document.getElementById('theme-show-icons');
+            const showIconsValue = document.getElementById('theme-show-icons-value');
+            const iconColorToggle = document.getElementById('theme-icon-color-toggle');
+            const iconColorInput = document.getElementById('theme-icon-color');
+            const iconColorHidden = document.getElementById('theme-icon-color-input');
+            const iconColorValue = document.getElementById('theme-icon-color-value');
+
+            function syncIconColor() {
+                const on = iconColorToggle.checked;
+                iconColorInput.disabled = !on;
+                iconColorHidden.value = on ? iconColorInput.value : '';
+                iconColorValue.textContent = on ? iconColorInput.value : 'Match button text';
+            }
             const preview = document.getElementById('theme-preview');
             const previewScreen = document.getElementById('theme-preview-screen');
             const previewHeading = document.getElementById('theme-preview-heading');
@@ -706,6 +745,17 @@
 
                 effectInput.value = custom.effectIntensity || '55';
                 shapeInput.value = custom.shapeIntensity || '45';
+
+                const showIcons = (custom.showIcons != null ? custom.showIcons : (preset.showIcons != null ? preset.showIcons : '1'));
+                showIconsCheckbox.checked = String(showIcons) !== '0';
+                showIconsValue.value = showIconsCheckbox.checked ? '1' : '0';
+
+                const iconColor = (custom.iconColor != null ? custom.iconColor : (preset.iconColor != null ? preset.iconColor : ''));
+                const hasIconColor = /^#[0-9A-Fa-f]{6}$/.test(String(iconColor));
+                iconColorToggle.checked = hasIconColor;
+                iconColorInput.value = hasIconColor ? iconColor : '#ffffff';
+                syncIconColor();
+
                 setColourLabels();
                 updatePreview();
             }
@@ -806,6 +856,12 @@
                 input.addEventListener('input', updatePreview);
                 input.addEventListener('change', updatePreview);
             });
+
+            showIconsCheckbox.addEventListener('change', () => {
+                showIconsValue.value = showIconsCheckbox.checked ? '1' : '0';
+            });
+            iconColorToggle.addEventListener('change', syncIconColor);
+            iconColorInput.addEventListener('input', syncIconColor);
 
             customFontApply.addEventListener('click', () => {
                 const font = customFont.value.trim().replace(/[^A-Za-z0-9 ]/g, '');

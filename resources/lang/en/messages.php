@@ -874,8 +874,8 @@ return [
     'block.description.predefined' => 'Select from a list of predefined websites and have your link automatically styled using that sites brand colors and icon.',
 
     # link
-    'block.title.link' => 'Custom Link',
-    'block.description.link' => 'Create a Custom Link that goes to any website. Customize the button styling and icon, or use the favicon from the website as the button icon.',
+    'block.title.link' => 'Links',
+    'block.description.link' => 'Pick a platform from the creator list or add a custom link, with an icon from Simple Icons.',
 
     # vcard
     'block.title.vcard' => 'Vcard',
@@ -900,6 +900,10 @@ return [
     # text
     'block.title.text' => 'Text',
     'block.description.text' => 'Add static text to your page that is not clickable.',
+
+    # latchdeck
+    'block.title.latchdeck' => 'LatchDeck cards',
+    'block.description.latchdeck' => 'Show your LatchDeck collectible cards on your profile. Add to turn on, remove to turn off.',
 
 
     /*

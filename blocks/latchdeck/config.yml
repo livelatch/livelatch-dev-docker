@@ -1,0 +1,5 @@
+id: 9
+typename: latchdeck
+icon: "bi bi-collection-fill"
+custom_html: true
+ignore_container: false

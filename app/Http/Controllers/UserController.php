@@ -274,6 +274,13 @@ class UserController extends Controller
                 'button_id' => $button?->id ?? $button_id,
                 'type' => $request->typename // Save the link type
             ];
+
+            // Unified "Links" block: when not using the site favicon, persist the
+            // chosen Simple Icons reference (stored as "si:<slug>[:<hex>]") so the
+            // public profile can render the brand icon.
+            if ($request->typename == 'link' && $request->GetSiteIcon != 1 && filled($request->custom_icon)) {
+                $linkData['custom_icon'] = $request->custom_icon;
+            }
         } else {
             $linkTypePath = base_path("blocks/{$linkType->typename}/handler.php");
             if (file_exists($linkTypePath)) {

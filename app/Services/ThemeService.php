@@ -106,12 +106,16 @@ class ThemeService
             'fontFamily' => 'Inter',
             'effectIntensity' => '55',
             'shapeIntensity' => '45',
+            // Link button icons: on by default; empty colour means "match the
+            // button text colour". Presets may override either value.
+            'showIcons' => '1',
+            'iconColor' => '',
         ];
     }
 
     private function cleanCustomSettings(array $settings): array
     {
-        $allowedKeys = ['primary', 'background', 'text', 'buttonRadius', 'fontFamily', 'effectIntensity', 'shapeIntensity'];
+        $allowedKeys = ['primary', 'background', 'text', 'buttonRadius', 'fontFamily', 'effectIntensity', 'shapeIntensity', 'showIcons', 'iconColor'];
         $cleanSettings = array_intersect_key($settings, array_flip($allowedKeys));
 
         return collect($cleanSettings)
@@ -130,9 +134,20 @@ class ThemeService
                     return preg_match('/^[A-Za-z0-9 ]{2,60}$/', $font) ? $font : null;
                 }
 
+                if ($key === 'showIcons') {
+                    // Keep this key even when "0" (off), so it survives ->filter().
+                    return ((string) $value === '0') ? '0' : '1';
+                }
+
+                if ($key === 'iconColor') {
+                    $hex = trim((string) $value);
+
+                    return preg_match('/^#[0-9A-Fa-f]{6}$/', $hex) ? $hex : null;
+                }
+
                 return is_string($value) && trim($value) !== '' ? $value : null;
             })
-            ->filter()
+            ->filter(fn ($value) => $value !== null)
             ->all();
     }
 }

@@ -8,7 +8,7 @@ use Illuminate\Filesystem\Filesystem;
 
 class LinkType extends Model
 {
-    protected $fillable = ['id', 'typename', 'title', 'description', 'icon', 'custom_html', 'ignore_container', 'include_libraries'];
+    protected $fillable = ['id', 'typename', 'title', 'description', 'icon', 'custom_html', 'ignore_container', 'include_libraries', 'hidden'];
 
     // Assuming no database interaction, we can disable timestamps
     public $timestamps = false;
@@ -34,6 +34,9 @@ class LinkType extends Model
         'custom_html' => false,
         'ignore_container' => false,
         'include_libraries' => [],
+        // Merged into the unified "Links" block — kept resolvable for any legacy
+        // links but hidden from the "Add a block" picker.
+        'hidden' => true,
     ]);
 
     $linkTypes->prepend($predefinedLinkType);
@@ -53,20 +56,25 @@ class LinkType extends Model
                 'custom_html' => $configData['custom_html'] ?? false,
                 'ignore_container' => $configData['ignore_container'] ?? false,
                 'include_libraries' => $configData['include_libraries'] ?? [],
+                'hidden' => $configData['hidden'] ?? false,
             ]);
             $linkTypes->push($linkType);
         }
     }
-    
+
+        // Visible blocks first (in display order), then the hidden/legacy ones
+        // (predefined, vcard, telephone) which stay resolvable but are filtered
+        // out of the "Add a block" picker in the Studio.
         $custom_order = [
-            'predefined',
             'link',
-            'vcard',
             'email',
-            'telephone',
             'heading',
             'spacer',
             'text',
+            'latchdeck',
+            'predefined',
+            'vcard',
+            'telephone',
         ];
     
         $sorted = $linkTypes->sortBy(function ($item) use ($custom_order) {

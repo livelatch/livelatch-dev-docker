@@ -27,11 +27,33 @@
                 <div style="--delay: {{ $initial++ }}s" class="button-entrance"><a id="{{ $link->id }}" class="button button-default button-click button-hover icon-hover" rel="noopener noreferrer nofollow noindex" href="{{ $link->link }}"><img alt="{{ $link->name }}" class="icon hvr-icon" src="@if(theme('use_custom_icons') == "true"){{ url('themes/' . $GLOBALS['themeName'] . '/extra/custom-icons')}}/phone{{theme('custom_icon_extension')}} @else{{ asset('\/assets/linkstack/icons\/')}}phone.svg @endif"></i>{{ $link->title }}</a></div>
                     @break
                 @case('custom')
+                  @php
+                      // Unified "Links" block icons are stored as "si:<slug>"
+                      // (Simple Icons) and render as a CSS mask so the icon takes
+                      // the theme's icon colour (which defaults to the button text
+                      // colour). Empty = no icon. Any legacy non-"si:" value is
+                      // treated as a FontAwesome class for backward compatibility.
+                      $ci = (string) ($link->custom_icon ?? '');
+                      if (str_starts_with($ci, 'si:')) {
+                          $siSlug = preg_replace('/[^a-z0-9-]/', '', strtolower(explode(':', substr($ci, 3))[0] ?? ''));
+                          if ($siSlug !== '') {
+                              $siSrc = 'https://cdn.simpleicons.org/' . $siSlug;
+                              $mask = "-webkit-mask:url('" . e($siSrc) . "') center/contain no-repeat;mask:url('" . e($siSrc) . "') center/contain no-repeat;";
+                              $customIconHtml = '<span class="icon hvr-icon ll-si-icon" aria-hidden="true" style="' . $mask . '"></span>';
+                          } else {
+                              $customIconHtml = '';
+                          }
+                      } elseif ($ci !== '' && $ci !== 'fa-external-link') {
+                          $customIconHtml = '<i style="color: ' . e($ci) . '" class="icon hvr-icon fa ' . e($ci) . '"></i>';
+                      } else {
+                          $customIconHtml = '';
+                      }
+                  @endphp
                   @if($link->custom_css === "" or $link->custom_css === "NULL" or (theme('allow_custom_buttons') == "false"))
-                   <div style="--delay: {{ $initial++ }}s" class="button-entrance"><a id="{{ $link->id }}" class="button button-custom button-click button-hover icon-hover" rel="noopener noreferrer nofollow noindex" href="{{ $link->link }}" @if((UserData::getData($userinfo->id, 'links-new-tab') != false))target="_blank"@endif ><i style="color: {{$link->custom_icon}}" class="icon hvr-icon fa {{$link->custom_icon}}"></i>{{ $link->title }}</a></div>
+                   <div style="--delay: {{ $initial++ }}s" class="button-entrance"><a id="{{ $link->id }}" class="button button-custom button-click button-hover icon-hover" rel="noopener noreferrer nofollow noindex" href="{{ $link->link }}" @if((UserData::getData($userinfo->id, 'links-new-tab') != false))target="_blank"@endif >{!! $customIconHtml !!}{{ $link->title }}</a></div>
                       @break
                    @elseif($link->custom_css != "")
-                   <div style="--delay: {{ $initial++ }}s" class="button-entrance"><a id="{{ $link->id }}" class="button button-custom button-click button-hover icon-hover" style="{{ $link->custom_css }}" rel="noopener noreferrer nofollow noindex" href="{{ $link->link }}" @if((UserData::getData($userinfo->id, 'links-new-tab') != false))target="_blank"@endif ><i style="color: {{$link->custom_icon}}" class="icon hvr-icon fa {{$link->custom_icon}}"></i>{{ $link->title }}</a></div>
+                   <div style="--delay: {{ $initial++ }}s" class="button-entrance"><a id="{{ $link->id }}" class="button button-custom button-click button-hover icon-hover" style="{{ $link->custom_css }}" rel="noopener noreferrer nofollow noindex" href="{{ $link->link }}" @if((UserData::getData($userinfo->id, 'links-new-tab') != false))target="_blank"@endif >{!! $customIconHtml !!}{{ $link->title }}</a></div>
                       @break
                     @endif
                 @case('custom_website')
