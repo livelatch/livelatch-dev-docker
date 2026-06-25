@@ -1,0 +1,149 @@
+/* Livelatch — Singularity theme (interactive WebGL galaxy) */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  color: var(--sg-text, #eaf0ff);
+  font-family: var(--sg-body-font, 'Sora', system-ui, sans-serif);
+  background: var(--sg-bg, #05030f);
+  overflow-x: hidden;
+}
+
+/* Custom cursor is only enabled (and the native one hidden) on fine pointers,
+   via a body class the JS adds. */
+body.sg-has-cursor, body.sg-has-cursor * { cursor: none; }
+
+#sg-canvas { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; }
+
+.sg-vignette {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 42%, transparent 48%, color-mix(in srgb, var(--sg-bg) 88%, #000) 100%);
+}
+.sg-grain {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* trailing cursor */
+.sg-cursor, .sg-cursor-ring {
+  position: fixed; top: 0; left: 0; z-index: 60; pointer-events: none;
+  border-radius: 50%; transform: translate(-50%, -50%); opacity: 0;
+  mix-blend-mode: screen;
+}
+.sg-cursor { width: 8px; height: 8px; background: var(--sg-core, #fff); box-shadow: 0 0 14px var(--sg-core, #fff); }
+.sg-cursor-ring { width: 38px; height: 38px; border: 1px solid color-mix(in srgb, var(--sg-edge, #5b6cff) 80%, transparent); }
+
+/* stage + 3D card */
+.sg-stage {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 56px 20px 72px;
+  perspective: 1100px;
+}
+.sg-card {
+  width: min(440px, 100%);
+  padding: 38px 30px 30px;
+  text-align: center;
+  border-radius: 26px;
+  background: color-mix(in srgb, var(--sg-bg, #05030f) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sg-edge, #5b6cff) 30%, transparent);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 60px color-mix(in srgb, var(--sg-edge, #5b6cff) 14%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* avatar */
+.sg-avatar-wrap { position: relative; width: 134px; height: 134px; margin: 0 auto; transform: translateZ(40px); }
+.sg-avatar-halo {
+  position: absolute; inset: -14px; border-radius: 50%; z-index: 0;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sg-core, #ffd9a0) 60%, transparent), transparent 68%);
+  filter: blur(6px);
+  animation: sg-pulse 4s ease-in-out infinite;
+}
+.sg-avatar {
+  position: relative; z-index: 1;
+  width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 7px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--sg-bg), var(--sg-bg)) padding-box,
+    linear-gradient(135deg, var(--sg-core, #ffd9a0), var(--sg-edge, #5b6cff)) border-box;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--sg-edge, #5b6cff) 45%, transparent);
+}
+
+/* gradient title with a hover glitch */
+.sg-name {
+  position: relative; transform: translateZ(28px);
+  font-family: var(--sg-heading-font, 'Space Grotesk', sans-serif);
+  font-size: clamp(1.8rem, 6vw, 2.6rem); font-weight: 700; letter-spacing: .5px;
+  margin-top: 20px; line-height: 1.05;
+  background: linear-gradient(100deg, var(--sg-core, #ffd9a0), var(--sg-edge, #5b6cff) 75%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sg-name::before, .sg-name::after {
+  content: attr(data-text); position: absolute; inset: 0; opacity: 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent; pointer-events: none;
+}
+.sg-name:hover::before { opacity: .9; background: linear-gradient(100deg, var(--sg-edge), var(--sg-core)); animation: sg-glitch-a .5s steps(2) infinite; }
+.sg-name:hover::after  { opacity: .7; color: color-mix(in srgb, var(--sg-edge) 80%, #fff); -webkit-text-fill-color: currentColor; animation: sg-glitch-b .5s steps(2) infinite; }
+
+.sg-bio {
+  transform: translateZ(20px);
+  margin-top: 12px; line-height: 1.6; font-size: .96rem;
+  color: color-mix(in srgb, var(--sg-text, #eaf0ff) 80%, transparent);
+}
+
+/* link cards (3D tilt + glare driven by JS) */
+.sg-links { transform: translateZ(16px); margin-top: 26px; display: grid; gap: 12px; }
+.sg-link {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 15px 18px; text-decoration: none; font-weight: 600; letter-spacing: .3px;
+  color: var(--sg-text, #eaf0ff);
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--sg-edge, #5b6cff) 34%, transparent);
+  background: color-mix(in srgb, var(--sg-text, #eaf0ff) 6%, transparent);
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  transform-style: preserve-3d; will-change: transform;
+}
+.sg-link::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s ease;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--sg-edge, #5b6cff) 45%, transparent), transparent 60%);
+}
+.sg-link:hover {
+  border-color: color-mix(in srgb, var(--sg-edge, #5b6cff) 75%, transparent);
+  box-shadow: 0 14px 40px color-mix(in srgb, var(--sg-edge, #5b6cff) 24%, transparent);
+}
+.sg-link:hover::after { opacity: .55; }
+
+/* block elements */
+.sg-links .ll-theme-block { color: var(--sg-text, #eaf0ff); }
+.sg-links .ll-theme-block .fadein { opacity: 1; }
+.sg-links .ll-theme-block h2 {
+  font-family: var(--sg-heading-font, sans-serif);
+  background: linear-gradient(100deg, var(--sg-core), var(--sg-edge));
+  -webkit-background-clip: text; background-clip: text; color: transparent; margin: 6px 0;
+}
+.sg-links .ll-theme-block a { color: var(--sg-edge, #5b6cff); }
+
+.sg-hint {
+  transform: translateZ(10px);
+  margin-top: 22px; font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: color-mix(in srgb, var(--sg-text, #eaf0ff) 50%, transparent);
+}
+.sg-hint span { color: var(--sg-core, #ffd9a0); display: inline-block; animation: sg-spin 6s linear infinite; }
+
+@keyframes sg-pulse { 0%, 100% { opacity: .65; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes sg-spin { to { transform: rotate(360deg); } }
+@keyframes sg-glitch-a { 0% { transform: translate(0,0); } 50% { transform: translate(-2px,1px); } 100% { transform: translate(2px,-1px); } }
+@keyframes sg-glitch-b { 0% { transform: translate(0,0); } 50% { transform: translate(2px,-1px); } 100% { transform: translate(-2px,1px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-avatar-halo, .sg-hint span { animation: none; }
+  .sg-name:hover::before, .sg-name:hover::after { animation: none; }
+}

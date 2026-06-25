@@ -1,0 +1,55 @@
+{
+  "name": "Singularity",
+  "slug": "singularity",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A living WebGL galaxy you can steer. Custom GLSL shaders, pointer-parallax depth, click-to-warp, a trailing cursor and 3D-tilt holographic link cards. The most advanced theme in the system.",
+  "preview_gradient": "radial-gradient(circle at 50% 40%, #ffd9a0 0%, #5b6cff 35%, #05030f 80%)",
+  "libraries": ["three", "gsap"],
+  "defaults": {
+    "coreColor": "#ffd9a0",
+    "edgeColor": "#5b6cff",
+    "bgColor": "#05030f",
+    "textColor": "#eaf0ff",
+    "headingFont": "Space Grotesk",
+    "bodyFont": "Sora",
+    "particleCount": 8000,
+    "spinSpeed": 45,
+    "branches": 4,
+    "glow": 55,
+    "customCss": ""
+  },
+  "presets": {
+    "galaxy":    { "coreColor": "#ffd9a0", "edgeColor": "#5b6cff", "bgColor": "#05030f", "textColor": "#eaf0ff", "particleCount": 8000,  "spinSpeed": 45, "branches": 4, "glow": 55 },
+    "supernova": { "coreColor": "#fff1c2", "edgeColor": "#ff3b3b", "bgColor": "#0a0204", "textColor": "#ffe9e9", "particleCount": 12000, "spinSpeed": 60, "branches": 5, "glow": 72 },
+    "aurora":    { "coreColor": "#b6ffe0", "edgeColor": "#6a5bff", "bgColor": "#02060a", "textColor": "#eafff6", "particleCount": 9000,  "spinSpeed": 35, "branches": 3, "glow": 62 },
+    "vaporwave": { "coreColor": "#ff7ad9", "edgeColor": "#2de2e6", "bgColor": "#160427", "textColor": "#ffe6ff", "particleCount": 9000,  "spinSpeed": 50, "branches": 4, "glow": 66 },
+    "emerald":   { "coreColor": "#d8ffe0", "edgeColor": "#11a05a", "bgColor": "#02100a", "textColor": "#e6fff0", "particleCount": 8000,  "spinSpeed": 40, "branches": 5, "glow": 50 },
+    "inferno":   { "coreColor": "#fff0a8", "edgeColor": "#ff5e1a", "bgColor": "#0a0400", "textColor": "#ffeede", "particleCount": 11000, "spinSpeed": 55, "branches": 4, "glow": 66 },
+    "ink":       { "coreColor": "#ffffff", "edgeColor": "#7b8290", "bgColor": "#05060a", "textColor": "#f3f5fa", "particleCount": 7000,  "spinSpeed": 30, "branches": 6, "glow": 40 },
+    "gold":      { "coreColor": "#fff6d6", "edgeColor": "#c8920f", "bgColor": "#0a0700", "textColor": "#fff4d6", "particleCount": 9000,  "spinSpeed": 42, "branches": 4, "glow": 58 },
+    "oceanic":   { "coreColor": "#d6f7ff", "edgeColor": "#1f7fff", "bgColor": "#02060f", "textColor": "#e6f6ff", "particleCount": 10000, "spinSpeed": 38, "branches": 3, "glow": 56 },
+    "sakura":    { "coreColor": "#ffe3ee", "edgeColor": "#ff5ea8", "bgColor": "#0c0610", "textColor": "#ffeaf3", "particleCount": 8000,  "spinSpeed": 36, "branches": 5, "glow": 52 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "coreColor", "label": "Core" },
+      { "key": "edgeColor", "label": "Edge" },
+      { "key": "bgColor",   "label": "Background" },
+      { "key": "textColor", "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Orbitron", "Sora", "Exo 2"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] }
+    },
+    "sliders": {
+      "particleCount": { "label": "Stars", "min": 1000, "max": 20000, "step": 1000, "default": 8000 },
+      "spinSpeed":     { "label": "Spin speed", "min": 0, "max": 100, "step": 5, "default": 45 },
+      "branches":      { "label": "Spiral arms", "min": 2, "max": 8, "step": 1, "default": 4 },
+      "glow":          { "label": "Glow", "min": 0, "max": 100, "step": 5, "default": 55 }
+    },
+    "customCss": { "pro": true }
+  }
+}
