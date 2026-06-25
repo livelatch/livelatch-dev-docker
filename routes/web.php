@@ -225,6 +225,10 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             // creator's access status; all data lives behind the LatchDeck API.
             Route::view('/studio/latchapps', 'studio.latchapps')->name('studio.latchapps');
             Route::view('/studio/fax', 'studio.fax')->name('studio.fax');
+
+            // Development Journey — public-to-the-studio history page (moved out of
+            // /admin so any signed-in alpha tester can browse it from the top navbar).
+            Route::view('/studio/development-journey', 'studio.development-journey')->name('studio.developmentJourney');
             Route::get('/studio/latchdeck', [LatchDeckController::class, 'index'])->name('studio.latchdeck');
             Route::post('/studio/latchdeck/request-access', [LatchDeckController::class, 'requestAccess'])->name('studio.latchdeck.requestAccess');
             Route::post('/studio/latchdeck/cards', [LatchDeckController::class, 'storeCard'])->name('studio.latchdeck.cards.store');
@@ -348,7 +352,6 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::view('/admin/tour-builder', 'studio.admin.tour-builder')->name('admin.tour-builder');
         Route::get('/admin/socials', [SocialLinksController::class, 'edit'])->name('admin.socials');
         Route::post('/admin/socials', [SocialLinksController::class, 'update'])->name('admin.socials.update');
-        Route::view('/admin/development-timeline', 'studio.admin.development-timeline')->name('admin.development-timeline');
         Route::get('/admin/shell', [ShellController::class, 'index'])->name('admin.shell');
         Route::post('/admin/shell/run', [ShellController::class, 'run'])->name('admin.shell.run');
         Route::get('/admin/shell/audit', [ShellController::class, 'audit'])->name('admin.shell.audit');

@@ -10,6 +10,7 @@
             'summary' => 'Early work stabilised the fork, repaired the runtime, and set up the app as a Livelatch platform rather than a simple link-in-bio site.',
             'tags' => ['Runtime', 'Brand', 'Deployment'],
             'accent' => 'var(--ll-primary)',
+            'category' => 'foundation',
         ],
         [
             'year' => 'Identity layer',
@@ -18,6 +19,7 @@
             'summary' => 'LatchID, session bridging, social account linking, and provider flows made Supabase the source of truth for user identity.',
             'tags' => ['Supabase', 'Auth', 'Accounts'],
             'accent' => 'var(--ll-primary-2)',
+            'category' => 'identity',
         ],
         [
             'year' => 'Studio growth',
@@ -26,6 +28,7 @@
             'summary' => 'Navigation, skeleton loaders, theme handling, dashboards, and placeholder program pages turned the shell into a working control surface.',
             'tags' => ['Studio', 'Navigation', 'UX'],
             'accent' => '#8b5cf6',
+            'category' => 'studio',
         ],
         [
             'year' => 'Monetization',
@@ -34,6 +37,7 @@
             'summary' => 'Stripe billing, subscription scaffolding, and affiliate planning established the commercial shape of the platform.',
             'tags' => ['Stripe', 'Affiliate', 'Revenue'],
             'accent' => '#0ea5e9',
+            'category' => 'revenue',
         ],
         [
             'year' => 'Creator tooling',
@@ -42,6 +46,25 @@
             'summary' => 'Creator-facing provider work expanded the platform into a broader social identity and connection system.',
             'tags' => ['YouTube', 'Discord', 'TikTok'],
             'accent' => '#14b8a6',
+            'category' => 'studio',
+        ],
+        [
+            'year' => 'Theme engine',
+            'date' => '2026-06',
+            'title' => 'A second, blade-based theme engine arrived',
+            'summary' => 'Alongside the classic CSS-variable themes, a parallel Blade theme system let profiles become full-page, animated experiences (WebGL / Canvas), edited through a manifest-driven Theme Studio (Beta).',
+            'tags' => ['Themes', 'WebGL', 'Studio'],
+            'accent' => '#f59e0b',
+            'category' => 'studio',
+        ],
+        [
+            'year' => 'Theme gallery',
+            'date' => '2026-06',
+            'title' => 'An immersive theme gallery shipped',
+            'summary' => 'A run of immersive base themes landed — Frutiger Aero, a Minecraft elytra flight, Vice City, a Matrix console, a Stark-style HUD and more — each fully editable in the Studio.',
+            'tags' => ['Themes', 'Canvas', 'Creator'],
+            'accent' => '#ec4899',
+            'category' => 'studio',
         ],
     ];
 
@@ -51,6 +74,7 @@
         ['name' => 'Stripe', 'detail' => 'Billing, subscriptions, checkout, and portal flows.', 'icon' => 'bi-credit-card-2-front-fill'],
         ['name' => 'HTMX', 'detail' => 'Fast Studio navigation and partial page swaps without full reloads.', 'icon' => 'bi-lightning-fill'],
         ['name' => 'Livewire', 'detail' => 'Interactive navigation structure and dynamic admin surfaces.', 'icon' => 'bi-broadcast'],
+        ['name' => 'Three.js', 'detail' => 'WebGL scenes powering immersive blade themes like Portal and Minecraft.', 'icon' => 'bi-badge-3d-fill'],
         ['name' => 'PostgreSQL', 'detail' => 'Primary source of truth for users, plans, and platform data.', 'icon' => 'bi-hdd-network-fill'],
     ];
 @endphp
@@ -346,12 +370,12 @@
                 <div>
                     <span class="ll-dev-timeline-eyebrow">
                         <i class="bi bi-hourglass-split"></i>
-                        Development Timeline
+                        Development Journey
                     </span>
                     <h2>Livelatch history, technologies, and the path that shaped the platform.</h2>
                     <p>
                         This page is meant to be used when explaining the product to other people.
-                        It compresses the major fork milestones into a browsable timeline and keeps the core stack visible alongside it.
+                        It compresses the major fork milestones into a browsable journey and keeps the core stack visible alongside it.
                     </p>
                 </div>
 
@@ -361,8 +385,8 @@
                         <span>major milestones</span>
                     </div>
                     <div class="ll-dev-timeline-metric">
-                        <strong>4</strong>
-                        <span>core platform layers</span>
+                        <strong>{{ count($techStack) }}</strong>
+                        <span>core technologies</span>
                     </div>
                     <div class="ll-dev-timeline-metric">
                         <strong>1</strong>
@@ -395,7 +419,7 @@
                                 type="button"
                                 class="ll-dev-timeline-item ll-dev-timeline-enter @if($index === 0) is-active @endif"
                                 data-timeline-item
-                                data-category="{{ $index === 1 ? 'identity' : ($index === 2 ? 'studio' : ($index === 3 ? 'revenue' : ($index === 4 ? 'studio' : 'foundation'))) }}"
+                                data-category="{{ $item['category'] ?? 'foundation' }}"
                                 data-title="{{ $item['title'] }}"
                                 data-date="{{ $item['date'] }}"
                                 data-summary="{{ $item['summary'] }}"

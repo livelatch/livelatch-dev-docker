@@ -557,6 +557,30 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             box-shadow: 0 14px 28px rgba(98, 54, 255, 0.24);
         }
 
+        .ll-journey-link {
+            min-height: 42px;
+            padding: 0 15px;
+            border-radius: var(--ll-button-radius, 15px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: 1px solid var(--ll-border);
+            background: var(--ll-surface-solid);
+            color: var(--ll-text);
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+        .ll-journey-link:hover { transform: translateY(-1px); border-color: rgba(98, 54, 255, 0.32); }
+        .ll-journey-link i { font-size: 1rem; color: var(--ll-primary); }
+
+        @media (max-width: 991.98px) {
+            .ll-journey-link .ll-journey-text { display: none; }
+            .ll-journey-link { width: 42px; padding: 0; justify-content: center; }
+        }
+
         .ll-icon-button {
             width: 42px;
             height: 42px;
@@ -1936,7 +1960,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="{{ url('/studio/page') }}"><i class="bi bi-person-fill"></i> {{ __('messages.Profile') }}</a></li>
-                            <li><a class="dropdown-item" href="{{ url('/studio/profile') }}"><i class="bi bi-gear-fill"></i> {{ __('messages.Settings') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url('/studio/latchid') }}"><i class="bi bi-gear-fill"></i> {{ __('messages.Settings') }}</a></li>
                             <li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" role="button" aria-controls="offcanvasExample"><i class="bi bi-brush-fill"></i> {{ __('messages.Styling') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>

@@ -99,7 +99,7 @@
         border: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10));
         border-radius: 14px;
         padding: 12px;
-        background: var(--ll-bg-soft, #fff);
+        background: var(--ll-surface-solid, #fff);
         display: grid;
         grid-template-columns: 34px minmax(0, 1fr) auto;
         gap: 12px;
@@ -229,42 +229,32 @@
         line-height: 1.35;
     }
 
-    .ll-phone-preview {
+    /* Live preview — matches the Theme Studio device switcher */
+    .ll-lp-preview {
         position: sticky;
         top: 98px;
     }
-
-    .ll-phone-frame {
-        width: min(100%, 360px);
-        margin: 0 auto;
-        border: 10px solid #111827;
-        border-radius: 38px;
-        background: #111827;
-        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
-        overflow: hidden;
+    .ll-lp-devices { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+    .ll-lp-device-btn {
+        border: 1px solid var(--ll-border); border-radius: 999px; background: transparent;
+        color: var(--ll-muted); cursor: pointer; font-weight: 700; font-size: .74rem;
+        padding: 6px 11px; display: inline-flex; gap: 6px; align-items: center;
+        transition: border-color .14s, color .14s, background .14s;
     }
-
-    .ll-phone-bar {
-        height: 26px;
-        background: #111827;
-        display: grid;
-        place-items: center;
+    .ll-lp-device-btn:hover { color: var(--ll-text); }
+    .ll-lp-device-btn.is-active {
+        border-color: color-mix(in srgb, var(--ll-primary) 56%, var(--ll-border));
+        color: var(--ll-primary); background: color-mix(in srgb, var(--ll-primary) 10%, transparent);
     }
-
-    .ll-phone-speaker {
-        width: 78px;
-        height: 6px;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, 0.18);
+    .ll-lp-stage { display: flex; justify-content: center; align-items: flex-start; min-height: 200px; }
+    .ll-lp-scaler { position: relative; }
+    .ll-lp-frame {
+        position: absolute; top: 0; left: 0; transform-origin: top left;
+        background: #000; overflow: hidden; box-shadow: 0 24px 60px rgba(8, 12, 30, .32);
     }
-
-    .ll-phone-frame iframe {
-        display: block;
-        width: 100%;
-        height: 640px;
-        border: 0;
-        background: #fff;
-    }
+    .ll-lp-frame.has-bezel { border: 10px solid #0b0f1c; }
+    .ll-lp-frame iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+    .ll-lp-meta { text-align: center; color: var(--ll-muted); font-size: .74rem; margin: 12px 0 0; }
 
     .ll-block-empty {
         display: none;
@@ -278,7 +268,7 @@
             grid-template-columns: 1fr;
         }
 
-        .ll-phone-preview {
+        .ll-lp-preview {
             position: static;
         }
     }
@@ -492,27 +482,33 @@
             </section>
         </div>
 
-        <aside class="ll-panel ll-phone-preview">
+        <aside class="ll-panel ll-lp-preview">
             <div class="ll-panel-header">
                 <div>
                     <h3>Live preview</h3>
-                    <p>Phone-sized view of your public profile.</p>
+                    <p>See your public profile across devices.</p>
                 </div>
-                <button type="button" class="btn btn-sm btn-light" id="ll-refresh-preview">
+                <button type="button" class="btn btn-sm btn-light" id="ll-refresh-preview" aria-label="Refresh preview">
                     <i class="bi bi-arrow-clockwise"></i>
                 </button>
             </div>
 
             <div class="ll-panel-body">
-                <div class="ll-phone-frame">
-                    <div class="ll-phone-bar"><span class="ll-phone-speaker"></span></div>
-                    <iframe
-                        allowtransparency="true"
-                        id="frPreview1"
-                        src="{{ $profileUrl }}"
-                        title="Public profile preview"
-                    >{{ __('messages.No compatible browser') }}</iframe>
+                <div class="ll-lp-devices" id="ll-lp-devices"></div>
+                <div class="ll-lp-stage" id="ll-lp-stage">
+                    <div class="ll-lp-scaler" id="ll-lp-scaler">
+                        <div class="ll-lp-frame has-bezel" id="ll-lp-frame">
+                            <iframe
+                                allowtransparency="true"
+                                id="frPreview1"
+                                src="{{ $profileUrl }}"
+                                title="Public profile preview"
+                                referrerpolicy="no-referrer"
+                            >{{ __('messages.No compatible browser') }}</iframe>
+                        </div>
+                    </div>
                 </div>
+                <p class="ll-lp-meta" id="ll-lp-meta">iPhone 17 Pro Max · 440 × 956</p>
             </div>
         </aside>
     </div>
@@ -547,6 +543,59 @@
                     preview.src = preview.src.split('?')[0] + '?preview=' + Date.now();
                 }
             }
+
+            // ---- Device preview (mirrors the Theme Studio Beta panel) ----
+            const LP_DEVICES = {
+                phone:   { label: 'iPhone 17 Pro Max', w: 440, h: 956, bezel: true },
+                tablet:  { label: 'iPad Pro',          w: 834, h: 1194, bezel: true },
+                desktop: { label: 'Desktop',           w: 1280, h: 800, bezel: false },
+            };
+            let lpDevice = 'phone';
+            const lpDevicesWrap = document.getElementById('ll-lp-devices');
+            const lpStage = document.getElementById('ll-lp-stage');
+            const lpScaler = document.getElementById('ll-lp-scaler');
+            const lpFrame = document.getElementById('ll-lp-frame');
+            const lpMeta = document.getElementById('ll-lp-meta');
+
+            function lpFit() {
+                if (!lpStage || !lpScaler || !lpFrame) {
+                    return;
+                }
+                const d = LP_DEVICES[lpDevice];
+                const availW = lpStage.clientWidth || 320;
+                const maxH = 620;
+                const scale = Math.min(availW / d.w, maxH / d.h, 1);
+                lpFrame.classList.toggle('has-bezel', !!d.bezel);
+                const radius = d.bezel ? (lpDevice === 'phone' ? 46 : 26) : 12;
+                lpFrame.style.width = d.w + 'px';
+                lpFrame.style.height = d.h + 'px';
+                lpFrame.style.borderRadius = radius + 'px';
+                lpFrame.style.transform = 'scale(' + scale + ')';
+                lpScaler.style.width = (d.w * scale) + 'px';
+                lpScaler.style.height = (d.h * scale) + 'px';
+                if (lpMeta) {
+                    lpMeta.textContent = d.label + ' · ' + d.w + ' × ' + d.h;
+                }
+            }
+            function lpRenderDevices() {
+                if (!lpDevicesWrap) {
+                    return;
+                }
+                lpDevicesWrap.innerHTML = '';
+                Object.keys(LP_DEVICES).forEach(function (key) {
+                    const d = LP_DEVICES[key];
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'll-lp-device-btn' + (key === lpDevice ? ' is-active' : '');
+                    const icon = key === 'phone' ? 'bi-phone' : (key === 'tablet' ? 'bi-tablet' : 'bi-display');
+                    btn.innerHTML = '<i class="bi ' + icon + '"></i> ' + d.label;
+                    btn.addEventListener('click', function () { lpDevice = key; lpRenderDevices(); lpFit(); });
+                    lpDevicesWrap.appendChild(btn);
+                });
+            }
+            lpRenderDevices();
+            lpFit();
+            window.addEventListener('resize', lpFit);
 
             function loadBlockParams(typeId) {
                 if (!paramsContainer) {
