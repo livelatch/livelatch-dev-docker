@@ -1,0 +1,215 @@
+/* Livelatch — Windows 98 theme */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  height: 100%;
+  color: var(--w9-text, #000);
+  font-family: var(--w9-body-font, 'VT323', 'Tahoma', sans-serif);
+  background: var(--w9-desktop, #008080);
+  overflow: hidden;
+  -webkit-font-smoothing: none;
+}
+
+/* CRT scanline overlay (intensity from --w9-scan) */
+body::after {
+  content: "";
+  position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.10) 3px);
+  opacity: var(--w9-scan, .5);
+  mix-blend-mode: multiply;
+}
+
+.w9-desktop {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  padding-bottom: 40px; /* taskbar */
+}
+
+/* ---- Desktop icons parade ---- */
+.w9-icons { position: absolute; inset: 8px 8px 48px 8px; pointer-events: none; }
+.w9-icon {
+  position: absolute;
+  width: 70px;
+  text-align: center;
+  color: #fff;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 11px;
+  text-shadow: 1px 1px 0 #000;
+  animation: w9-fade .6s both;
+}
+.w9-icon .w9-icon-img {
+  display: block; width: 32px; height: 32px; margin: 0 auto 3px;
+  background: linear-gradient(135deg, #fffbe6, #f0d060);
+  border: 1px solid #7a6a20;
+  box-shadow: inset -1px -1px 0 #b89b30, inset 1px 1px 0 #fff;
+  border-radius: 2px;
+  display: grid; place-items: center;
+  font-size: 16px;
+}
+
+/* ---- 98 window chrome ---- */
+.w9-window {
+  background: var(--w9-window, #c0c0c0);
+  border: 2px solid #000;
+  border-color: #dfdfdf #000 #000 #dfdfdf;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff, 2px 2px 0 rgba(0,0,0,.4);
+  padding: 3px;
+}
+
+.w9-profile-window {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -54%);
+  width: min(340px, 88vw);
+  z-index: 20;
+  animation: w9-open .25s ease both;
+}
+
+.w9-titlebar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to right, var(--w9-accent, #000080), color-mix(in srgb, var(--w9-accent, #000080) 40%, #3a9ad6));
+  color: #fff;
+  padding: 3px 4px;
+  font-family: 'Tahoma', sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+}
+.w9-title { display: flex; align-items: center; gap: 5px; letter-spacing: .2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.w9-title-ico { font-size: 12px; }
+.w9-title-buttons { display: flex; gap: 2px; flex-shrink: 0; }
+.w9-tb-btn {
+  width: 18px; height: 16px;
+  background: var(--w9-window, #c0c0c0);
+  border: 1px solid #000;
+  border-color: #fff #000 #000 #fff;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+  color: #000; font-size: 10px; line-height: 1; cursor: pointer;
+  font-family: 'Tahoma', sans-serif;
+}
+.w9-tb-close { font-weight: bold; }
+.w9-tb-btn:active { box-shadow: inset 1px 1px 0 #808080; }
+
+.w9-window-body { padding: 16px 14px 18px; text-align: center; }
+
+.w9-avatar {
+  width: 92px; height: 92px; object-fit: cover;
+  border: 2px solid #000; border-color: #808080 #fff #fff #808080;
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
+  image-rendering: pixelated;
+}
+.w9-name {
+  font-family: var(--w9-heading-font, 'Pixelify Sans', sans-serif);
+  font-size: 22px; margin-top: 12px; color: var(--w9-text, #000); line-height: 1.1;
+}
+.w9-bio { margin-top: 8px; font-size: 16px; color: var(--w9-text, #000); line-height: 1.35; }
+.w9-hint { margin-top: 14px; font-size: 14px; color: #444; }
+.w9-hint strong { color: var(--w9-accent, #000080); }
+
+/* ---- Start menu ---- */
+.w9-startmenu {
+  position: fixed;
+  left: 2px; bottom: 40px;
+  width: 280px; max-height: 70vh;
+  display: none;
+  z-index: 9500;
+  background: var(--w9-window, #c0c0c0);
+  border: 2px solid #000; border-color: #dfdfdf #000 #000 #dfdfdf;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff, 2px 2px 6px rgba(0,0,0,.5);
+  padding: 3px;
+}
+.w9-startmenu.w9-open { display: flex; animation: w9-rise .12s ease both; }
+.w9-startmenu-rail {
+  width: 26px; flex-shrink: 0;
+  background: linear-gradient(to top, var(--w9-accent, #000080), #1a1a6a);
+  position: relative;
+}
+.w9-startmenu-rail span {
+  position: absolute; bottom: 10px; left: 50%;
+  transform: translateX(-50%) rotate(-90deg); transform-origin: center;
+  white-space: nowrap; color: #fff; font-family: 'Tahoma', sans-serif;
+  font-weight: 800; font-size: 14px; letter-spacing: 1px;
+}
+.w9-startmenu-rail span b { color: #fff; }
+.w9-startmenu-items { flex: 1; padding: 4px; overflow-y: auto; }
+
+.w9-link {
+  display: block;
+  padding: 7px 10px;
+  color: var(--w9-text, #000);
+  font-family: 'Tahoma', sans-serif;
+  font-size: 13px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.w9-link::before { content: "▸ "; color: var(--w9-accent, #000080); }
+.w9-link:hover { background: var(--w9-accent, #000080); color: #fff; }
+.w9-link:hover::before { color: #fff; }
+.w9-link-empty { color: #666; font-style: italic; }
+.w9-link-empty::before { content: ""; }
+
+/* blocks inside the start menu */
+.w9-startmenu-items .ll-theme-block { padding: 4px 10px; font-family: 'Tahoma', sans-serif; font-size: 13px; }
+.w9-startmenu-items .ll-theme-block .fadein { opacity: 1; }
+.w9-startmenu-items .ll-theme-block h2 { font-family: var(--w9-heading-font, sans-serif); font-size: 15px; margin: 4px 0; }
+.w9-startmenu-items .ll-theme-block a { color: var(--w9-accent, #000080); }
+
+/* ---- Taskbar ---- */
+.w9-taskbar {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 40px; z-index: 9600;
+  display: flex; align-items: center; gap: 6px; padding: 3px 4px;
+  background: var(--w9-window, #c0c0c0);
+  border-top: 2px solid #fff;
+  box-shadow: inset 0 1px 0 #fff;
+}
+.w9-start {
+  display: flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 10px;
+  background: var(--w9-window, #c0c0c0);
+  border: 2px solid #000; border-color: #fff #000 #000 #fff;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+  font-family: 'Tahoma', sans-serif; font-weight: 800; font-size: 14px; color: #000;
+  cursor: pointer; flex-shrink: 0;
+}
+.w9-start:active, .w9-start[aria-expanded="true"] { box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #fff; border-color: #000 #fff #fff #000; }
+.w9-start-logo { display: grid; grid-template-columns: 7px 7px; grid-template-rows: 7px 7px; gap: 1px; transform: skewX(-8deg); }
+.w9-start-logo span { display: block; }
+.w9-start-logo span:nth-child(1){ background: #e24; }
+.w9-start-logo span:nth-child(2){ background: #2c4; }
+.w9-start-logo span:nth-child(3){ background: #29e; }
+.w9-start-logo span:nth-child(4){ background: #fd2; }
+
+.w9-tasks { flex: 1; display: flex; gap: 4px; overflow: hidden; }
+.w9-task {
+  display: flex; align-items: center; gap: 5px;
+  max-width: 200px; height: 30px; padding: 0 10px;
+  font-family: 'Tahoma', sans-serif; font-size: 13px; color: #000;
+  background: var(--w9-window, #c0c0c0);
+  border: 1px solid #000; border-color: #808080 #fff #fff #808080;
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.w9-tray {
+  display: flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 10px; flex-shrink: 0;
+  border: 1px solid #000; border-color: #808080 #fff #fff #808080;
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080;
+  font-family: 'Tahoma', sans-serif; font-size: 13px;
+}
+.w9-clock { min-width: 52px; text-align: center; }
+
+@keyframes w9-open { from { opacity: 0; transform: translate(-50%, -50%) scale(.96); } to { opacity: 1; transform: translate(-50%, -54%) scale(1); } }
+@keyframes w9-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes w9-fade { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 480px) {
+  .w9-icons { display: none; }
+  .w9-startmenu { width: calc(100vw - 8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w9-profile-window, .w9-startmenu, .w9-icon { animation: none; }
+}

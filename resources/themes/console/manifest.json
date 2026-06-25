@@ -1,0 +1,45 @@
+{
+  "name": "Console",
+  "slug": "console",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "You're in the Matrix. Cascading green code rain behind a live terminal that types itself out and runs your links as commands.",
+  "preview_gradient": "linear-gradient(160deg, #000800 0%, #00ff66 100%)",
+  "libraries": [],
+  "defaults": {
+    "rainColor": "#00ff66",
+    "promptColor": "#7dff7d",
+    "bgColor": "#020802",
+    "textColor": "#c8ffcf",
+    "headingFont": "VT323",
+    "bodyFont": "Share Tech Mono",
+    "rainDensity": 50,
+    "rainSpeed": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "rainColor": "#00ff66", "promptColor": "#7dff7d", "bgColor": "#020802", "textColor": "#c8ffcf", "rainDensity": 50, "rainSpeed": 50 },
+    "amber":   { "rainColor": "#ffb000", "promptColor": "#ffd56b", "bgColor": "#0a0600", "textColor": "#ffe6b0", "rainDensity": 45, "rainSpeed": 45 },
+    "ice":     { "rainColor": "#36c5ff", "promptColor": "#9fe6ff", "bgColor": "#01060a", "textColor": "#cdeeff", "rainDensity": 55, "rainSpeed": 55 },
+    "blood":   { "rainColor": "#ff2e4d", "promptColor": "#ff7d92", "bgColor": "#0a0103", "textColor": "#ffd0d6", "rainDensity": 60, "rainSpeed": 60 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "rainColor",   "label": "Code rain" },
+      { "key": "promptColor", "label": "Prompt" },
+      { "key": "bgColor",     "label": "Background" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "VT323", "options": ["VT323", "Share Tech Mono", "Source Code Pro", "Press Start 2P"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Share Tech Mono", "options": ["Share Tech Mono", "VT323", "Source Code Pro", "Inter"] }
+    },
+    "sliders": {
+      "rainDensity": { "label": "Rain density", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "rainSpeed":   { "label": "Rain speed",   "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

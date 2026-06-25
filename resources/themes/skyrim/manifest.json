@@ -1,0 +1,45 @@
+{
+  "name": "Ancient Runes",
+  "slug": "skyrim",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A weathered stone wall etched with glowing dragon runes. Embers drift, rune rings turn, and your links are carved tablets.",
+  "preview_gradient": "linear-gradient(160deg, #1a1d22 0%, #3a4450 100%)",
+  "libraries": [],
+  "defaults": {
+    "runeColor": "#9fd8ff",
+    "stoneColor": "#2a2e34",
+    "emberColor": "#ff8a3c",
+    "textColor": "#e6eef6",
+    "headingFont": "Cinzel",
+    "bodyFont": "Cinzel",
+    "runeDensity": 50,
+    "emberRate": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default":  { "runeColor": "#9fd8ff", "stoneColor": "#2a2e34", "emberColor": "#ff8a3c", "textColor": "#e6eef6", "runeDensity": 50, "emberRate": 50 },
+    "dragon":   { "runeColor": "#ff6a3c", "stoneColor": "#26201c", "emberColor": "#ffb347", "textColor": "#ffe6d0", "runeDensity": 60, "emberRate": 70 },
+    "frostfall":{ "runeColor": "#bfe9ff", "stoneColor": "#1f2730", "emberColor": "#7fd4ff", "textColor": "#eaf6ff", "runeDensity": 55, "emberRate": 30 },
+    "soul":     { "runeColor": "#b58cff", "stoneColor": "#221a2e", "emberColor": "#c89bff", "textColor": "#efe6ff", "runeDensity": 50, "emberRate": 50 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "runeColor",  "label": "Rune glow" },
+      { "key": "stoneColor", "label": "Stone" },
+      { "key": "emberColor", "label": "Embers" },
+      { "key": "textColor",  "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Cinzel", "options": ["Cinzel", "Cinzel Decorative", "MedievalSharp", "Playfair Display"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Cinzel", "options": ["Cinzel", "MedievalSharp", "Playfair Display", "Inter"] }
+    },
+    "sliders": {
+      "runeDensity": { "label": "Rune density", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "emberRate":   { "label": "Ember rate",   "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

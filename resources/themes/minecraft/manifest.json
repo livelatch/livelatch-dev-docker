@@ -1,0 +1,45 @@
+{
+  "name": "Minecraft",
+  "slug": "minecraft",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Soar over an infinite voxel world as if gliding on elytra. A live WebGL block landscape with a banking, panning camera.",
+  "preview_gradient": "linear-gradient(160deg, #79c0ff 0%, #4caf50 100%)",
+  "libraries": ["three"],
+  "defaults": {
+    "grassColor": "#5bbf3a",
+    "skyColor": "#86c5ff",
+    "stoneColor": "#8a8d92",
+    "textColor": "#ffffff",
+    "headingFont": "Press Start 2P",
+    "bodyFont": "VT323",
+    "viewDistance": 60,
+    "glideSpeed": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "grassColor": "#5bbf3a", "skyColor": "#86c5ff", "stoneColor": "#8a8d92", "textColor": "#ffffff", "viewDistance": 60, "glideSpeed": 50 },
+    "sunset":  { "grassColor": "#5bbf3a", "skyColor": "#ffb066", "stoneColor": "#9a8d82", "textColor": "#ffffff", "viewDistance": 60, "glideSpeed": 45 },
+    "nether":  { "grassColor": "#7a1f12", "skyColor": "#3a0a08", "stoneColor": "#5a3030", "textColor": "#ffd9a0", "viewDistance": 50, "glideSpeed": 55 },
+    "snow":    { "grassColor": "#e8f4ff", "skyColor": "#b9d8ff", "stoneColor": "#9aa3ad", "textColor": "#1a2a3a", "viewDistance": 70, "glideSpeed": 40 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "grassColor", "label": "Terrain" },
+      { "key": "skyColor",   "label": "Sky" },
+      { "key": "stoneColor", "label": "Stone" },
+      { "key": "textColor",  "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Press Start 2P", "options": ["Press Start 2P", "VT323", "Silkscreen", "Pixelify Sans"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "VT323", "options": ["VT323", "Pixelify Sans", "Silkscreen", "Inter"] }
+    },
+    "sliders": {
+      "viewDistance": { "label": "View distance", "min": 30, "max": 90, "step": 5, "default": 60 },
+      "glideSpeed":   { "label": "Glide speed",   "min": 0,  "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

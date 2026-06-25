@@ -1,0 +1,45 @@
+{
+  "name": "Windows 98",
+  "slug": "win98",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A retro Windows 98 desktop. Your links live in the Start menu — hit Start to open them. Live taskbar clock included.",
+  "preview_gradient": "linear-gradient(160deg, #008080 0%, #1084d0 100%)",
+  "libraries": [],
+  "defaults": {
+    "desktopColor": "#008080",
+    "accentColor": "#000080",
+    "windowColor": "#c0c0c0",
+    "textColor": "#000000",
+    "headingFont": "Pixelify Sans",
+    "bodyFont": "VT323",
+    "iconParade": 60,
+    "starWipe": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "desktopColor": "#008080", "accentColor": "#000080", "windowColor": "#c0c0c0", "textColor": "#000000", "iconParade": 60, "starWipe": 50 },
+    "plum":    { "desktopColor": "#5a3a6e", "accentColor": "#3a0a52", "windowColor": "#cfc7d6", "textColor": "#000000", "iconParade": 60, "starWipe": 60 },
+    "rose":    { "desktopColor": "#a85c7a", "accentColor": "#7a1f44", "windowColor": "#d6c0cb", "textColor": "#000000", "iconParade": 50, "starWipe": 40 },
+    "matrix":  { "desktopColor": "#0a3a1a", "accentColor": "#003314", "windowColor": "#b8c8b8", "textColor": "#003300", "iconParade": 70, "starWipe": 70 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "accentColor",  "label": "Title bar" },
+      { "key": "desktopColor", "label": "Desktop" },
+      { "key": "windowColor",  "label": "Window" },
+      { "key": "textColor",    "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Pixelify Sans", "options": ["Pixelify Sans", "VT323", "Silkscreen", "Press Start 2P"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "VT323", "options": ["VT323", "Pixelify Sans", "Silkscreen", "Inter"] }
+    },
+    "sliders": {
+      "iconParade": { "label": "Desktop icon density", "min": 0, "max": 100, "step": 5, "default": 60 },
+      "starWipe":   { "label": "CRT scanline glow",    "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

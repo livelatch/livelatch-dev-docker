@@ -1,0 +1,113 @@
+/* Livelatch — Ancient Runes (Skyrim) theme */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  color: var(--sk-text, #e6eef6);
+  font-family: var(--sk-body-font, 'Cinzel', serif);
+  overflow-x: hidden;
+  background:
+    radial-gradient(110% 80% at 50% 0%, color-mix(in srgb, var(--sk-stone, #2a2e34) 70%, #000) 0%, #07090c 75%),
+    #07090c;
+  background-attachment: fixed;
+}
+
+/* carved stone texture wash */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(115deg, rgba(255,255,255,.018) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(20deg, rgba(0,0,0,.18) 0 3px, transparent 3px 9px);
+  mix-blend-mode: overlay;
+}
+
+#sk-canvas { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; pointer-events: none; }
+
+.sk-profile {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 70px 20px 64px;
+  max-width: 500px; margin: 0 auto;
+}
+
+.sk-avatar-frame {
+  position: relative;
+  width: 130px; height: 130px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--sk-stone, #2a2e34) 80%, #fff 6%), var(--sk-stone, #2a2e34));
+  border: 2px solid color-mix(in srgb, var(--sk-rune, #9fd8ff) 35%, #000);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--sk-rune, #9fd8ff) 30%, transparent),
+    inset 0 2px 8px rgba(0,0,0,.6);
+  animation: sk-rise 1s ease both;
+}
+.sk-avatar {
+  width: 104px; height: 104px; border-radius: 50%; object-fit: cover;
+  border: 1px solid rgba(0,0,0,.6);
+  filter: saturate(.85) contrast(1.05);
+}
+
+.sk-name {
+  font-family: var(--sk-heading-font, 'Cinzel', serif);
+  font-size: clamp(1.7rem, 5.5vw, 2.5rem);
+  font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--sk-text, #e6eef6);
+  text-align: center; margin-top: 24px;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--sk-rune, #9fd8ff) 55%, transparent), 0 2px 4px #000;
+  animation: sk-rise 1s .1s ease both;
+}
+
+.sk-bio {
+  margin-top: 12px; text-align: center;
+  font-size: 1.05rem; line-height: 1.7; letter-spacing: .5px;
+  color: color-mix(in srgb, var(--sk-text, #e6eef6) 82%, transparent);
+  max-width: 380px;
+  animation: sk-rise 1s .2s ease both;
+}
+
+.sk-links { width: 100%; display: grid; gap: 14px; margin-top: 34px; }
+
+/* engraved stone tablet */
+.sk-link {
+  position: relative;
+  display: block; padding: 16px 22px; text-align: center; text-decoration: none;
+  font-family: var(--sk-heading-font, 'Cinzel', serif);
+  font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: .98rem;
+  color: color-mix(in srgb, var(--sk-text, #e6eef6) 92%, var(--sk-rune, #9fd8ff));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--sk-stone, #2a2e34) 86%, #fff 4%), color-mix(in srgb, var(--sk-stone, #2a2e34) 92%, #000));
+  border: 1px solid color-mix(in srgb, var(--sk-rune, #9fd8ff) 22%, #000);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -2px 6px rgba(0,0,0,.55), 0 4px 14px rgba(0,0,0,.5);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--sk-rune, #9fd8ff) 45%, transparent), 0 1px 1px #000;
+  transition: box-shadow .25s, color .25s, text-shadow .25s;
+  animation: sk-rise .9s both;
+  animation-delay: calc(0.28s + var(--ll-i, 0) * 0.07s);
+}
+.sk-link::before, .sk-link::after {
+  content: "ᚱ"; position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 1rem; color: color-mix(in srgb, var(--sk-rune, #9fd8ff) 70%, transparent);
+  opacity: .5; text-shadow: 0 0 8px var(--sk-rune, #9fd8ff);
+}
+.sk-link::before { left: 12px; }
+.sk-link::after  { right: 12px; content: "ᚦ"; }
+.sk-link:hover {
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 0 26px color-mix(in srgb, var(--sk-rune, #9fd8ff) 45%, transparent), 0 6px 18px rgba(0,0,0,.6);
+  text-shadow: 0 0 16px var(--sk-rune, #9fd8ff), 0 1px 1px #000;
+}
+
+/* block elements */
+.sk-links .ll-theme-block { text-align: center; color: var(--sk-text, #e6eef6); animation: sk-rise .9s both; animation-delay: calc(0.28s + var(--ll-i, 0) * 0.07s); }
+.sk-links .ll-theme-block .fadein { opacity: 1; }
+.sk-links .ll-theme-block h2 { font-family: var(--sk-heading-font, serif); letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 12px color-mix(in srgb, var(--sk-rune, #9fd8ff) 50%, transparent); margin: 6px 0; }
+.sk-links .ll-theme-block a { color: var(--sk-rune, #9fd8ff); }
+
+@keyframes sk-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-avatar-frame, .sk-name, .sk-bio, .sk-link { animation: none; }
+}

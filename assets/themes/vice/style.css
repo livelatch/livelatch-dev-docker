@@ -1,0 +1,123 @@
+/* Livelatch — Vice City (GTA VI) theme */
+/* Pricedown is a non-Google display face; pull it from a webfont CDN and fall
+   back to Anton (Google) which is loaded by the blade. */
+@import url('https://fonts.cdnfonts.com/css/pricedown');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  color: var(--vc-text, #fff);
+  font-family: var(--vc-body-font, 'Oswald', sans-serif);
+  overflow-x: hidden;
+  background:
+    linear-gradient(180deg,
+      #2a1a5e 0%,
+      color-mix(in srgb, var(--vc-pink, #ff2e8b) 70%, #2a1a5e) 38%,
+      var(--vc-pink, #ff2e8b) 58%,
+      var(--vc-sun, #ffd23c) 80%,
+      color-mix(in srgb, var(--vc-sun, #ffd23c) 70%, #ff7a3c) 100%);
+  background-attachment: fixed;
+}
+
+#vc-canvas { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+
+/* palm silhouettes */
+.vc-palm { position: fixed; bottom: 0; z-index: 2; width: clamp(110px, 22vw, 220px); pointer-events: none; transform-origin: bottom center; }
+.vc-palm svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 0 8px rgba(0,0,0,.4)); }
+.vc-palm-left  { left: -10px;  animation: vc-sway var(--vc-sway, 6s) ease-in-out infinite; }
+.vc-palm-right { right: -10px; transform: scaleX(-1); animation: vc-sway-r var(--vc-sway, 6s) ease-in-out infinite; }
+
+.vc-profile {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 56px 18px 64px;
+  max-width: 540px; margin: 0 auto;
+}
+
+.vc-avatar-wrap {
+  padding: 5px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--vc-cyan, #23e0e0), var(--vc-pink, #ff2e8b));
+  box-shadow: 0 0 28px color-mix(in srgb, var(--vc-pink, #ff2e8b) 55%, transparent);
+  animation: vc-pop .6s ease both;
+}
+.vc-avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid #120a24; display: block; }
+
+.vc-name {
+  font-family: var(--vc-heading-font, 'Pricedown', 'Anton', sans-serif);
+  font-size: clamp(2.6rem, 12vw, 5rem);
+  line-height: .92; letter-spacing: 1px; text-transform: uppercase;
+  text-align: center; margin-top: 20px;
+  color: var(--vc-sun, #ffd23c);
+  -webkit-text-stroke: 2px #120a24;
+  text-shadow:
+    3px 3px 0 #120a24,
+    0 0 26px color-mix(in srgb, var(--vc-pink, #ff2e8b) 60%, transparent);
+  transform: skewX(-5deg);
+  animation: vc-pop .6s .06s ease both;
+}
+
+.vc-bio {
+  margin-top: 14px; text-align: center; font-size: 1.05rem; line-height: 1.5; letter-spacing: .5px;
+  text-transform: uppercase; font-weight: 600;
+  color: #fff; text-shadow: 1px 1px 0 #120a24, 0 0 14px color-mix(in srgb, var(--vc-cyan, #23e0e0) 50%, transparent);
+  max-width: 420px;
+  animation: vc-pop .6s .12s ease both;
+}
+
+/* GTA cover-art mosaic of link tiles */
+.vc-links {
+  width: 100%; margin-top: 30px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+
+.vc-link {
+  position: relative; display: flex; align-items: center; justify-content: center; text-align: center;
+  min-height: 86px; padding: 14px 14px; text-decoration: none;
+  font-family: var(--vc-heading-font, 'Pricedown', 'Anton', sans-serif);
+  font-size: 1.4rem; line-height: 1.05; letter-spacing: .5px; text-transform: uppercase;
+  color: #fff;
+  border: 3px solid #120a24;
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #120a24, 0 0 18px rgba(0,0,0,.25);
+  text-shadow: 2px 2px 0 #120a24;
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s, filter .15s;
+  animation: vc-pop .6s both; animation-delay: calc(0.18s + var(--ll-i, 0) * 0.06s);
+}
+.vc-link::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.22) 0%, transparent 45%, rgba(0,0,0,.25) 100%);
+}
+/* cover-art palette cycle */
+.vc-link:nth-child(4n+1) { background: linear-gradient(160deg, var(--vc-pink, #ff2e8b), color-mix(in srgb, var(--vc-pink, #ff2e8b) 60%, #120a24)); transform: rotate(-1.5deg); }
+.vc-link:nth-child(4n+2) { background: linear-gradient(160deg, var(--vc-cyan, #23e0e0), color-mix(in srgb, var(--vc-cyan, #23e0e0) 55%, #0a2a3a)); transform: rotate(1.5deg); }
+.vc-link:nth-child(4n+3) { background: linear-gradient(160deg, var(--vc-sun, #ffd23c), #ff7a3c); transform: rotate(1deg); color: #120a24; text-shadow: 2px 2px 0 rgba(255,255,255,.5); }
+.vc-link:nth-child(4n+4) { background: linear-gradient(160deg, #7a3cff, var(--vc-pink, #ff2e8b)); transform: rotate(-1deg); }
+.vc-link:hover { transform: rotate(0deg) translate(-2px, -2px) scale(1.02); box-shadow: 7px 7px 0 #120a24; filter: brightness(1.08); z-index: 5; }
+
+/* block elements span the full mosaic width */
+.vc-links .ll-theme-block {
+  grid-column: 1 / -1; text-align: center; color: #fff;
+  text-shadow: 1px 1px 0 #120a24; animation: vc-pop .6s both; animation-delay: calc(0.18s + var(--ll-i, 0) * 0.06s);
+}
+.vc-links .ll-theme-block .fadein { opacity: 1; }
+.vc-links .ll-theme-block h2 {
+  font-family: var(--vc-heading-font, 'Anton', sans-serif); text-transform: uppercase; letter-spacing: 1px;
+  color: var(--vc-sun, #ffd23c); -webkit-text-stroke: 1px #120a24; text-shadow: 2px 2px 0 #120a24; margin: 8px 0;
+}
+.vc-links .ll-theme-block a { color: var(--vc-cyan, #23e0e0); }
+
+@keyframes vc-pop { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; } }
+@keyframes vc-sway   { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes vc-sway-r { 0%, 100% { transform: scaleX(-1) rotate(-2deg); } 50% { transform: scaleX(-1) rotate(2deg); } }
+
+@media (max-width: 420px) {
+  .vc-links { grid-template-columns: 1fr; }
+  .vc-link { transform: rotate(0) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-palm-left, .vc-palm-right, .vc-avatar-wrap, .vc-name, .vc-bio, .vc-link, .vc-links .ll-theme-block { animation: none; }
+}

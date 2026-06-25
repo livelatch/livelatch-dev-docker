@@ -2,7 +2,7 @@
 
 @section('content')
 <style data-ll-bt-style>
-    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comfortaa:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Kosugi+Maru&family=Lato:wght@400;700&family=Mochiy+Pop+One&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2:wght@400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Comfortaa:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Kosugi+Maru&family=Lato:wght@400;700&family=MedievalSharp&family=Mochiy+Pop+One&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Pixelify+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Share+Tech+Mono&family=Silkscreen:wght@400;700&family=Source+Code+Pro:wght@400;500;600;700&family=Tomorrow:wght@400;500;600;700&family=VT323&display=swap');
 
     .ll-bt-page { display: grid; gap: 14px; }
 

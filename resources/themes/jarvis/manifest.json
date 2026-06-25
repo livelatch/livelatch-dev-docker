@@ -1,0 +1,45 @@
+{
+  "name": "J.A.R.V.I.S.",
+  "slug": "jarvis",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A Stark-grade holographic HUD: rotating reticles, an arc-reactor avatar ring, scanning sweeps and angular interface buttons.",
+  "preview_gradient": "linear-gradient(160deg, #02070d 0%, #0bd1ff 100%)",
+  "libraries": [],
+  "defaults": {
+    "hudColor": "#37d6ff",
+    "accentColor": "#ffcc44",
+    "bgColor": "#03080f",
+    "textColor": "#dffaff",
+    "headingFont": "Orbitron",
+    "bodyFont": "Share Tech Mono",
+    "ringSpeed": 50,
+    "scanRate": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "hudColor": "#37d6ff", "accentColor": "#ffcc44", "bgColor": "#03080f", "textColor": "#dffaff", "ringSpeed": 50, "scanRate": 50 },
+    "stark":   { "hudColor": "#ff5a3c", "accentColor": "#ffd24a", "bgColor": "#0d0503", "textColor": "#ffe9dc", "ringSpeed": 55, "scanRate": 60 },
+    "ultron":  { "hudColor": "#b58cff", "accentColor": "#ff4ad4", "bgColor": "#070310", "textColor": "#efe6ff", "ringSpeed": 60, "scanRate": 55 },
+    "ghost":   { "hudColor": "#5fffd0", "accentColor": "#9affef", "bgColor": "#02100c", "textColor": "#dffff4", "ringSpeed": 45, "scanRate": 45 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "hudColor",    "label": "HUD glow" },
+      { "key": "accentColor", "label": "Accent" },
+      { "key": "bgColor",     "label": "Background" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Orbitron", "options": ["Orbitron", "Rajdhani", "Share Tech Mono", "Tomorrow"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Share Tech Mono", "options": ["Share Tech Mono", "Rajdhani", "Orbitron", "Inter"] }
+    },
+    "sliders": {
+      "ringSpeed": { "label": "Ring speed", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "scanRate":  { "label": "Scan rate",  "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "Space Station",
+  "slug": "spacestation",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Aboard an orbital station, looking out a riveted viewport at a slowly turning planet. Drifting stars and a hull-panel console of links.",
+  "preview_gradient": "linear-gradient(160deg, #05070f 0%, #1f5fa8 100%)",
+  "libraries": [],
+  "defaults": {
+    "planetColor": "#3f7fd8",
+    "atmoColor": "#7fd0ff",
+    "hullColor": "#2a3038",
+    "textColor": "#dfe9f5",
+    "headingFont": "Orbitron",
+    "bodyFont": "Exo 2",
+    "starDensity": 50,
+    "orbitSpeed": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "planetColor": "#3f7fd8", "atmoColor": "#7fd0ff", "hullColor": "#2a3038", "textColor": "#dfe9f5", "starDensity": 50, "orbitSpeed": 50 },
+    "mars":    { "planetColor": "#c1502a", "atmoColor": "#ff9f6e", "hullColor": "#332a26", "textColor": "#ffe9dc", "starDensity": 50, "orbitSpeed": 40 },
+    "gas":     { "planetColor": "#d9a23f", "atmoColor": "#ffe08a", "hullColor": "#2e2a22", "textColor": "#fff6e0", "starDensity": 60, "orbitSpeed": 60 },
+    "ice":     { "planetColor": "#5fc8e0", "atmoColor": "#d6fbff", "hullColor": "#26303a", "textColor": "#eafbff", "starDensity": 70, "orbitSpeed": 30 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "planetColor", "label": "Planet" },
+      { "key": "atmoColor",   "label": "Atmosphere" },
+      { "key": "hullColor",   "label": "Hull" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Orbitron", "options": ["Orbitron", "Exo 2", "Rajdhani", "Tomorrow"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Exo 2", "options": ["Exo 2", "Rajdhani", "Orbitron", "Inter"] }
+    },
+    "sliders": {
+      "starDensity": { "label": "Star density", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "orbitSpeed":  { "label": "Orbit speed",  "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

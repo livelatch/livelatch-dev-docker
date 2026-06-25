@@ -219,7 +219,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-brand-copy { min-width: 0; }
 
         .ll-brand-title {
-            font-size: 1.02rem;
+            font-family: var(--ll-font, 'Poppins', system-ui, sans-serif);
+            font-size: 1.08rem;
             font-weight: 800;
             letter-spacing: -0.04em;
             color: var(--ll-text);
@@ -232,6 +233,20 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             color: var(--ll-muted);
             margin: 0.25rem 0 0;
             font-weight: 500;
+        }
+
+        .ll-brand-badge {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            border-radius: 999px;
+            padding: 3px 9px;
+            line-height: 1;
         }
 
         .ll-sidebar-close,
@@ -1782,8 +1797,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                         @endif
                     </div>
                     <div class="ll-brand-copy">
-                        <p class="ll-brand-title">{{ env('APP_NAME') }}</p>
-                        <p class="ll-brand-subtitle">Creator studio</p>
+                        <p class="ll-brand-title">Live Latch</p>
+                        <span class="ll-brand-badge">Alpha 1.0</span>
                     </div>
                 </a>
 
@@ -1796,23 +1811,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                 <livewire:studio-navigation />
             </div>
 
-            <div class="ll-sidebar-footer">
-                <div class="ll-user-chip">
-                    <img src="{{ profileImageUrl(auth()->id()) }}" alt="{{ optional(auth()->user())->name }}" class="ll-avatar">
-                    <div class="min-w-0">
-                        <p class="ll-user-name">{{ optional(auth()->user())->name }}</p>
-                        <p class="ll-user-role">
-                            @if($userRole == "admin")
-                                {{ __('messages.Administrator') }}
-                            @elseif($userRole == "vip")
-                                {{ __('messages.Verified user') }}
-                            @else
-                                {{ __('messages.User') }}
-                            @endif
-                        </p>
-                    </div>
-                </div>
-            </div>
         </aside>
 
         <main class="main-content ll-main">
@@ -1821,54 +1819,21 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                     <i class="bi bi-list"></i>
                 </button>
 
+                @php
+                    $llHandle = optional(auth()->user())->littlelink_name;
+                    $llWho = $llHandle ? '@'.$llHandle : optional(auth()->user())->name;
+                @endphp
                 <div>
-                    <h6 class="mb-0 fw-bold">Studio</h6>
-                    <small style="color: var(--ll-muted);">Manage your Livelatch presence</small>
+                    <h6 class="mb-0 fw-bold">Thanks {{ $llWho }} for participating in the alpha 💙</h6>
+                    <small style="color: var(--ll-muted);">You're testing Livelatch Alpha 1.0</small>
                 </div>
 
                 <div class="ll-topbar-spacer"></div>
 
                 <div class="ll-topbar-actions d-flex align-items-center gap-2">
-                    <div class="dropdown">
-                        <a href="{{ $profileUrl }}" target="_blank" class="ll-pill-button primary">
-                            <i class="bi bi-box-arrow-up-right"></i>
-                            <span>{{ __('messages.View Page') }}</span>
-                        </a>
-                    </div>
-
-                    <div class="dropdown">
-                        <button class="ll-icon-button" type="button" id="llShareMenu" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share profile">
-                            <i class="bi bi-share-fill"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="llShareMenu">
-                            <li><h6 class="dropdown-header">{{ __('messages.Share your profile:') }}</h6></li>
-                            @if(env('SUPPORTED_DOMAINS') !== '' and env('SUPPORTED_DOMAINS') !== null)
-                                @php
-                                    $sDomains = str_replace(' ', '', env('SUPPORTED_DOMAINS'));
-                                    $sDomains = explode(',', $sDomains);
-                                @endphp
-                                @foreach ($sDomains as $myvar)
-                                    <li>
-                                        <a class="dropdown-item share-button" style="cursor:pointer!important;" data-share="{{ 'https://'.$myvar.'/@'.Auth::user()->littlelink_name }}">
-                                            <i class="bi bi-files"></i> {{ $myvar }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            @else
-                                <li>
-                                    <a class="dropdown-item share-button" style="cursor:pointer!important;" data-share="{{ url('').'/@'.Auth::user()->littlelink_name }}">
-                                        <i class="bi bi-files"></i> {{ str_replace(['http://', 'https://'], '', url('')) }}
-                                    </a>
-                                </li>
-                            @endif
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" data-bs-toggle="modal" style="cursor:pointer!important;" data-bs-target="#staticBackdrop">
-                                    <i class="bi bi-qr-code-scan"></i> {{ __('messages.QR Code') }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <a href="{{ $profileUrl }}" target="_blank" class="ll-icon-button" aria-label="{{ __('messages.View Page') }}" title="{{ __('messages.View Page') }}">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
 
                     <div class="dropdown">
                         <button class="ll-icon-button" type="button" id="llNotificationMenu" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">

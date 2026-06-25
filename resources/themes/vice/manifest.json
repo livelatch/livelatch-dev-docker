@@ -1,0 +1,45 @@
+{
+  "name": "Vice City",
+  "slug": "vice",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Neon sunset, palm silhouettes and a Pricedown-style title. Your links are laid out like the box-art panels on the cover of a GTA.",
+  "preview_gradient": "linear-gradient(160deg, #ff2e8b 0%, #ff9a3c 55%, #2a1a5e 100%)",
+  "libraries": [],
+  "defaults": {
+    "pinkColor": "#ff2e8b",
+    "cyanColor": "#23e0e0",
+    "sunColor": "#ffd23c",
+    "textColor": "#ffffff",
+    "headingFont": "Pricedown",
+    "bodyFont": "Oswald",
+    "sunGlow": 50,
+    "palmSway": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default": { "pinkColor": "#ff2e8b", "cyanColor": "#23e0e0", "sunColor": "#ffd23c", "textColor": "#ffffff", "sunGlow": 50, "palmSway": 50 },
+    "miami":   { "pinkColor": "#ff4fa3", "cyanColor": "#00e5ff", "sunColor": "#ffcf2e", "textColor": "#ffffff", "sunGlow": 60, "palmSway": 60 },
+    "noir":    { "pinkColor": "#b53a7a", "cyanColor": "#5a8aa0", "sunColor": "#d9a14a", "textColor": "#f0e6ee", "sunGlow": 30, "palmSway": 40 },
+    "lime":    { "pinkColor": "#ff2e8b", "cyanColor": "#9cff3c", "sunColor": "#ffe14a", "textColor": "#ffffff", "sunGlow": 55, "palmSway": 55 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "pinkColor", "label": "Neon pink" },
+      { "key": "cyanColor", "label": "Neon cyan" },
+      { "key": "sunColor",  "label": "Sun" },
+      { "key": "textColor", "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Pricedown", "options": ["Pricedown", "Anton", "Oswald", "Montserrat"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Oswald", "options": ["Oswald", "Anton", "Montserrat", "Inter"] }
+    },
+    "sliders": {
+      "sunGlow":  { "label": "Sun glow", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "palmSway": { "label": "Palm sway", "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}

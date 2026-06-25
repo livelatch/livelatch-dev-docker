@@ -8,6 +8,15 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-25
+
+- Agent: Claude (Opus)
+- Added **7 new blade themes** (auto-discovered by the Studio — no Studio code needed): **Windows 98** (`win98`), **Minecraft** (`minecraft`), **Ancient Runes / Skyrim** (`skyrim`), **Space Station** (`spacestation`), **J.A.R.V.I.S.** (`jarvis`), **Console / Matrix** (`console`), **Vice City / GTA VI** (`vice`). Each ships the standard 4 files: `resources/themes/<slug>/manifest.json`, `resources/views/themes/<slug>.blade.php`, `assets/themes/<slug>/{style.css,<slug>.js}`. All follow the established patterns: inline CSS/JS from `public_path('assets/themes/<slug>/…')` (project-root web dir) with `<link>`/`<script>` fallbacks; links rendered via the shared `themes.partials.links` partial (full block-type support) with `block-libraries` + stacks wired into `<head>`/body-end; hex/clamp/option sanitisation in the blade; 4 colours + 2 sliders + heading/body typography + Pro custom-CSS per manifest; 4 presets each.
+  - **No-CDN (self-contained 2D canvas / CSS):** `win98` (Start-menu reveals links, live taskbar clock, desktop-icon parade, CRT scanlines — JS toggles + clock), `skyrim` (counter-rotating Elder-Futhark rune rings + rising embers, engraved stone tablet buttons), `spacestation` (CSS rotating planet in a riveted viewport + parallax starfield canvas, hull-console buttons), `jarvis` (arc-reactor HUD: rotating reticles/ticks, radar sweep, corner brackets, data motes; angular clipped buttons), `console` (Matrix code-rain canvas + terminal window with typewriter name reveal; links styled as `./open` commands), `vice` (synthwave sun + perspective grid + stars canvas, CSS palm-tree SVG sway, GTA cover-art link mosaic with Pricedown title).
+  - **CDN (Three.js r158, same as Portal):** `minecraft` — a scrolling voxel landscape (`InstancedMesh` of cubes, sine-layered height/colour) flown over with a banking "elytra glide" camera; treadmill terrain so it never ends.
+  - **Font handling:** added the new families to the Studio's `@import` (Anton, Cinzel, Cinzel Decorative, Exo 2, MedievalSharp, Orbitron, Pixelify Sans, Share Tech Mono, Silkscreen, Source Code Pro, Tomorrow, VT323). Each theme builds its Google Fonts URL with **no weight axis** (`family=Name`) to avoid the single-weight 400 caveat. **Pricedown** (Vice title) is **not** a Google font: loaded via `@font-face`/`@import` from a webfont CDN inside `vice/style.css`, kept out of the Google request (which would 400 the whole call), with **Anton** always included as the live fallback.
+  - Validation: all 7 manifests parse as JSON; `view:cache` compiles every blade; `ThemeRegistry::all()` returns `aero, console, cute, jarvis, minecraft, portal, skyrim, spacestation, vice, win98` (cache cleared). Doc updated (`docs/themes/blade-theme-system.md`, "Other bundled themes").
+
 ### 2026-06-24
 
 - Agent: Claude (Opus)

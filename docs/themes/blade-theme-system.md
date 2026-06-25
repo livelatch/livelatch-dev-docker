@@ -214,7 +214,26 @@ Both ship with **no external JS** — the animation is a self-contained 2D `<can
 - **Frutiger Aero** (`aero`) — glossy 2009-era skies with rising bubbles (2D canvas) and Windows 7 "Aero glass" buttons (vertical gloss gradient + top-half highlight overlay). Controls: Primary/Sky/Aqua/Text colours, heading/body fonts, bubble density + speed sliders. Presets: default, aqua, sunset, forest.
 - **Cute** (`cute`) — pastel kawaii: drifting paw prints + twinkling sparkles (2D canvas, paw colour from settings) and chunky candy buttons with a 3D bottom edge and a 🐾 glyph. Controls: Primary/Secondary/Paws/Text colours, heading/body fonts (Mochiy Pop One, Kosugi Maru, Pacifico…), density + drift sliders. Presets: default, sakura, mint, lavender. The background gradient is derived from the Primary/Secondary colours via `color-mix`, so it stays pastel for any palette.
 
-> **Google Fonts caveat.** Some display/Japanese families (Mochiy Pop One, Pacifico, Kosugi Maru) ship a **single weight**. Requesting an unavailable weight (`:wght@700`) makes the whole CSS2 request 400. So `aero`/`cute` build their font URL with **no weight axis** (`family=Name` only) — variable fonts still serve their full range, single-weight fonts just work. (Portal keeps explicit weights because Poppins/Oswald support them.)
+### Themed showcase set (added 2026-06-25)
+
+A batch of seven higher-concept themes, all built on the patterns above (shared links partial, inlined assets, manifest-driven controls = 4 colours + 2 sliders + heading/body fonts + Pro custom CSS, 4 presets each).
+
+No external JS (self-contained 2D canvas and/or CSS):
+
+- **Windows 98** (`win98`) — a retro desktop. Links live in the **Start menu** (hit Start to open them); there's a live taskbar clock, a parade of desktop icons, classic 3D-bevel chrome and a CRT-scanline overlay. `win98.js` handles the Start toggle, clock and icon layout. Controls: Title bar / Desktop / Window / Text colours, fonts (Pixelify Sans, VT323, Silkscreen, Press Start 2P), desktop-icon density + scanline-glow sliders.
+- **Ancient Runes** (`skyrim`) — a weathered stone wall with counter-rotating rings of glowing Elder-Futhark runes and rising embers (`skyrim.js`); links are engraved stone tablets. Controls: Rune glow / Stone / Embers / Text, fonts (Cinzel, Cinzel Decorative, MedievalSharp…), rune-density + ember-rate sliders.
+- **Space Station** (`spacestation`) — a riveted viewport looking out at a **CSS-rendered rotating planet** (surface + cloud layers + terminator shadow) over a parallax starfield canvas (`spacestation.js`); profile sits on a hull console. Orbit-speed drives the planet spin via a `--ss-spin` CSS var computed in the blade. Controls: Planet / Atmosphere / Hull / Text, fonts (Orbitron, Exo 2, Rajdhani, Tomorrow), star-density + orbit-speed sliders.
+- **J.A.R.V.I.S.** (`jarvis`) — a Stark-style holographic HUD: rotating reticles + tick scales, a radar sweep, corner brackets and floating data motes (`jarvis.js`), an arc-reactor avatar ring, and angular clipped-corner buttons. Controls: HUD glow / Accent / Background / Text, fonts (Orbitron, Rajdhani, Share Tech Mono…), ring-speed + scan-rate sliders.
+- **Console** (`console`) — "you're in the Matrix": cascading green code-rain canvas behind a terminal window that types out the display name (`console.js`); links are styled as `./open` shell commands with a blinking prompt. Controls: Code rain / Prompt / Background / Text, fonts (VT323, Share Tech Mono, Source Code Pro…), rain-density + rain-speed sliders.
+- **Vice City** (`vice`) — GTA VI: neon sunset gradient, a synthwave sun + perspective grid + stars canvas (`vice.js`), swaying palm-tree SVG silhouettes, a **Pricedown** title with a heavy outline, and links laid out as a **GTA cover-art mosaic** (rotated colour tiles). Controls: Neon pink / Neon cyan / Sun / Text, fonts (Pricedown, Anton, Oswald…), sun-glow + palm-sway sliders.
+
+CDN (Three.js r158, like Portal):
+
+- **Minecraft** (`minecraft`) — soar over an infinite voxel world as if on elytra. `minecraft.js` builds an `InstancedMesh` of cubes with sine-layered terrain height/colour and a treadmill that recycles rows so the landscape never ends; the camera banks, yaws and bobs like a glide. Controls: Terrain / Sky / Stone / Text, fonts (Press Start 2P, VT323, Silkscreen…), view-distance + glide-speed sliders. Loads `three.min.js` from a CDN; everything else is inlined.
+
+> **Google Fonts caveat.** Some display/Japanese families (Mochiy Pop One, Pacifico, Kosugi Maru, Press Start 2P, VT323, Silkscreen, Anton, Share Tech Mono…) ship a **single weight**. Requesting an unavailable weight (`:wght@700`) makes the whole CSS2 request 400. So these themes build their font URL with **no weight axis** (`family=Name` only) — variable fonts still serve their full range, single-weight fonts just work. (Portal keeps explicit weights because Poppins/Oswald support them.)
+>
+> **Non-Google font (`vice`).** **Pricedown** (the GTA title face) is not on Google Fonts. It's loaded via `@font-face`/`@import` from a webfont CDN inside `vice/style.css`, and is **excluded from the blade's Google request** (an unknown family there would 400 the whole call). **Anton** (Google) is always added to the request and sits next in the font stack, so the title still renders a close condensed-heavy face if the CDN font is unavailable.
 
 ## Activating a blade theme for a user
 
