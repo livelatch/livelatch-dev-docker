@@ -20,6 +20,8 @@ The route is registered inside the existing admin middleware group in `routes/we
 
 The editor shows **two live preview stages** at once — one light, one dark — so you can design both Studio themes independently in a single pass. A mode tab (Light / Dark) chooses which set of colour tokens the controls edit; the shape/type tokens are shared across both.
 
+Each preview stage exercises **every** editable token so a change is always visible: the hero/cards cover `--ll-bg`, `--ll-surface-solid`, `--ll-text`, `--ll-muted`, `--ll-primary`/`--ll-primary-2`, `--ll-radius`, `--ll-button-radius` and the heading/button weights; a dedicated "soft surface" row + readonly field cover `--ll-bg-soft`, and an accent pill covers `--ll-primary-3`.
+
 The editor covers:
 
 ```css

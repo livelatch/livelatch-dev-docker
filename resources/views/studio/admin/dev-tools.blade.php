@@ -177,6 +177,22 @@
     }
     .ll-dev-stage .lls-card strong { color: var(--ll-text); font-size: 0.9rem; }
     .ll-dev-stage .lls-card span { color: var(--ll-muted); font-size: 0.76rem; }
+    /* Soft-background surface + accent so --ll-bg-soft and --ll-primary-3 preview live */
+    .ll-dev-stage .lls-soft {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        padding: 10px 12px; border-radius: calc(var(--ll-radius) - 12px);
+        background: var(--ll-bg-soft); border: 1px solid var(--ll-border);
+    }
+    .ll-dev-stage .lls-soft strong { color: var(--ll-text); font-size: 0.82rem; }
+    .ll-dev-stage .lls-accent {
+        padding: 4px 11px; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+        color: var(--ll-bg); background: var(--ll-primary-3);
+    }
+    .ll-dev-stage .lls-field {
+        width: 100%; border: 1px solid var(--ll-border); border-radius: var(--ll-button-radius);
+        background: var(--ll-bg-soft); color: var(--ll-muted);
+        padding: 9px 12px; font-size: 0.82rem; font-family: inherit;
+    }
 
     .ll-dev-instructions {
         width: 100%; min-height: 240px; resize: vertical;
@@ -311,6 +327,11 @@
                                 <div class="lls-card"><strong>Surface</strong><span>Panel background &amp; radius</span></div>
                                 <div class="lls-card"><strong>Text</strong><span>Heading &amp; muted contrast</span></div>
                             </div>
+                            <div class="lls-soft">
+                                <strong>Soft background &amp; inputs</strong>
+                                <span class="lls-accent">Accent</span>
+                            </div>
+                            <input class="lls-field" type="text" value="Field on soft background" readonly aria-label="Soft background field preview">
                         </div>
                     </div>
 
@@ -330,6 +351,11 @@
                                 <div class="lls-card"><strong>Surface</strong><span>Panel background &amp; radius</span></div>
                                 <div class="lls-card"><strong>Text</strong><span>Heading &amp; muted contrast</span></div>
                             </div>
+                            <div class="lls-soft">
+                                <strong>Soft background &amp; inputs</strong>
+                                <span class="lls-accent">Accent</span>
+                            </div>
+                            <input class="lls-field" type="text" value="Field on soft background" readonly aria-label="Soft background field preview">
                         </div>
                     </div>
                 </div>
