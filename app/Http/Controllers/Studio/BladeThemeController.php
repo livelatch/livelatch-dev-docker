@@ -174,6 +174,16 @@ class BladeThemeController extends Controller
             $out['customCss'] = mb_substr($css, 0, 5000);
         }
 
+        // Universal link-icon controls — apply to every blade theme, so they are
+        // accepted regardless of what the theme's manifest declares. Icons are
+        // rendered by the shared themes.partials.links partial.
+        if (isset($input['showLinkIcons'])) {
+            $out['showLinkIcons'] = ((string) $input['showLinkIcons'] === '0') ? '0' : '1';
+        }
+        if (isset($input['linkIconColor']) && preg_match('/^#[0-9a-fA-F]{3,8}$/', (string) $input['linkIconColor'])) {
+            $out['linkIconColor'] = (string) $input['linkIconColor'];
+        }
+
         return $out;
     }
 

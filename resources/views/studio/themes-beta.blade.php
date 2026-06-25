@@ -187,6 +187,17 @@
     .ll-bt-slider .ll-bt-slider-head strong { color: var(--ll-text); }
     .ll-bt-range { width: 100%; accent-color: var(--ll-primary); }
 
+    /* Link icons section */
+    .ll-bt-switch { display: flex; align-items: center; gap: 9px; cursor: pointer; color: var(--ll-text); font-weight: 600; font-size: .9rem; margin: 0 0 10px; }
+    .ll-bt-switch input { width: 16px; height: 16px; accent-color: var(--ll-primary); flex: 0 0 auto; }
+    .ll-bt-icon-color { padding-top: 4px; }
+    .ll-bt-icon-color-pick { display: flex; align-items: center; gap: 10px; padding-left: 25px; }
+    .ll-bt-icon-color-pick input[type="color"] { appearance: none; -webkit-appearance: none; border: 1px solid var(--ll-border); width: 34px; height: 34px; border-radius: 9px; padding: 0; cursor: pointer; background: none; }
+    .ll-bt-icon-color-pick input[type="color"]:disabled { opacity: .45; cursor: default; }
+    .ll-bt-icon-color-pick input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .ll-bt-icon-color-pick input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 8px; }
+    .ll-bt-icon-color-val { color: var(--ll-muted); font-size: .8rem; font-weight: 600; }
+
     /* Custom CSS */
     .ll-bt-css-wrap { position: relative; }
     .ll-bt-css { width: 100%; min-height: 120px; border: 1px solid var(--ll-border); border-radius: 12px; background: #0e1424; color: #e6edff; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; padding: 12px; resize: vertical; }
@@ -277,6 +288,25 @@
                 <div class="ll-bt-sec" id="ll-bt-effects-panel">
                     <div class="ll-bt-sec-title"><i class="bi bi-sliders"></i> Effects</div>
                     <div id="ll-bt-sliders"></div>
+                </div>
+
+                <div class="ll-bt-sec" id="ll-bt-icons-panel">
+                    <div class="ll-bt-sec-title"><i class="bi bi-link-45deg"></i> Link icons</div>
+                    <label class="ll-bt-switch">
+                        <input type="checkbox" id="ll-bt-show-icons" checked>
+                        <span>Show icons on links</span>
+                    </label>
+                    <div class="ll-bt-icon-color" id="ll-bt-icon-color-row">
+                        <label class="ll-bt-switch">
+                            <input type="checkbox" id="ll-bt-icon-color-toggle">
+                            <span>Custom icon colour</span>
+                        </label>
+                        <div class="ll-bt-icon-color-pick">
+                            <input type="color" id="ll-bt-icon-color" value="#ffffff" disabled>
+                            <span class="ll-bt-icon-color-val" id="ll-bt-icon-color-val">Match link colour</span>
+                        </div>
+                    </div>
+                    <p class="ll-bt-hint" style="text-align:left;margin-top:6px;">Icons come from each link's Simple Icon. Off = no icons; custom colour off = matches the link's text colour.</p>
                 </div>
 
                 <div class="ll-bt-sec" id="ll-bt-css-panel" hidden>
@@ -407,6 +437,7 @@
         renderTypography();
         renderSliders();
         renderCustomCss();
+        syncIconControls();
         schedulePreview();
     }
 
@@ -676,6 +707,48 @@
         return /^#[0-9a-fA-F]{3,8}$/.test(v) ? v : '#000000';
     }
 
+    // ---- Link icons (universal — applies to every blade theme) ----
+    function syncIconControls() {
+        const show = $('#ll-bt-show-icons');
+        const colToggle = $('#ll-bt-icon-color-toggle');
+        const col = $('#ll-bt-icon-color');
+        const colVal = $('#ll-bt-icon-color-val');
+        if (!show) return;
+        const showVal = String(state.settings.showLinkIcons == null ? '1' : state.settings.showLinkIcons) !== '0';
+        show.checked = showVal;
+        const c = state.settings.linkIconColor || '';
+        const hasC = /^#[0-9a-fA-F]{3,8}$/.test(c);
+        colToggle.checked = hasC;
+        col.value = hasC ? c : '#ffffff';
+        col.disabled = !hasC;
+        colVal.textContent = hasC ? c : 'Match link colour';
+    }
+    function bindIconControls() {
+        const show = $('#ll-bt-show-icons');
+        const colToggle = $('#ll-bt-icon-color-toggle');
+        const col = $('#ll-bt-icon-color');
+        const colVal = $('#ll-bt-icon-color-val');
+        if (!show) return;
+        show.addEventListener('change', () => {
+            state.settings.showLinkIcons = show.checked ? '1' : '0';
+            schedulePreview();
+        });
+        function applyColor() {
+            if (colToggle.checked) {
+                col.disabled = false;
+                state.settings.linkIconColor = col.value;
+                colVal.textContent = col.value;
+            } else {
+                col.disabled = true;
+                delete state.settings.linkIconColor;
+                colVal.textContent = 'Match link colour';
+            }
+            schedulePreview();
+        }
+        colToggle.addEventListener('change', applyColor);
+        col.addEventListener('input', applyColor);
+    }
+
     // ---- Boot ----
     resetSettingsToTheme(state.slug);
     renderCarousel();
@@ -687,6 +760,8 @@
     renderDevices();
     bindArrows();
     bindActions();
+    bindIconControls();
+    syncIconControls();
     fitDevice();
     refreshPreview();
     window.addEventListener('resize', fitDevice);

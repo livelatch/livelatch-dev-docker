@@ -88,7 +88,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             color-scheme: light;
             --ll-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             --ll-bg: #ffffff;
-            --ll-bg-soft: #d1faff;
+            --ll-bg-soft: #ffffff;
             --ll-surface: rgba(255, 255, 255, 0.78);
             --ll-surface-solid: #ffffff;
             --ll-text: #00073d;
@@ -112,10 +112,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         :root[data-ll-theme="dark"],
         [data-ll-theme="dark"] {
             color-scheme: dark;
-            --ll-bg: #121212;
-            --ll-bg-soft: #0e2225;
+            --ll-bg: #000421;
+            --ll-bg-soft: #000421;
             --ll-surface: rgba(16, 16, 31, 0.78);
-            --ll-surface-solid: #171827;
+            --ll-surface-solid: #000421;
             --ll-text: #f8fbff;
             --ll-muted: #aeb8cf;
             --ll-border: rgba(255, 255, 255, 0.10);

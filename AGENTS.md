@@ -87,3 +87,14 @@ When new owner follow-up work is discovered, create a new Markdown file in `docs
 ## Open Graph Images
 
 When implementing generated Open Graph preview cards from the internal editor output, assume the production output should be PNG unless explicitly instructed otherwise.
+
+## Blade Themes
+
+Every blade theme (the full-page themes under `resources/themes/<slug>/` + `resources/views/themes/<slug>.blade.php`) **must support toggling social/link icons**. This is handled centrally — do not reimplement it per theme — but new and edited themes must not break it:
+
+- Render the link area through the shared partial: `@include('themes.partials.links', ['links' => $links, 'linkClass' => '<prefix>-link'])`. That partial draws each link's Simple Icon (`custom_icon = "si:<slug>"`) as a masked `<span class="ll-theme-si">` and honours the universal settings `showLinkIcons` (`'1'`/`'0'`, default on) and `linkIconColor` (hex; empty = inherit the link's text colour via `currentColor`). Never hand-roll the link loop in a way that drops the icon span.
+- Pass the theme view's `$settings` through so the partial can read those two keys (Blade `@include` already inherits parent scope — just don't rename/shadow `$settings`).
+- Icons inherit `currentColor`, so ensure your link buttons set a sensible text `color`. If a theme needs a different default icon tint, expose it through `linkIconColor`, not a hardcoded colour.
+- These two controls live on the Theme Studio Beta page (`/studio/themes-beta`) for all themes and are sanitised in `BladeThemeController::sanitize()` regardless of manifest — a theme's `manifest.json` does **not** need to declare them.
+
+See `docs/themes/how-to-create-themes.md` and `docs/themes/blade-theme-system.md` for the full theme contract.
