@@ -28,12 +28,32 @@
     if (!function_exists('ll_theme_link_icon')) {
         function ll_theme_link_icon($link, $show, $color) {
             if (!$show) { return ''; }
-            $ci = (string) ($link->custom_icon ?? '');
-            if (strpos($ci, 'si:') !== 0) { return ''; }
-            $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(explode(':', substr($ci, 3))[0] ?? ''));
-            if ($slug === '') { return ''; }
-            $src = 'https://cdn.simpleicons.org/' . $slug;
-            $bg  = $color !== '' ? $color : 'currentColor';
+
+            $ci   = (string) ($link->custom_icon ?? '');
+            $name = (string) ($link->name ?? '');
+            $src  = null;
+
+            if (strpos($ci, 'si:') === 0) {
+                // New unified Links block: a Simple Icons slug.
+                $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(explode(':', substr($ci, 3))[0] ?? ''));
+                if ($slug !== '') { $src = 'https://cdn.simpleicons.org/' . $slug; }
+            } elseif ($name !== '' && !in_array($name, ['custom', 'custom_website', 'icon', 'vcard'], true)) {
+                // Legacy predefined "brand" button: use the bundled LinkStack
+                // brand SVG (same source the classic renderer uses).
+                $brand = preg_replace('/[^a-z0-9_-]/', '', str_replace('default ', '', strtolower($name)));
+                // Only use it when the file exists — a CSS mask can't fall back on
+                // a 404 (it would show a solid coloured square).
+                if ($brand !== '' && is_file(public_path('assets/linkstack/icons/' . $brand . '.svg'))) {
+                    $src = asset('assets/linkstack/icons/' . $brand . '.svg');
+                }
+            }
+
+            if (!$src) { return ''; }
+
+            // Rendered as a CSS mask so it takes the icon colour (which defaults
+            // to the link's own text colour). Works for both Simple Icons and the
+            // monochrome brand SVGs.
+            $bg = $color !== '' ? $color : 'currentColor';
             return '<span class="ll-theme-si" aria-hidden="true" style="background-color:' . e($bg)
                 . ";-webkit-mask:url('" . e($src) . "') center/contain no-repeat;mask:url('" . e($src) . "') center/contain no-repeat;\"></span>";
         }

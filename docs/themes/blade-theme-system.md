@@ -281,7 +281,7 @@ and `@stack('linkstack-body-end')` before `</body>`. (block-libraries `@push`es 
 
 ### Link icons (social icons)
 
-The shared partial also renders each link's **Simple Icons** brand glyph (`custom_icon = "si:<slug>"`) as a colour-inheriting mask `<span class="ll-theme-si">`. Two **universal** settings — applied to *every* blade theme — control them, edited on the Theme Studio Beta page and saved into the blade theme settings:
+The shared partial renders each link's icon as a colour-inheriting mask `<span class="ll-theme-si">` — both the new unified Links block's **Simple Icons** (`custom_icon = "si:<slug>"`) **and** legacy **predefined-brand** links (the bundled `assets/linkstack/icons/<name>.svg`, resolved from the button name when the file exists). Two **universal** settings — applied to *every* blade theme — control them, edited on the Theme Studio Beta page and saved into the blade theme settings:
 
 - `showLinkIcons` (`'1'`/`'0'`, default on),
 - `linkIconColor` (hex; empty = inherit the link's text colour via `currentColor`).
