@@ -4,70 +4,78 @@
 <style data-ll-bt-style>
     @import url('https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2:wght@400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Comfortaa:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Kosugi+Maru&family=Lato:wght@400;700&family=MedievalSharp&family=Mochiy+Pop+One&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Pixelify+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Share+Tech+Mono&family=Silkscreen:wght@400;700&family=Source+Code+Pro:wght@400;500;600;700&family=Tomorrow:wght@400;500;600;700&family=VT323&display=swap');
 
-    .ll-bt-page { display: grid; gap: 14px; }
+    .ll-bt-page { display: grid; gap: 20px; }
 
+    /* ---- Header ---- */
     .ll-bt-top {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 18px;
-        align-items: end;
+        display: flex; flex-wrap: wrap; gap: 14px 20px;
+        align-items: flex-end; justify-content: space-between;
     }
     .ll-bt-top h1 {
         color: var(--ll-text);
-        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        font-size: clamp(1.6rem, 2.5vw, 2.15rem);
         line-height: 1;
-        margin: 0 0 6px;
+        margin: 0 0 7px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 11px;
     }
     .ll-bt-beta {
-        font-size: .62rem;
+        font-size: .58rem;
         font-weight: 800;
-        letter-spacing: .08em;
+        letter-spacing: .1em;
         text-transform: uppercase;
         color: #fff;
         background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
         border-radius: 999px;
-        padding: 5px 10px;
-        transform: translateY(-4px);
+        padding: 4px 9px;
+        transform: translateY(-3px);
     }
-    .ll-bt-top p { color: var(--ll-muted); margin: 0; }
+    .ll-bt-top p { color: var(--ll-muted); margin: 0; max-width: 62ch; font-size: .9rem; }
 
     .ll-bt-actions { display: inline-flex; gap: 10px; align-items: center; }
     .ll-bt-btn {
         display: inline-flex; align-items: center; gap: 8px;
         border: 0; cursor: pointer;
         border-radius: var(--ll-button-radius);
-        font-weight: 800; padding: 12px 18px;
+        font-weight: 700; font-size: .92rem; padding: 11px 18px;
+        transition: transform .12s ease, box-shadow .16s ease, color .16s, opacity .16s;
     }
+    .ll-bt-btn:hover { transform: translateY(-1px); }
     .ll-bt-btn-save { background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2)); color: #fff; box-shadow: var(--ll-shadow-soft); }
-    .ll-bt-btn-reset { background: var(--ll-surface-solid); color: var(--ll-muted); border: 1px solid var(--ll-border); }
-    .ll-bt-btn[disabled] { opacity: .6; cursor: default; }
+    .ll-bt-btn-reset { background: transparent; color: var(--ll-muted); border: 1px solid var(--ll-border); }
+    .ll-bt-btn-reset:hover { color: var(--ll-text); border-color: color-mix(in srgb, var(--ll-text) 28%, var(--ll-border)); }
+    .ll-bt-btn[disabled] { opacity: .6; cursor: default; transform: none; }
 
+    /* ---- Layout ---- */
     .ll-bt-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1.32fr) minmax(340px, .68fr);
-        gap: 18px;
+        grid-template-columns: minmax(0, 1.32fr) minmax(330px, .68fr);
+        gap: 20px;
         align-items: start;
     }
-    .ll-bt-main { display: grid; gap: 14px; min-width: 0; }
+    .ll-bt-main { display: grid; gap: 20px; min-width: 0; }
 
+    /* ---- Panels ---- */
     .ll-bt-panel {
         border: 1px solid var(--ll-border);
         border-radius: var(--ll-radius);
         background: var(--ll-surface-solid);
         box-shadow: var(--ll-shadow-soft);
-        padding: 16px;
+        padding: 18px 20px;
         min-width: 0;
     }
-    .ll-bt-panel h2 {
-        color: var(--ll-text);
-        font-size: 1rem;
-        margin: 0 0 4px;
-        display: flex; align-items: center; gap: 8px;
+    /* Panel header: title + right-aligned hint */
+    .ll-bt-phead {
+        display: flex; align-items: baseline; justify-content: space-between;
+        gap: 14px; margin: 0 0 14px;
     }
-    .ll-bt-panel .ll-bt-sub { color: var(--ll-muted); font-size: .84rem; margin: 0 0 12px; }
+    .ll-bt-phead h2 {
+        color: var(--ll-text); font-size: 1rem; margin: 0;
+        display: flex; align-items: center; gap: 9px;
+    }
+    .ll-bt-phead h2 i { color: var(--ll-primary); }
+    .ll-bt-hint { color: var(--ll-muted); font-size: .76rem; text-align: right; }
 
     /* ---- Base theme carousel ---- */
     .ll-bt-carousel { position: relative; }
@@ -76,96 +84,120 @@
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         scroll-behavior: smooth;
-        padding: 4px 2px 12px;
+        padding: 2px 2px 10px;
         scrollbar-width: thin;
     }
     .ll-bt-card {
-        flex: 0 0 188px; width: 188px;
+        flex: 0 0 176px; width: 176px;
         scroll-snap-align: start;
         border: 1px solid var(--ll-border);
-        border-radius: 22px;
-        background: var(--ll-surface-solid);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--ll-bg-soft) 45%, transparent);
         cursor: pointer;
-        padding: 10px;
+        padding: 9px;
         text-align: left;
-        display: grid; gap: 8px;
+        display: grid; gap: 6px;
         transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     }
-    .ll-bt-card:hover { transform: translateY(-2px); }
+    .ll-bt-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--ll-primary) 30%, var(--ll-border)); }
     .ll-bt-card.is-active {
-        border-color: color-mix(in srgb, var(--ll-primary) 60%, var(--ll-border));
-        box-shadow: 0 10px 30px color-mix(in srgb, var(--ll-primary) 18%, transparent);
+        border-color: color-mix(in srgb, var(--ll-primary) 65%, var(--ll-border));
+        box-shadow: 0 8px 26px color-mix(in srgb, var(--ll-primary) 16%, transparent);
     }
     .ll-bt-thumb {
-        height: 92px; border-radius: 14px; position: relative; overflow: hidden;
-        display: flex; align-items: flex-end; padding: 8px;
+        height: 84px; border-radius: 11px; position: relative; overflow: hidden;
+        display: flex; align-items: flex-end; padding: 7px;
     }
     .ll-bt-thumb .ll-bt-used {
-        font-size: .68rem; font-weight: 700; color: #fff;
+        font-size: .65rem; font-weight: 700; color: #fff;
         background: rgba(0,0,0,.42); border-radius: 999px; padding: 3px 8px;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px); display: inline-flex; gap: 4px; align-items: center;
     }
-    .ll-bt-card-name { color: var(--ll-text); font-weight: 700; font-size: .92rem; line-height: 1.1; }
-    .ll-bt-card-author { color: var(--ll-muted); font-size: .76rem; }
-    .ll-bt-stars { color: #f5b301; font-size: .8rem; letter-spacing: 1px; }
-    .ll-bt-stars span { color: var(--ll-muted); font-size: .7rem; margin-left: 4px; }
+    .ll-bt-card-name { color: var(--ll-text); font-weight: 700; font-size: .88rem; line-height: 1.15; }
+    .ll-bt-card-author { color: var(--ll-muted); font-size: .73rem; margin-top: -2px; }
+    .ll-bt-stars { color: #f5b301; font-size: .74rem; letter-spacing: 1px; }
+    .ll-bt-stars span { color: var(--ll-muted); font-size: .65rem; margin-left: 4px; letter-spacing: 0; }
 
     .ll-bt-arrow {
-        position: absolute; top: 38px; z-index: 3;
-        width: 36px; height: 36px; border-radius: 50%;
+        position: absolute; top: 28px; z-index: 3;
+        width: 34px; height: 34px; border-radius: 50%;
         border: 1px solid var(--ll-border); background: var(--ll-surface-solid);
         color: var(--ll-text); cursor: pointer; box-shadow: var(--ll-shadow-soft);
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center; justify-content: center; opacity: .92;
     }
-    .ll-bt-arrow-prev { left: -8px; }
-    .ll-bt-arrow-next { right: -8px; }
+    .ll-bt-arrow:hover { opacity: 1; }
+    .ll-bt-arrow-prev { left: -10px; }
+    .ll-bt-arrow-next { right: -10px; }
 
-    .ll-bt-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    /* Presets sit under the carousel, on a divider, labelled */
+    .ll-bt-preset-row {
+        display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        margin-top: 12px; padding-top: 14px;
+        border-top: 1px solid color-mix(in srgb, var(--ll-border) 65%, transparent);
+    }
+    .ll-bt-preset-label { color: var(--ll-muted); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .ll-bt-presets { display: flex; flex-wrap: wrap; gap: 7px; }
     .ll-bt-pill {
         border: 1px solid var(--ll-border); border-radius: 999px;
-        background: var(--ll-surface-solid); color: var(--ll-text);
-        cursor: pointer; font-weight: 700; font-size: .82rem; padding: 7px 12px;
+        background: transparent; color: var(--ll-text);
+        cursor: pointer; font-weight: 700; font-size: .8rem; padding: 6px 13px;
+        transition: border-color .14s, background .14s, color .14s;
     }
+    .ll-bt-pill:hover { border-color: color-mix(in srgb, var(--ll-primary) 40%, var(--ll-border)); }
     .ll-bt-pill.is-active { border-color: color-mix(in srgb, var(--ll-primary) 56%, var(--ll-border)); background: color-mix(in srgb, var(--ll-primary) 12%, transparent); color: var(--ll-primary); }
 
-    /* ---- Styling grid ---- */
-    .ll-bt-styling { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    @media (max-width: 1500px) { .ll-bt-styling { grid-template-columns: 1fr 1fr; } }
+    /* ---- Customise card: one panel, hairline-divided sections (no nested boxes) ---- */
+    .ll-bt-customise { padding: 4px 20px; }
+    .ll-bt-sec { padding: 18px 0; border-top: 1px solid color-mix(in srgb, var(--ll-border) 65%, transparent); }
+    .ll-bt-sec:first-child { border-top: 0; }
+    .ll-bt-sec[hidden] { display: none; }
+    .ll-bt-sec-title {
+        display: flex; align-items: center; gap: 8px;
+        color: var(--ll-muted); font-size: .72rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .05em; margin: 0 0 14px;
+    }
+    .ll-bt-sec-title i { color: var(--ll-primary); font-size: .95rem; }
+    .ll-bt-sec-title .ll-bt-pro-tag { margin-left: auto; }
 
-    .ll-bt-colours { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .ll-bt-colour { border: 1px solid var(--ll-border); border-radius: 16px; padding: 10px; background: color-mix(in srgb, var(--ll-bg-soft) 60%, transparent); }
-    .ll-bt-colour label { display: block; color: var(--ll-muted); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 7px; }
-    .ll-bt-colour-row { display: grid; grid-template-columns: 36px 1fr; gap: 8px; align-items: center; }
-    .ll-bt-colour-row input[type="color"] { appearance: none; -webkit-appearance: none; border: 0; width: 36px; height: 36px; border-radius: 10px; padding: 0; cursor: pointer; background: none; }
+    /* Colour — borderless swatch chips in an auto-fill grid */
+    .ll-bt-colours { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px 16px; }
+    .ll-bt-colour { border: 0; background: transparent; padding: 0; }
+    .ll-bt-colour label { display: block; color: var(--ll-muted); font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 7px; }
+    .ll-bt-colour-row { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: center; }
+    .ll-bt-colour-row input[type="color"] { appearance: none; -webkit-appearance: none; border: 1px solid var(--ll-border); width: 34px; height: 34px; border-radius: 9px; padding: 0; cursor: pointer; background: none; }
     .ll-bt-colour-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-    .ll-bt-colour-row input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 10px; }
-    .ll-bt-hex { border: 1px solid var(--ll-border); border-radius: 9px; background: var(--ll-surface-solid); color: var(--ll-text); font-family: ui-monospace, Consolas, monospace; font-size: .78rem; font-weight: 700; padding: 7px 8px; width: 100%; text-transform: uppercase; }
+    .ll-bt-colour-row input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 8px; }
+    .ll-bt-hex { border: 1px solid var(--ll-border); border-radius: 9px; background: var(--ll-bg-soft); color: var(--ll-text); font-family: ui-monospace, Consolas, monospace; font-size: .76rem; font-weight: 700; padding: 8px; width: 100%; text-transform: uppercase; }
 
-    /* ---- Typography ---- */
+    /* Typography — selects beside a live preview */
+    .ll-bt-typo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
     .ll-bt-type-field { margin-bottom: 12px; }
-    .ll-bt-type-field label { display: block; color: var(--ll-muted); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-    .ll-bt-select { width: 100%; border: 1px solid var(--ll-border); border-radius: 12px; background: var(--ll-surface-solid); color: var(--ll-text); font-weight: 600; padding: 9px 10px; }
-    .ll-bt-type-preview { border-top: 1px solid var(--ll-border); padding-top: 12px; margin-top: 4px; }
-    .ll-bt-type-preview .h1 { font-size: 1.5rem; font-weight: 800; color: var(--ll-text); line-height: 1.1; margin: 0 0 4px; }
-    .ll-bt-type-preview .h2 { font-size: 1.1rem; font-weight: 700; color: var(--ll-text); margin: 0 0 6px; }
-    .ll-bt-type-preview p { color: var(--ll-muted); font-size: .9rem; margin: 0; }
+    .ll-bt-type-field:last-child { margin-bottom: 0; }
+    .ll-bt-type-field label { display: block; color: var(--ll-muted); font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .ll-bt-select { width: 100%; border: 1px solid var(--ll-border); border-radius: 10px; background: var(--ll-bg-soft); color: var(--ll-text); font-weight: 600; padding: 9px 10px; }
+    .ll-bt-type-preview { background: color-mix(in srgb, var(--ll-bg-soft) 55%, transparent); border: 1px solid color-mix(in srgb, var(--ll-border) 65%, transparent); border-radius: 12px; padding: 14px 16px; }
+    .ll-bt-type-preview .h1 { font-size: 1.4rem; font-weight: 800; color: var(--ll-text); line-height: 1.1; margin: 0 0 4px; }
+    .ll-bt-type-preview .h2 { font-size: 1.05rem; font-weight: 700; color: var(--ll-text); margin: 0 0 6px; }
+    .ll-bt-type-preview p { color: var(--ll-muted); font-size: .86rem; margin: 0; }
 
-    /* ---- Sliders / effects ---- */
-    .ll-bt-slider { margin-bottom: 14px; }
+    /* Effects */
+    .ll-bt-slider { margin-bottom: 16px; }
+    .ll-bt-slider:last-child { margin-bottom: 0; }
     .ll-bt-slider .ll-bt-slider-head { display: flex; justify-content: space-between; color: var(--ll-muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
     .ll-bt-slider .ll-bt-slider-head strong { color: var(--ll-text); }
     .ll-bt-range { width: 100%; accent-color: var(--ll-primary); }
 
-    /* ---- Custom CSS ---- */
+    /* Custom CSS */
     .ll-bt-css-wrap { position: relative; }
-    .ll-bt-css { width: 100%; min-height: 120px; border: 1px solid var(--ll-border); border-radius: 14px; background: #0e1424; color: #e6edff; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; padding: 12px; resize: vertical; }
-    .ll-bt-pro-tag { font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #f59e0b, #f5b301); border-radius: 999px; padding: 3px 8px; }
-    .ll-bt-css-lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; background: color-mix(in srgb, var(--ll-surface-solid) 86%, transparent); backdrop-filter: blur(2px); text-align: center; color: var(--ll-muted); padding: 14px; }
+    .ll-bt-css { width: 100%; min-height: 120px; border: 1px solid var(--ll-border); border-radius: 12px; background: #0e1424; color: #e6edff; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; padding: 12px; resize: vertical; }
+    .ll-bt-pro-tag { font-size: .58rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #f59e0b, #f5b301); border-radius: 999px; padding: 3px 8px; }
+    .ll-bt-css-lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; background: color-mix(in srgb, var(--ll-surface-solid) 86%, transparent); backdrop-filter: blur(2px); text-align: center; color: var(--ll-muted); padding: 14px; }
 
     /* ---- Preview ---- */
-    .ll-bt-preview-shell { position: sticky; top: 88px; display: grid; gap: 12px; }
-    .ll-bt-devices { display: flex; gap: 8px; flex-wrap: wrap; }
-    .ll-bt-device-btn { border: 1px solid var(--ll-border); border-radius: 999px; background: var(--ll-surface-solid); color: var(--ll-muted); cursor: pointer; font-weight: 700; font-size: .78rem; padding: 7px 12px; display: inline-flex; gap: 6px; align-items: center; }
+    .ll-bt-preview-shell { position: sticky; top: 88px; }
+    .ll-bt-devices { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 14px; }
+    .ll-bt-device-btn { border: 1px solid var(--ll-border); border-radius: 999px; background: transparent; color: var(--ll-muted); cursor: pointer; font-weight: 700; font-size: .76rem; padding: 6px 11px; display: inline-flex; gap: 6px; align-items: center; transition: border-color .14s, color .14s, background .14s; }
+    .ll-bt-device-btn:hover { color: var(--ll-text); }
     .ll-bt-device-btn.is-active { border-color: color-mix(in srgb, var(--ll-primary) 56%, var(--ll-border)); color: var(--ll-primary); background: color-mix(in srgb, var(--ll-primary) 10%, transparent); }
 
     .ll-bt-stage { display: flex; justify-content: center; align-items: flex-start; min-height: 200px; }
@@ -173,15 +205,18 @@
     .ll-bt-frame { position: absolute; top: 0; left: 0; transform-origin: top left; background: #000; overflow: hidden; box-shadow: 0 24px 60px rgba(8,12,30,.32); }
     .ll-bt-frame.has-bezel { border: 10px solid #0b0f1c; }
     .ll-bt-frame iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
-    .ll-bt-preview-meta { text-align: center; color: var(--ll-muted); font-size: .76rem; }
+    .ll-bt-preview-meta { text-align: center; color: var(--ll-muted); font-size: .74rem; margin: 12px 0 0; }
+    .ll-bt-preview-foot { text-align: center; color: var(--ll-muted); font-size: .72rem; margin: 4px 0 0; opacity: .82; }
 
     @media (max-width: 1199.98px) {
-        .ll-bt-layout, .ll-bt-top { grid-template-columns: 1fr; }
+        .ll-bt-layout { grid-template-columns: 1fr; }
         .ll-bt-preview-shell { position: static; }
     }
     @media (max-width: 680px) {
-        .ll-bt-styling { grid-template-columns: 1fr; }
-        .ll-bt-colours { grid-template-columns: 1fr 1fr; }
+        .ll-bt-top { align-items: flex-start; }
+        .ll-bt-typo { grid-template-columns: 1fr; }
+        .ll-bt-customise { padding: 4px 16px; }
+        .ll-bt-panel { padding: 16px; }
     }
 </style>
 
@@ -206,59 +241,65 @@
     <div class="ll-bt-layout">
         <div class="ll-bt-main">
             <section class="ll-bt-panel">
-                <h2><i class="bi bi-boxes"></i> Base themes</h2>
-                <p class="ll-bt-sub">These are authored by Livelatch and shipped in the app. Every edit you make derives from one of these.</p>
+                <div class="ll-bt-phead">
+                    <h2><i class="bi bi-boxes"></i> Base theme</h2>
+                    <span class="ll-bt-hint">Authored by Livelatch — every edit derives from one of these.</span>
+                </div>
                 <div class="ll-bt-carousel">
                     <button type="button" class="ll-bt-arrow ll-bt-arrow-prev" id="ll-bt-prev" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
                     <button type="button" class="ll-bt-arrow ll-bt-arrow-next" id="ll-bt-next" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
                     <div class="ll-bt-track" id="ll-bt-track"></div>
                 </div>
-                <div class="ll-bt-presets" id="ll-bt-presets"></div>
+                <div class="ll-bt-preset-row">
+                    <span class="ll-bt-preset-label">Presets</span>
+                    <div class="ll-bt-presets" id="ll-bt-presets"></div>
+                </div>
             </section>
 
-            <div class="ll-bt-styling">
-                <section class="ll-bt-panel">
-                    <h2><i class="bi bi-palette"></i> Colour</h2>
-                    <p class="ll-bt-sub">Make it yours.</p>
+            <section class="ll-bt-panel ll-bt-customise">
+                <div class="ll-bt-sec">
+                    <div class="ll-bt-sec-title"><i class="bi bi-palette"></i> Colour</div>
                     <div class="ll-bt-colours" id="ll-bt-colours"></div>
-                </section>
+                </div>
 
-                <section class="ll-bt-panel" id="ll-bt-typography-panel">
-                    <h2><i class="bi bi-fonts"></i> Typography</h2>
-                    <div id="ll-bt-type-fields"></div>
-                    <div class="ll-bt-type-preview">
-                        <div class="h1" id="ll-bt-type-h1">Heading 1</div>
-                        <div class="h2" id="ll-bt-type-h2">Heading 2</div>
-                        <p id="ll-bt-type-p">Paragraph — the quick brown fox jumps over the lazy dog.</p>
+                <div class="ll-bt-sec" id="ll-bt-typography-panel">
+                    <div class="ll-bt-sec-title"><i class="bi bi-fonts"></i> Typography</div>
+                    <div class="ll-bt-typo">
+                        <div id="ll-bt-type-fields"></div>
+                        <div class="ll-bt-type-preview">
+                            <div class="h1" id="ll-bt-type-h1">Heading 1</div>
+                            <div class="h2" id="ll-bt-type-h2">Heading 2</div>
+                            <p id="ll-bt-type-p">Paragraph — the quick brown fox jumps over the lazy dog.</p>
+                        </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="ll-bt-panel" id="ll-bt-effects-panel">
-                    <h2><i class="bi bi-sliders"></i> Effects</h2>
-                    <p class="ll-bt-sub">Animations &amp; motion.</p>
+                <div class="ll-bt-sec" id="ll-bt-effects-panel">
+                    <div class="ll-bt-sec-title"><i class="bi bi-sliders"></i> Effects</div>
                     <div id="ll-bt-sliders"></div>
-                </section>
-            </div>
+                </div>
 
-            <section class="ll-bt-panel" id="ll-bt-css-panel" hidden>
-                <h2><i class="bi bi-code-slash"></i> Custom CSS <span class="ll-bt-pro-tag">Pro</span></h2>
-                <p class="ll-bt-sub">Target this theme's classes for fine-grained control. See the theme docs for available selectors.</p>
-                <div class="ll-bt-css-wrap">
-                    <textarea class="ll-bt-css" id="ll-bt-css" placeholder=".pt-link { letter-spacing: .04em; }" spellcheck="false"></textarea>
-                    @unless($isPro)
-                    <div class="ll-bt-css-lock">
-                        <i class="bi bi-lock-fill" style="font-size:1.4rem;"></i>
-                        <strong>Custom CSS is a Pro feature</strong>
-                        <a href="{{ url('/studio/subscription') }}" class="ll-bt-pill is-active">Upgrade to Pro</a>
+                <div class="ll-bt-sec" id="ll-bt-css-panel" hidden>
+                    <div class="ll-bt-sec-title"><i class="bi bi-code-slash"></i> Custom CSS <span class="ll-bt-pro-tag">Pro</span></div>
+                    <div class="ll-bt-css-wrap">
+                        <textarea class="ll-bt-css" id="ll-bt-css" placeholder=".pt-link { letter-spacing: .04em; }" spellcheck="false"></textarea>
+                        @unless($isPro)
+                        <div class="ll-bt-css-lock">
+                            <i class="bi bi-lock-fill" style="font-size:1.4rem;"></i>
+                            <strong>Custom CSS is a Pro feature</strong>
+                            <a href="{{ url('/studio/subscription') }}" class="ll-bt-pill is-active">Upgrade to Pro</a>
+                        </div>
+                        @endunless
                     </div>
-                    @endunless
                 </div>
             </section>
         </div>
 
         <aside class="ll-bt-preview-shell">
             <section class="ll-bt-panel">
-                <h2><i class="bi bi-phone"></i> Live preview</h2>
+                <div class="ll-bt-phead">
+                    <h2><i class="bi bi-phone"></i> Live preview</h2>
+                </div>
                 <div class="ll-bt-devices" id="ll-bt-devices"></div>
                 <div class="ll-bt-stage" id="ll-bt-stage">
                     <div class="ll-bt-scaler" id="ll-bt-scaler">
@@ -268,7 +309,7 @@
                     </div>
                 </div>
                 <p class="ll-bt-preview-meta" id="ll-bt-preview-meta">iPhone 17 Pro Max · 440 × 956</p>
-                <p class="ll-bt-preview-meta">Preview reflects unsaved edits. Nothing is public until you press Apply theme.</p>
+                <p class="ll-bt-preview-foot">Preview reflects unsaved edits. Nothing is public until you press Apply theme.</p>
             </section>
         </aside>
     </div>
