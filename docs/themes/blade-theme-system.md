@@ -227,6 +227,10 @@ No external JS (self-contained 2D canvas and/or CSS):
 - **Console** (`console`) — "you're in the Matrix": cascading green code-rain canvas behind a terminal window that types out the display name (`console.js`); links are styled as `./open` shell commands with a blinking prompt. Controls: Code rain / Prompt / Background / Text, fonts (VT323, Share Tech Mono, Source Code Pro…), rain-density + rain-speed sliders.
 - **Vice City** (`vice`) — GTA VI: neon sunset gradient, a synthwave sun + perspective grid + stars canvas (`vice.js`), swaying palm-tree SVG silhouettes, a **Pricedown** title with a heavy outline, and links laid out as a **GTA cover-art mosaic** (rotated colour tiles). Controls: Neon pink / Neon cyan / Sun / Text, fonts (Pricedown, Anton, Oswald…), sun-glow + palm-sway sliders.
 
+CDN (other libraries):
+
+- **Blueprint** (`blueprint`) — an engineering drawing that drafts itself with **anime.js**: graph-paper grid, draw-on dimension lines/crosshairs (stroke-dashoffset), a dimensioned avatar, an engineering **title block** (TITLE/DRAWN/SCALE/SHEET/REV), and links styled as schematic components with auto reference designators (R01, R02… via a CSS counter). `blueprint.js` runs an anime timeline (line draft → part → title → components); falls back to a static finished drawing when anime/`prefers-reduced-motion` is unavailable. Controls: Lines / Paper / Annotations / Text, fonts (Chakra Petch, Rajdhani, Oswald, Share Tech Mono, Roboto Mono…), grid-density + draw-speed sliders. Presets: default, cyanprint, whiteprint, drafting. Loads `anime.min.js` (3.2.1) from a CDN; everything else is inlined.
+
 CDN (Three.js r158, like Portal):
 
 - **Minecraft** (`minecraft`) — soar over an infinite voxel world as if on elytra. `minecraft.js` builds an `InstancedMesh` of cubes with sine-layered terrain height/colour and a treadmill that recycles rows so the landscape never ends; the camera banks, yaws and bobs like a glide. Controls: Terrain / Sky / Stone / Text, fonts (Press Start 2P, VT323, Silkscreen…), view-distance + glide-speed sliders. Loads `three.min.js` from a CDN; everything else is inlined.

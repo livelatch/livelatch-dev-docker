@@ -1,0 +1,45 @@
+{
+  "name": "Blueprint",
+  "slug": "blueprint",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "An engineering drawing come to life — graph paper, draw-on dimension lines, a title block, and links laid out like schematic components. Animated with anime.js.",
+  "preview_gradient": "linear-gradient(160deg, #0b3a78 0%, #0a2350 100%)",
+  "libraries": ["animejs"],
+  "defaults": {
+    "lineColor": "#bcd8ff",
+    "bgColor": "#0e3a6b",
+    "accentColor": "#ffcf6b",
+    "textColor": "#eaf2ff",
+    "headingFont": "Chakra Petch",
+    "bodyFont": "Share Tech Mono",
+    "gridDensity": 50,
+    "drawSpeed": 50,
+    "customCss": ""
+  },
+  "presets": {
+    "default":    { "lineColor": "#bcd8ff", "bgColor": "#0e3a6b", "accentColor": "#ffcf6b", "textColor": "#eaf2ff", "gridDensity": 50, "drawSpeed": 50 },
+    "cyanprint":  { "lineColor": "#7fe3ff", "bgColor": "#072039", "accentColor": "#48ffd0", "textColor": "#e6fbff", "gridDensity": 60, "drawSpeed": 55 },
+    "whiteprint": { "lineColor": "#3a6bb0", "bgColor": "#eef3fb", "accentColor": "#d23c3c", "textColor": "#0e2a55", "gridDensity": 50, "drawSpeed": 45 },
+    "drafting":   { "lineColor": "#7a5a36", "bgColor": "#efe6d2", "accentColor": "#b5532a", "textColor": "#3a2a18", "gridDensity": 45, "drawSpeed": 45 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "lineColor",   "label": "Lines" },
+      { "key": "bgColor",     "label": "Paper" },
+      { "key": "accentColor", "label": "Annotations" },
+      { "key": "textColor",   "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Chakra Petch", "options": ["Chakra Petch", "Rajdhani", "Oswald", "Share Tech Mono"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Share Tech Mono", "options": ["Share Tech Mono", "Roboto Mono", "Rajdhani", "Inter"] }
+    },
+    "sliders": {
+      "gridDensity": { "label": "Grid density", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "drawSpeed":   { "label": "Draw speed",   "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  }
+}
