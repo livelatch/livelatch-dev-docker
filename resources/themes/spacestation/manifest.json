@@ -8,6 +8,7 @@
   "description": "Aboard an orbital station, looking out a riveted viewport at a slowly turning planet. Drifting stars and a hull-panel console of links.",
   "preview_gradient": "linear-gradient(160deg, #05070f 0%, #1f5fa8 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Space"],
   "defaults": {
     "planetColor": "#3f7fd8",
     "atmoColor": "#7fd0ff",

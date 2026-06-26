@@ -8,6 +8,7 @@
   "description": "A weathered stone wall etched with glowing dragon runes. Embers drift, rune rings turn, and your links are carved tablets.",
   "preview_gradient": "linear-gradient(160deg, #1a1d22 0%, #3a4450 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Game"],
   "defaults": {
     "runeColor": "#9fd8ff",
     "stoneColor": "#2a2e34",

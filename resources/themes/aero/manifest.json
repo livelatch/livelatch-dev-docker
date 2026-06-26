@@ -8,6 +8,7 @@
   "description": "Glossy skies, rising bubbles and Aero glass buttons — peak 2009 techno-optimism.",
   "preview_gradient": "linear-gradient(160deg, #6cc6ff 0%, #8ef0c0 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Retro", "Chill"],
   "defaults": {
     "buttonColor": "#2b9fe6",
     "skyTop": "#6cc6ff",

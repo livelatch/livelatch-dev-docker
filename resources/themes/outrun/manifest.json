@@ -1,0 +1,24 @@
+{
+  "name": "Outrun",
+  "slug": "outrun",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "An endless neon grid highway racing toward a synth sun, in real 3D (Three.js). Steer the horizon with your pointer.",
+  "preview_gradient": "linear-gradient(180deg, #2a0633 0%, #ff2e8b 60%, #ffcf3c 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#ff2e8b", "bColor": "#ffcf3c", "bgColor": "#170433", "textColor": "#ffffff", "headingFont": "Orbitron", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "miami": { "aColor": "#ff2e8b", "bColor": "#ffcf3c", "bgColor": "#170433", "textColor": "#ffffff", "intensity": 50, "speed": 50 },
+    "tron":  { "aColor": "#36c5ff", "bColor": "#00e5ff", "bgColor": "#020a18", "textColor": "#e6f9ff", "intensity": 54, "speed": 58 },
+    "sunset":{ "aColor": "#ff6a3c", "bColor": "#ffd23c", "bgColor": "#1a0708", "textColor": "#fff2e0", "intensity": 50, "speed": 48 },
+    "lime":  { "aColor": "#9cff3c", "bColor": "#2de2e6", "bgColor": "#06140a", "textColor": "#f0ffe6", "intensity": 52, "speed": 55 },
+    "mono":  { "aColor": "#c9d0e0", "bColor": "#8a90a0", "bgColor": "#06070b", "textColor": "#f3f5fa", "intensity": 44, "speed": 45 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Grid" }, { "key": "bColor", "label": "Sun" }, { "key": "bgColor", "label": "Sky" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Orbitron", "options": ["Orbitron", "Space Grotesk", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] } },
+    "sliders": { "intensity": { "label": "Glow", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Speed", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["3D", "Retro"]
+}

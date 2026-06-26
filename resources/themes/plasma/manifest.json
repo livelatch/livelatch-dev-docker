@@ -1,0 +1,37 @@
+{
+  "name": "Plasma",
+  "slug": "plasma",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A hypnotic flowing plasma field rendered in a GLSL shader, rippling outward from wherever you point. Pure analog-demo energy.",
+  "preview_gradient": "linear-gradient(135deg, #ff4ad4 0%, #7a3cff 50%, #2de2e6 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#ff4ad4", "bColor": "#2de2e6", "bgColor": "#0a0220", "textColor": "#ffffff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "vapor":   { "aColor": "#ff4ad4", "bColor": "#2de2e6", "bgColor": "#0a0220", "textColor": "#ffffff", "intensity": 50, "speed": 50 },
+    "inferno": { "aColor": "#ff8a3c", "bColor": "#ff2e57", "bgColor": "#120402", "textColor": "#ffeede", "intensity": 60, "speed": 55 },
+    "ocean":   { "aColor": "#1f9bff", "bColor": "#15e0c0", "bgColor": "#02101a", "textColor": "#e6f9ff", "intensity": 48, "speed": 45 },
+    "acid":    { "aColor": "#b6ff3c", "bColor": "#2de2e6", "bgColor": "#06120a", "textColor": "#f0ffe6", "intensity": 56, "speed": 58 },
+    "mono":    { "aColor": "#ffffff", "bColor": "#8a8f98", "bgColor": "#05060a", "textColor": "#f3f5fa", "intensity": 44, "speed": 40 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "aColor", "label": "Hue A" },
+      { "key": "bColor", "label": "Hue B" },
+      { "key": "bgColor", "label": "Base" },
+      { "key": "textColor", "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Orbitron", "Sora", "Exo 2"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] }
+    },
+    "sliders": {
+      "intensity": { "label": "Intensity", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "speed":     { "label": "Speed", "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  },
+  "tags": ["Shader", "Retro", "Abstract"]
+}

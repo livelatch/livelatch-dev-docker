@@ -8,6 +8,7 @@
   "description": "An immersive 3D portal with a rotating energy ring and drifting particle cloud, built with Three.js and GSAP.",
   "preview_gradient": "linear-gradient(135deg, #0d001a, #8b5cf6)",
   "libraries": ["three", "gsap"],
+  "tags": ["3D", "Space"],
   "defaults": {
     "portalColor": "#8b5cf6",
     "secondaryColor": "#2a1a52",

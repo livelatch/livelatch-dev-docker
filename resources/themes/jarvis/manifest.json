@@ -8,6 +8,7 @@
   "description": "A Stark-grade holographic HUD: rotating reticles, an arc-reactor avatar ring, scanning sweeps and angular interface buttons.",
   "preview_gradient": "linear-gradient(160deg, #02070d 0%, #0bd1ff 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Tech"],
   "defaults": {
     "hudColor": "#37d6ff",
     "accentColor": "#ffcc44",

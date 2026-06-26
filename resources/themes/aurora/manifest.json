@@ -1,0 +1,37 @@
+{
+  "name": "Aurora",
+  "slug": "aurora",
+  "author": "livelatch",
+  "authorName": "Livelatch",
+  "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Northern lights drawn live in a GLSL fragment shader — drifting curtains of light over a starfield that bends toward your pointer.",
+  "preview_gradient": "linear-gradient(160deg, #03060f 0%, #1c6b5a 55%, #5f8bff 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#5fe6c0", "bColor": "#6a8bff", "bgColor": "#03060f", "textColor": "#eaf6ff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "aurora":  { "aColor": "#5fe6c0", "bColor": "#6a8bff", "bgColor": "#03060f", "textColor": "#eaf6ff", "intensity": 50, "speed": 50 },
+    "magenta": { "aColor": "#ff6ad5", "bColor": "#7a5bff", "bgColor": "#0a0316", "textColor": "#ffe9fb", "intensity": 58, "speed": 55 },
+    "solar":   { "aColor": "#ffd36a", "bColor": "#ff6a3c", "bgColor": "#0a0600", "textColor": "#fff2e0", "intensity": 60, "speed": 50 },
+    "ice":     { "aColor": "#9fe6ff", "bColor": "#5b8cff", "bgColor": "#02040f", "textColor": "#eaf6ff", "intensity": 46, "speed": 42 },
+    "forest":  { "aColor": "#7dffb0", "bColor": "#2fa06a", "bgColor": "#02100a", "textColor": "#e6fff0", "intensity": 52, "speed": 46 }
+  },
+  "controls": {
+    "colours": [
+      { "key": "aColor", "label": "Veil" },
+      { "key": "bColor", "label": "Glow" },
+      { "key": "bgColor", "label": "Night" },
+      { "key": "textColor", "label": "Text" }
+    ],
+    "typography": {
+      "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Sora", "Orbitron", "Exo 2"] },
+      "body":    { "key": "bodyFont",    "label": "Body",    "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] }
+    },
+    "sliders": {
+      "intensity": { "label": "Intensity", "min": 0, "max": 100, "step": 5, "default": 50 },
+      "speed":     { "label": "Speed", "min": 0, "max": 100, "step": 5, "default": 50 }
+    },
+    "customCss": { "pro": true }
+  },
+  "tags": ["Shader", "Space", "Chill"]
+}

@@ -8,6 +8,7 @@
   "description": "An engineering drawing come to life — graph paper, draw-on dimension lines, a title block, and links laid out like schematic components. Animated with anime.js.",
   "preview_gradient": "linear-gradient(160deg, #0b3a78 0%, #0a2350 100%)",
   "libraries": ["animejs"],
+  "tags": ["Canvas", "Tech", "Minimal"],
   "defaults": {
     "lineColor": "#bcd8ff",
     "bgColor": "#0e3a6b",

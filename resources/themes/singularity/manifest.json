@@ -8,6 +8,7 @@
   "description": "A living WebGL galaxy you can steer. Custom GLSL shaders, pointer-parallax depth, click-to-warp, a trailing cursor and 3D-tilt holographic link cards. The most advanced theme in the system.",
   "preview_gradient": "radial-gradient(circle at 50% 40%, #ffd9a0 0%, #5b6cff 35%, #05030f 80%)",
   "libraries": ["three", "gsap"],
+  "tags": ["3D", "Space", "Interactive"],
   "defaults": {
     "coreColor": "#ffd9a0",
     "edgeColor": "#5b6cff",

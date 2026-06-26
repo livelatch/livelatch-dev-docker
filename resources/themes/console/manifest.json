@@ -8,6 +8,7 @@
   "description": "You're in the Matrix. Cascading green code rain behind a live terminal that types itself out and runs your links as commands.",
   "preview_gradient": "linear-gradient(160deg, #000800 0%, #00ff66 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Retro", "Tech"],
   "defaults": {
     "rainColor": "#00ff66",
     "promptColor": "#7dff7d",

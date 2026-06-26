@@ -8,6 +8,7 @@
   "description": "A retro Windows 98 desktop. Your links live in the Start menu — hit Start to open them. Live taskbar clock included.",
   "preview_gradient": "linear-gradient(160deg, #008080 0%, #1084d0 100%)",
   "libraries": [],
+  "tags": ["Retro", "Interactive"],
   "defaults": {
     "desktopColor": "#008080",
     "accentColor": "#000080",

@@ -8,6 +8,7 @@
   "description": "Neon sunset, palm silhouettes and a Pricedown-style title. Your links are laid out like the box-art panels on the cover of a GTA.",
   "preview_gradient": "linear-gradient(160deg, #ff2e8b 0%, #ff9a3c 55%, #2a1a5e 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Retro"],
   "defaults": {
     "pinkColor": "#ff2e8b",
     "cyanColor": "#23e0e0",

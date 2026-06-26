@@ -1,0 +1,24 @@
+{
+  "name": "Topographic",
+  "slug": "topographic",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A living contour map — animated topographic lines that ripple outward from your pointer like a sonar ping over shifting terrain.",
+  "preview_gradient": "linear-gradient(160deg, #04101a 0%, #14506b 60%, #6fe3ff 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#6fe3ff", "bColor": "#2a6bff", "bgColor": "#04101a", "textColor": "#eaf6ff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "ocean":   { "aColor": "#6fe3ff", "bColor": "#2a6bff", "bgColor": "#04101a", "textColor": "#eaf6ff", "intensity": 50, "speed": 50 },
+    "lava":    { "aColor": "#ffb04a", "bColor": "#ff3b3b", "bgColor": "#100402", "textColor": "#ffeede", "intensity": 56, "speed": 52 },
+    "mono":    { "aColor": "#cfd6e6", "bColor": "#6b7280", "bgColor": "#06070b", "textColor": "#f3f5fa", "intensity": 44, "speed": 40 },
+    "emerald": { "aColor": "#7dffb0", "bColor": "#11a05a", "bgColor": "#02100a", "textColor": "#e6fff0", "intensity": 50, "speed": 46 },
+    "sand":    { "aColor": "#ffe1a8", "bColor": "#c8862f", "bgColor": "#120c04", "textColor": "#fff2d8", "intensity": 48, "speed": 44 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Lines" }, { "key": "bColor", "label": "Depth" }, { "key": "bgColor", "label": "Base" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Chakra Petch", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Roboto Mono", "Inter"] } },
+    "sliders": { "intensity": { "label": "Contour count", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Drift", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["Shader", "Minimal", "Tech"]
+}

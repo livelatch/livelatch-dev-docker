@@ -8,6 +8,7 @@
   "description": "Soar over an infinite voxel world as if gliding on elytra. A live WebGL block landscape with a banking, panning camera.",
   "preview_gradient": "linear-gradient(160deg, #79c0ff 0%, #4caf50 100%)",
   "libraries": ["three"],
+  "tags": ["3D", "Retro", "Game"],
   "defaults": {
     "grassColor": "#5bbf3a",
     "skyColor": "#86c5ff",

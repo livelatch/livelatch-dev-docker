@@ -78,24 +78,32 @@
     .ll-bt-hint { color: var(--ll-muted); font-size: .76rem; text-align: right; }
 
     /* ---- Base theme carousel ---- */
-    .ll-bt-carousel { position: relative; }
-    .ll-bt-track {
-        display: flex; gap: 12px;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        padding: 2px 2px 10px;
-        scrollbar-width: thin;
+    /* Theme browser: search + tag filters + responsive grid (scales to many themes) */
+    .ll-bt-browser { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .ll-bt-search {
+        flex: 1 1 200px; min-height: 40px; border: 1px solid var(--ll-border); border-radius: 12px;
+        background: var(--ll-bg-soft); color: var(--ll-text); padding: 8px 12px; font-weight: 500; font-size: .88rem;
     }
+    .ll-bt-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ll-bt-tag {
+        border: 1px solid var(--ll-border); border-radius: 999px; background: transparent; color: var(--ll-muted);
+        cursor: pointer; font-weight: 700; font-size: .72rem; padding: 5px 11px;
+        transition: border-color .14s, background .14s, color .14s;
+    }
+    .ll-bt-tag:hover { color: var(--ll-text); }
+    .ll-bt-tag.is-active { border-color: color-mix(in srgb, var(--ll-primary) 56%, var(--ll-border)); background: color-mix(in srgb, var(--ll-primary) 12%, transparent); color: var(--ll-primary); }
+
+    .ll-bt-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;
+        max-height: 366px; overflow: auto; padding: 2px 4px 8px; scrollbar-width: thin;
+    }
+    .ll-bt-grid-empty { grid-column: 1 / -1; color: var(--ll-muted); font-size: .85rem; padding: 20px 4px; text-align: center; }
+    .ll-bt-count { color: var(--ll-muted); font-size: .72rem; font-weight: 700; }
     .ll-bt-card {
-        flex: 0 0 176px; width: 176px;
-        scroll-snap-align: start;
         border: 1px solid var(--ll-border);
         border-radius: 16px;
         background: color-mix(in srgb, var(--ll-bg-soft) 45%, transparent);
-        cursor: pointer;
-        padding: 9px;
-        text-align: left;
+        cursor: pointer; padding: 9px; text-align: left;
         display: grid; gap: 6px;
         transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     }
@@ -118,16 +126,12 @@
     .ll-bt-stars { color: #f5b301; font-size: .74rem; letter-spacing: 1px; }
     .ll-bt-stars span { color: var(--ll-muted); font-size: .65rem; margin-left: 4px; letter-spacing: 0; }
 
-    .ll-bt-arrow {
-        position: absolute; top: 28px; z-index: 3;
-        width: 34px; height: 34px; border-radius: 50%;
-        border: 1px solid var(--ll-border); background: var(--ll-surface-solid);
-        color: var(--ll-text); cursor: pointer; box-shadow: var(--ll-shadow-soft);
-        display: flex; align-items: center; justify-content: center; opacity: .92;
+    /* small tag chips shown on each theme card */
+    .ll-bt-card-tagrow { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ll-bt-card-tag {
+        font-size: .58rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+        color: var(--ll-muted); border: 1px solid var(--ll-border); border-radius: 999px; padding: 2px 7px;
     }
-    .ll-bt-arrow:hover { opacity: 1; }
-    .ll-bt-arrow-prev { left: -10px; }
-    .ll-bt-arrow-next { right: -10px; }
 
     /* Presets sit under the carousel, on a divider, labelled */
     .ll-bt-preset-row {
@@ -256,11 +260,11 @@
                     <h2><i class="bi bi-boxes"></i> Base theme</h2>
                     <span class="ll-bt-hint">Authored by Livelatch — every edit derives from one of these.</span>
                 </div>
-                <div class="ll-bt-carousel">
-                    <button type="button" class="ll-bt-arrow ll-bt-arrow-prev" id="ll-bt-prev" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
-                    <button type="button" class="ll-bt-arrow ll-bt-arrow-next" id="ll-bt-next" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
-                    <div class="ll-bt-track" id="ll-bt-track"></div>
+                <div class="ll-bt-browser">
+                    <input type="search" id="ll-bt-search" class="ll-bt-search" placeholder="Search themes…" aria-label="Search themes" autocomplete="off">
+                    <div class="ll-bt-tags" id="ll-bt-tags"></div>
                 </div>
+                <div class="ll-bt-grid" id="ll-bt-track"></div>
                 <div class="ll-bt-preset-row">
                     <span class="ll-bt-preset-label">Presets</span>
                     <div class="ll-bt-presets" id="ll-bt-presets"></div>
@@ -406,11 +410,47 @@
     }
     function usageFor(slug) { return (D.usage && D.usage[slug]) ? D.usage[slug] : 0; }
 
+    // ---- Theme browser (search + tag filters + grid) ----
+    const browse = { q: '', tag: 'all' };
+
+    function tagsOf(t) { return Array.isArray(t.tags) ? t.tags : []; }
+    function allTags() {
+        const set = {};
+        D.themes.forEach(t => tagsOf(t).forEach(tag => { set[tag] = true; }));
+        return Object.keys(set).sort();
+    }
+    function matchesBrowse(t) {
+        if (browse.tag !== 'all' && tagsOf(t).indexOf(browse.tag) === -1) return false;
+        if (!browse.q) return true;
+        const hay = (t.name + ' ' + (t.description || '') + ' ' + (t.author || '') + ' ' + t.slug + ' ' + tagsOf(t).join(' ')).toLowerCase();
+        return hay.indexOf(browse.q) !== -1;
+    }
+
+    function renderTags() {
+        const wrap = $('#ll-bt-tags');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        ['all'].concat(allTags()).forEach(tag => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'll-bt-tag' + (tag === browse.tag ? ' is-active' : '');
+            b.textContent = tag === 'all' ? 'All' : titleCase(tag);
+            b.addEventListener('click', () => { browse.tag = tag; renderTags(); renderCarousel(); });
+            wrap.appendChild(b);
+        });
+    }
+
     function renderCarousel() {
         const track = $('#ll-bt-track');
         track.innerHTML = '';
-        D.themes.forEach(t => {
+        const list = D.themes.filter(matchesBrowse);
+        if (!list.length) {
+            track.innerHTML = '<div class="ll-bt-grid-empty">No themes match your search.</div>';
+            return;
+        }
+        list.forEach(t => {
             const used = usageFor(t.slug);
+            const tagChips = tagsOf(t).slice(0, 3).map(x => '<span class="ll-bt-card-tag">' + escapeHtml(x) + '</span>').join('');
             const card = document.createElement('button');
             card.type = 'button';
             card.className = 'll-bt-card' + (t.slug === state.slug ? ' is-active' : '');
@@ -421,10 +461,19 @@
                 '</span>' +
                 '<span class="ll-bt-card-name">' + escapeHtml(t.name || t.slug) + '</span>' +
                 '<span class="ll-bt-card-author">by ' + escapeHtml(t.authorHandle || ('@' + (t.author || 'livelatch'))) + '</span>' +
+                (tagChips ? '<span class="ll-bt-card-tagrow">' + tagChips + '</span>' : '') +
                 '<span class="ll-bt-stars">★★★★★ <span>ratings soon</span></span>';
             card.addEventListener('click', () => selectTheme(t.slug));
             track.appendChild(card);
         });
+    }
+
+    function bindBrowser() {
+        const search = $('#ll-bt-search');
+        if (search) {
+            search.addEventListener('input', () => { browse.q = search.value.trim().toLowerCase(); renderCarousel(); });
+        }
+        renderTags();
     }
 
     function selectTheme(slug) {
@@ -629,12 +678,6 @@
         $('#ll-bt-preview-meta').textContent = d.label + ' · ' + d.w + ' × ' + d.h;
     }
 
-    // ---- Carousel arrows ----
-    function bindArrows() {
-        const track = $('#ll-bt-track');
-        $('#ll-bt-prev').addEventListener('click', () => track.scrollBy({ left: -210, behavior: 'smooth' }));
-        $('#ll-bt-next').addEventListener('click', () => track.scrollBy({ left: 210, behavior: 'smooth' }));
-    }
 
     // ---- Save / Reset ----
     function toast(el, msg) {
@@ -758,7 +801,7 @@
     renderSliders();
     renderCustomCss();
     renderDevices();
-    bindArrows();
+    bindBrowser();
     bindActions();
     bindIconControls();
     syncIconControls();

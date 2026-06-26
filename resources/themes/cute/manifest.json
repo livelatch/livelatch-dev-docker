@@ -8,6 +8,7 @@
   "description": "Pastel kawaii vibes — drifting paw prints and twinkling sparkles with soft anime styling.",
   "preview_gradient": "linear-gradient(160deg, #ffd6ec 0%, #d7c7ff 100%)",
   "libraries": [],
+  "tags": ["Canvas", "Chill"],
   "defaults": {
     "buttonColor": "#ff8fc7",
     "accentColor": "#b39ddb",

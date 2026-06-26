@@ -1,0 +1,24 @@
+{
+  "name": "Liquid",
+  "slug": "liquid",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "Molten metaball blobs that merge and split in a GLSL shader and bulge toward your pointer. Lava-lamp meets liquid metal.",
+  "preview_gradient": "radial-gradient(circle at 40% 35%, #ff5e8a 0%, #7a5bff 55%, #07030f 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#ff5e8a", "bColor": "#7a5bff", "bgColor": "#07030f", "textColor": "#ffffff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "magma":   { "aColor": "#ff5e8a", "bColor": "#7a5bff", "bgColor": "#07030f", "textColor": "#ffffff", "intensity": 52, "speed": 50 },
+    "mercury": { "aColor": "#dfeefe", "bColor": "#9fb6d6", "bgColor": "#0a0e16", "textColor": "#eef4ff", "intensity": 46, "speed": 42 },
+    "gold":    { "aColor": "#ffd86a", "bColor": "#ff8a3c", "bgColor": "#0a0600", "textColor": "#fff3df", "intensity": 56, "speed": 48 },
+    "toxic":   { "aColor": "#b6ff3c", "bColor": "#2de2e6", "bgColor": "#04120a", "textColor": "#f0ffe6", "intensity": 58, "speed": 55 },
+    "ocean":   { "aColor": "#36c5ff", "bColor": "#6a5bff", "bgColor": "#020814", "textColor": "#e6f6ff", "intensity": 48, "speed": 46 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Blob" }, { "key": "bColor", "label": "Sheen" }, { "key": "bgColor", "label": "Base" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Orbitron", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] } },
+    "sliders": { "intensity": { "label": "Viscosity", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Flow", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["Shader", "Abstract"]
+}

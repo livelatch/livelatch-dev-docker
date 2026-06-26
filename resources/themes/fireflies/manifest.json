@@ -1,0 +1,24 @@
+{
+  "name": "Fireflies",
+  "slug": "fireflies",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A calm dusk swarm of glowing bokeh fireflies drifting in 3D depth (Three.js). They gather gently toward your pointer.",
+  "preview_gradient": "radial-gradient(circle at 50% 70%, #ffd98a 0%, #2f5a3a 50%, #06100a 90%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#ffe39a", "bColor": "#9be86a", "bgColor": "#06100a", "textColor": "#eafff0", "headingFont": "Sora", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "meadow":  { "aColor": "#ffe39a", "bColor": "#9be86a", "bgColor": "#06100a", "textColor": "#eafff0", "intensity": 50, "speed": 50 },
+    "winter":  { "aColor": "#dff0ff", "bColor": "#8fb6ff", "bgColor": "#040a14", "textColor": "#eaf4ff", "intensity": 48, "speed": 42 },
+    "ember":   { "aColor": "#ffb86a", "bColor": "#ff5e3a", "bgColor": "#100602", "textColor": "#ffeede", "intensity": 54, "speed": 48 },
+    "lagoon":  { "aColor": "#9ffce0", "bColor": "#2de2c0", "bgColor": "#02120f", "textColor": "#e6fff8", "intensity": 50, "speed": 46 },
+    "violet":  { "aColor": "#e6c2ff", "bColor": "#9b6aff", "bgColor": "#0a0614", "textColor": "#f2eaff", "intensity": 50, "speed": 46 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Glow" }, { "key": "bColor", "label": "Spark" }, { "key": "bgColor", "label": "Dusk" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Sora", "options": ["Sora", "Space Grotesk", "Playfair Display", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Lato"] } },
+    "sliders": { "intensity": { "label": "Swarm size", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Drift", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["3D", "Chill", "Nature"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Constellation",
+  "slug": "constellation",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A living star map: drifting points wire themselves into constellations near your pointer, and a click drops a new star. Pure interactive canvas.",
+  "preview_gradient": "linear-gradient(160deg, #03050f 0%, #142a55 60%, #5b8cff 100%)",
+  "libraries": [],
+  "defaults": { "aColor": "#cfe0ff", "bColor": "#5b8cff", "bgColor": "#03050f", "textColor": "#eaf2ff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "midnight": { "aColor": "#cfe0ff", "bColor": "#5b8cff", "bgColor": "#03050f", "textColor": "#eaf2ff", "intensity": 50, "speed": 50 },
+    "ember":    { "aColor": "#ffd8a8", "bColor": "#ff7a3c", "bgColor": "#0a0500", "textColor": "#fff2e0", "intensity": 52, "speed": 48 },
+    "neon":     { "aColor": "#9fffe0", "bColor": "#2de2e6", "bgColor": "#02100f", "textColor": "#e6fffa", "intensity": 56, "speed": 55 },
+    "rose":     { "aColor": "#ffd6ea", "bColor": "#ff5ea8", "bgColor": "#0c0610", "textColor": "#ffeaf3", "intensity": 50, "speed": 50 },
+    "mono":     { "aColor": "#e6e9f0", "bColor": "#8a90a0", "bgColor": "#06070b", "textColor": "#f3f5fa", "intensity": 46, "speed": 44 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Stars" }, { "key": "bColor", "label": "Links" }, { "key": "bgColor", "label": "Sky" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Orbitron", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] } },
+    "sliders": { "intensity": { "label": "Star density", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Link reach", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["Canvas", "Space", "Interactive"]
+}

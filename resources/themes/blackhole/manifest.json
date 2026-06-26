@@ -1,0 +1,24 @@
+{
+  "name": "Black Hole",
+  "slug": "blackhole",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A glowing accretion disk spirals into a dark core (Three.js), tilting toward your pointer with a swallowed-light event horizon.",
+  "preview_gradient": "radial-gradient(circle at 50% 50%, #02030a 0%, #02030a 30%, #ff7a2e 60%, #ffd9a0 100%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#ffd9a0", "bColor": "#ff5e2e", "bgColor": "#02030a", "textColor": "#ffe9dc", "headingFont": "Orbitron", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "amber":   { "aColor": "#ffd9a0", "bColor": "#ff5e2e", "bgColor": "#02030a", "textColor": "#ffe9dc", "intensity": 50, "speed": 50 },
+    "plasma":  { "aColor": "#d6ecff", "bColor": "#3a8bff", "bgColor": "#020512", "textColor": "#e6f2ff", "intensity": 54, "speed": 55 },
+    "magenta": { "aColor": "#ffd6f2", "bColor": "#ff2e8b", "bgColor": "#0a0210", "textColor": "#ffe6f5", "intensity": 52, "speed": 52 },
+    "emerald": { "aColor": "#d8ffe6", "bColor": "#19c06a", "bgColor": "#02100a", "textColor": "#e6fff0", "intensity": 50, "speed": 48 },
+    "void":    { "aColor": "#c9d2e6", "bColor": "#7a5bff", "bgColor": "#030308", "textColor": "#eaf0ff", "intensity": 48, "speed": 50 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Inner" }, { "key": "bColor", "label": "Outer" }, { "key": "bgColor", "label": "Void" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Orbitron", "options": ["Orbitron", "Space Grotesk", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] } },
+    "sliders": { "intensity": { "label": "Disk density", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Orbit speed", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["3D", "Space"]
+}

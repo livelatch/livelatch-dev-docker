@@ -51,7 +51,7 @@ The editing surface for blade themes lives at **`/studio/themes-beta`** (`Studio
 
 The page is **manifest-driven**: it reads every installed theme's manifest (`ThemeRegistry::all()`) and builds the controls in the browser from `controls`, so a new theme needs no Studio code — only a manifest. Layout:
 
-- **Base themes carousel** — one card per blade theme: preview gradient, name, `@author`, and a **real usage count** (`count(*)` of `user_blade_theme_settings` rows for that slug). A 5-star rating is shown as a **display-only placeholder** ("ratings soon") — no ratings backend exists yet.
+- **Base theme browser** — a **searchable, tag-filtered grid** (built to scale to many themes): a search box (matches name/description/author/slug/tags), a row of tag-filter chips derived from each manifest's `tags`, and a responsive scrolling grid of cards. Each card shows the preview gradient, name, `@author`, its tag chips, and a **real usage count** (`count(*)` of `user_blade_theme_settings` rows for that slug). A 5-star rating is a **display-only placeholder** ("ratings soon"). Add `"tags": ["3D", "Shader", …]` to a manifest to make a theme filterable.
 - **Colour panel** — renders one swatch + hex field per entry in `controls.colours` (up to four: e.g. Primary / Secondary / Highlight / Text).
 - **Typography panel** — a font `<select>` per `controls.typography` slot (heading, body) with a live Heading 1 / Heading 2 / Paragraph preview.
 - **Effects panel** — a range slider per `controls.sliders` entry (e.g. particle density, animation speed).
@@ -207,6 +207,16 @@ The first blade theme ships as `portal`. It is a good starting point to copy whe
 - Three.js r158 via `unpkg.com`
 - GSAP 3.12.2 via `cdnjs.cloudflare.com`
 
+## Shared scaffold (`llx-*`)
+
+The 2024 "immersive pack" themes (Aurora, Plasma, Liquid, Topographic, Constellation, Crystal, Outrun, Fireflies, Black Hole, Helix) share three files so a new theme is mostly just a background:
+
+- `assets/themes/shared/glass.css` — the centred glassmorphic profile card, links and layout, driven by `--llx-a` / `--llx-b` / `--llx-bg` / `--llx-text` (+ `--llx-heading-font` / `--llx-body-font`). All use a common `#llx-canvas` and the `llx-link` class.
+- `resources/views/themes/partials/glasscard.blade.php` — the card markup (avatar/name/bio/links-partial/hint). Each theme `@include`s it.
+- `assets/themes/shared/interact.js` — `LLXInteract.init()`: GSAP entrance + pointer card-tilt + link glare/tilt, all guarded for reduced motion / coarse pointers.
+
+Each theme's blade inlines `glass.css` + `interact.js`, sets the four `--llx-*` colours from its `aColor`/`bColor`/`bgColor`/`textColor` settings, and loads a self-contained `<slug>.js` exposing `window.<Name>BG.init(opts)`. The four shader themes use a Three.js fullscreen-quad + custom GLSL fragment shader; the rest use Three.js scenes or 2D canvas. Every background `init` is wrapped in `try/catch` so a WebGL failure still leaves the static glass card.
+
 ## Other bundled themes
 
 Both ship with **no external JS** — the animation is a self-contained 2D `<canvas>` script inlined from `assets/themes/<slug>/`, and entrance motion is pure CSS. Good templates for a "no-CDN" theme.
@@ -235,6 +245,21 @@ CDN (Three.js r158, like Portal):
 
 - **Minecraft** (`minecraft`) — soar over an infinite voxel world as if on elytra. `minecraft.js` builds an `InstancedMesh` of cubes with sine-layered terrain height/colour and a treadmill that recycles rows so the landscape never ends; the camera banks, yaws and bobs like a glide. Controls: Terrain / Sky / Stone / Text, fonts (Press Start 2P, VT323, Silkscreen…), view-distance + glide-speed sliders. Loads `three.min.js` from a CDN; everything else is inlined.
 - **Singularity** (`singularity`) — the reference "everything the system can do" theme (Three.js + GSAP). `singularity.js` builds a spiral galaxy from a Points cloud driven by a **custom GLSL vertex/fragment shader** (distance-based swirl, additive-blended soft points, a `uWarp` uniform) plus a starfield backdrop. **Interactive:** pointer-parallax camera + galaxy tilt, **click/tap to warp** (uniform + camera punch), a trailing custom cursor (fine-pointer only), 3D-tilt holographic link cards with a pointer-follow glare, a subtly tilting glass profile card, and a GSAP entrance timeline. **10 presets** (galaxy, supernova, aurora, vaporwave, emerald, inferno, ink, gold, oceanic, sakura). Controls: Core / Edge / Background / Text, fonts (Space Grotesk, Orbitron, Sora, Exo 2), and **four** sliders (Stars 1k–20k, Spin speed, Spiral arms 2–8, Glow). Fully guarded: Three/GSAP/WebGL failures or `prefers-reduced-motion` fall back to a static glass card on a gradient (the WebGL build is wrapped in `try/catch`). Loads `three.min.js` + `gsap.min.js` from CDNs; CSS/JS inlined.
+
+### Immersive pack (shared `llx-*` scaffold)
+
+All pointer-interactive; all degrade to the static glass card.
+
+- **Aurora** (`aurora`) — GLSL northern-lights curtains over a starfield; pointer bends the light. *(Three.js shader)*
+- **Plasma** (`plasma`) — classic flowing plasma field that ripples from the pointer. *(Three.js shader)*
+- **Liquid** (`liquid`) — GLSL metaballs that merge/split and bulge toward the pointer. *(Three.js shader)*
+- **Topographic** (`topographic`) — animated contour map with a sonar ripple from the pointer. *(Three.js shader)*
+- **Constellation** (`constellation`) — 2D-canvas star network that wires up near the pointer; click adds a star. *(Canvas)*
+- **Crystal** (`crystal`) — a faceted gem with orbiting coloured lights + wireframe; turns toward the pointer. *(Three.js)*
+- **Outrun** (`outrun`) — an endless neon grid highway toward a synth sun; steer with the pointer. *(Three.js)*
+- **Fireflies** (`fireflies`) — a dusk swarm of bokeh points drifting in depth, gathering toward the pointer. *(Three.js)*
+- **Black Hole** (`blackhole`) — an accretion disk of orbiting points around a dark core + photon ring; tilts to the pointer. *(Three.js)*
+- **Helix** (`helix`) — a rotating DNA double-helix of instanced spheres + rungs; spins toward the pointer. *(Three.js)*
 
 > **Google Fonts caveat.** Some display/Japanese families (Mochiy Pop One, Pacifico, Kosugi Maru, Press Start 2P, VT323, Silkscreen, Anton, Share Tech Mono…) ship a **single weight**. Requesting an unavailable weight (`:wght@700`) makes the whole CSS2 request 400. So these themes build their font URL with **no weight axis** (`family=Name` only) — variable fonts still serve their full range, single-weight fonts just work. (Portal keeps explicit weights because Poppins/Oswald support them.)
 >

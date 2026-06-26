@@ -1,0 +1,24 @@
+{
+  "name": "Crystal",
+  "slug": "crystal",
+  "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
+  "version": "1.0.0",
+  "description": "A slowly turning faceted gem floats behind your profile, catching light and following your pointer. Glassy, prismatic, hypnotic.",
+  "preview_gradient": "radial-gradient(circle at 50% 45%, #c89bff 0%, #8fd0ff 45%, #060814 90%)",
+  "libraries": ["three"],
+  "defaults": { "aColor": "#8fd0ff", "bColor": "#c89bff", "bgColor": "#060814", "textColor": "#eef3ff", "headingFont": "Space Grotesk", "bodyFont": "Sora", "intensity": 50, "speed": 50, "customCss": "" },
+  "presets": {
+    "amethyst": { "aColor": "#8fd0ff", "bColor": "#c89bff", "bgColor": "#060814", "textColor": "#eef3ff", "intensity": 50, "speed": 50 },
+    "emerald":  { "aColor": "#9fffd0", "bColor": "#2fd08a", "bgColor": "#04120c", "textColor": "#e6fff2", "intensity": 52, "speed": 46 },
+    "ruby":     { "aColor": "#ff8a9c", "bColor": "#ff3b6b", "bgColor": "#120208", "textColor": "#ffe6ec", "intensity": 54, "speed": 48 },
+    "gold":     { "aColor": "#ffe6a8", "bColor": "#ffb23c", "bgColor": "#0c0800", "textColor": "#fff4d6", "intensity": 50, "speed": 44 },
+    "obsidian": { "aColor": "#9fb0d0", "bColor": "#5b6cff", "bgColor": "#05060c", "textColor": "#eaf0ff", "intensity": 46, "speed": 42 }
+  },
+  "controls": {
+    "colours": [ { "key": "aColor", "label": "Facet" }, { "key": "bColor", "label": "Glow" }, { "key": "bgColor", "label": "Void" }, { "key": "textColor", "label": "Text" } ],
+    "typography": { "heading": { "key": "headingFont", "label": "Heading", "default": "Space Grotesk", "options": ["Space Grotesk", "Orbitron", "Sora", "Exo 2"] }, "body": { "key": "bodyFont", "label": "Body", "default": "Sora", "options": ["Sora", "Space Grotesk", "Inter", "Exo 2"] } },
+    "sliders": { "intensity": { "label": "Facets", "min": 0, "max": 100, "step": 5, "default": 50 }, "speed": { "label": "Spin", "min": 0, "max": 100, "step": 5, "default": 50 } },
+    "customCss": { "pro": true }
+  },
+  "tags": ["3D", "WebGL"]
+}
