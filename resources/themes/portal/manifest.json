@@ -1,6 +1,7 @@
 {
   "name": "Portal",
   "slug": "portal",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

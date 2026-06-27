@@ -1,6 +1,7 @@
 {
   "name": "Aurora",
   "slug": "aurora",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

@@ -1,6 +1,7 @@
 {
   "name": "Blueprint",
   "slug": "blueprint",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

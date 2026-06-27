@@ -61,6 +61,15 @@ class BladeThemeController extends Controller
             return $this->error($request, ['theme_slug' => 'That theme is not available.']);
         }
 
+        if (!$this->registry->isEnabled($slug)) {
+            return $this->error($request, ['theme_slug' => 'That theme is not currently available.']);
+        }
+
+        // Pro themes can be previewed by anyone but only applied by Pro users.
+        if ($this->registry->tier($slug) === 'pro' && !$this->isPro($user)) {
+            return $this->error($request, ['theme_slug' => 'That is a Pro theme — upgrade to apply it to your profile.']);
+        }
+
         // NB: read settings from input(), not validated(). Declaring the nested
         // rule `settings.customCss` makes validated() return ONLY that key under
         // `settings`, silently dropping every other control (colours, sliders,

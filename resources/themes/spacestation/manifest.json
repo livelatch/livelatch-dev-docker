@@ -1,6 +1,7 @@
 {
   "name": "Space Station",
   "slug": "spacestation",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

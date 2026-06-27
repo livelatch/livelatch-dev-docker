@@ -1,6 +1,7 @@
 {
   "name": "Fireflies",
   "slug": "fireflies",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A calm dusk swarm of glowing bokeh fireflies drifting in 3D depth (Three.js). They gather gently toward your pointer.",

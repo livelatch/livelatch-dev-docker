@@ -1,6 +1,7 @@
 {
   "name": "Vice City",
   "slug": "vice",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

@@ -1,6 +1,7 @@
 {
   "name": "Singularity",
   "slug": "singularity",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

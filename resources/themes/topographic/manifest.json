@@ -1,6 +1,7 @@
 {
   "name": "Topographic",
   "slug": "topographic",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A living contour map — animated topographic lines that ripple outward from your pointer like a sonar ping over shifting terrain.",

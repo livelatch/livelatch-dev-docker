@@ -47,17 +47,9 @@ class StudioNavigation extends Component
                     [
                         'label' => __('messages.Themes'),
                         'icon' => 'bi bi-stars',
-                        'url' => url('/studio/theme'),
-                        'active' => request()->segment(2) === 'theme',
-                        'skeleton' => '#ll-profile-skeleton',
-                    ],
-                    [
-                        'label' => 'Themes',
-                        'icon' => 'bi bi-boxes',
                         'url' => url('/studio/themes-beta'),
-                        'active' => request()->segment(2) === 'themes-beta',
+                        'active' => in_array(request()->segment(2), ['theme', 'themes-beta'], true),
                         'skeleton' => '#ll-profile-skeleton',
-                        'badge' => 'Beta',
                     ],
                 ],
             ],
@@ -173,6 +165,13 @@ class StudioNavigation extends Component
                         'url' => url('/studio/docs'),
                         'active' => request()->is('studio/docs*'),
                         'badge' => 'New',
+                    ],
+                    [
+                        'label' => 'Theme Manager',
+                        'icon' => 'bi bi-palette-fill',
+                        'url' => url('admin/theme-manager'),
+                        'active' => request()->segment(2) === 'theme-manager',
+                        'skeleton' => '#ll-page-skeleton',
                     ],
                     [
                         'label' => 'Dev Tools',

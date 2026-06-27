@@ -1,6 +1,7 @@
 {
   "name": "Console",
   "slug": "console",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

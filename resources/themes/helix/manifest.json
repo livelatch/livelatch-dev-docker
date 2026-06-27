@@ -1,6 +1,7 @@
 {
   "name": "Helix",
   "slug": "helix",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A rotating DNA double-helix of glowing instanced spheres and rungs (Three.js). Grab it with your pointer to spin the strands.",

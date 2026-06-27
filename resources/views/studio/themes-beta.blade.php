@@ -121,6 +121,31 @@
         background: rgba(0,0,0,.42); border-radius: 999px; padding: 3px 8px;
         backdrop-filter: blur(4px); display: inline-flex; gap: 4px; align-items: center;
     }
+    /* Free / Pro treatment on theme cards */
+    .ll-bt-pro-chip {
+        position: absolute; top: 7px; right: 7px;
+        font-size: .58rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+        color: #1a1205; background: linear-gradient(135deg, #ffd66b, #f5b301);
+        border-radius: 999px; padding: 3px 8px; display: inline-flex; gap: 4px; align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .ll-bt-lock {
+        position: absolute; top: 7px; left: 7px;
+        width: 24px; height: 24px; border-radius: 999px;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #fff; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); font-size: .78rem;
+    }
+    .ll-bt-card.is-locked .ll-bt-thumb { filter: saturate(.85) brightness(.96); }
+    .ll-bt-upgrade-note {
+        display: none; align-items: center; gap: 8px; flex-wrap: wrap;
+        padding: 10px 13px; border-radius: 12px;
+        border: 1px solid color-mix(in srgb, #f5b301 45%, var(--ll-border));
+        background: color-mix(in srgb, #f5b301 10%, transparent);
+        color: var(--ll-text); font-size: .84rem; font-weight: 600;
+    }
+    .ll-bt-upgrade-note.is-on { display: flex; }
+    .ll-bt-upgrade-note i { color: #f5b301; }
+    .ll-bt-upgrade-note a { color: var(--ll-primary); font-weight: 800; }
     .ll-bt-card-name { color: var(--ll-text); font-weight: 700; font-size: .88rem; line-height: 1.15; }
     .ll-bt-card-author { color: var(--ll-muted); font-size: .73rem; margin-top: -2px; }
     .ll-bt-stars { color: #f5b301; font-size: .74rem; letter-spacing: 1px; }
@@ -238,7 +263,7 @@
 <div class="container-fluid content-inner mt-n5 py-0 ll-bt-page">
     <div class="ll-bt-top">
         <div>
-            <h1>Theme Studio <span class="ll-bt-beta">Beta</span></h1>
+            <h1>Themes</h1>
             <p>Pick an immersive base theme, then make it yours — colours, type, motion and (Pro) custom CSS.</p>
         </div>
         <div class="ll-bt-actions">
@@ -249,9 +274,10 @@
 
     <div class="alert alert-success ll-bt-alert d-none" id="ll-bt-toast" role="alert"></div>
     <div class="alert alert-danger ll-bt-alert d-none" id="ll-bt-error" role="alert"></div>
+    <div class="ll-bt-upgrade-note" id="ll-bt-upgrade"><i class="bi bi-gem"></i> <span></span></div>
 
     @if(empty($themes))
-        <div class="alert alert-warning" role="alert">No blade themes are installed yet. Add one under <code>resources/themes/</code>.</div>
+        <div class="alert alert-warning" role="alert">No themes are available right now. An admin can enable or upload themes in <strong>Theme Manager</strong>.</div>
     @else
     <div class="ll-bt-layout">
         <div class="ll-bt-main">
@@ -360,7 +386,8 @@
         urls: {
             update: '{{ route('editBladeTheme') }}',
             reset: '{{ route('resetBladeTheme') }}',
-            previewBase: '{{ route('bladeThemePreview', ['slug' => '__SLUG__']) }}'
+            previewBase: '{{ route('bladeThemePreview', ['slug' => '__SLUG__']) }}',
+            subscription: '{{ url('/studio/subscription') }}'
         }
     };
 </script>
@@ -410,6 +437,30 @@
     }
     function usageFor(slug) { return (D.usage && D.usage[slug]) ? D.usage[slug] : 0; }
 
+    // Pro themes are previewable by everyone but only applicable by Pro users.
+    function isLocked(t) {
+        t = (typeof t === 'string') ? themesBySlug[t] : t;
+        return !!(t && t.tier === 'pro' && !D.isPro);
+    }
+    function updateApplyLock() {
+        const locked = isLocked(state.slug);
+        const save = document.querySelector('#ll-bt-save');
+        const note = document.querySelector('#ll-bt-upgrade');
+        if (!save) return;
+        if (locked) {
+            save.disabled = true;
+            save.innerHTML = '<i class="bi bi-lock-fill"></i> Pro theme';
+            if (note) {
+                note.querySelector('span').innerHTML = 'This is a Pro theme — preview it freely, then <a href="' + (D.urls.subscription || '#') + '">upgrade to Pro</a> to apply it to your profile.';
+                note.classList.add('is-on');
+            }
+        } else {
+            save.disabled = false;
+            save.innerHTML = '<i class="bi bi-check2-circle"></i> Apply theme';
+            if (note) note.classList.remove('is-on');
+        }
+    }
+
     // ---- Theme browser (search + tag filters + grid) ----
     const browse = { q: '', tag: 'all' };
 
@@ -450,13 +501,16 @@
         }
         list.forEach(t => {
             const used = usageFor(t.slug);
+            const locked = isLocked(t);
             const tagChips = tagsOf(t).slice(0, 3).map(x => '<span class="ll-bt-card-tag">' + escapeHtml(x) + '</span>').join('');
             const card = document.createElement('button');
             card.type = 'button';
-            card.className = 'll-bt-card' + (t.slug === state.slug ? ' is-active' : '');
+            card.className = 'll-bt-card' + (t.slug === state.slug ? ' is-active' : '') + (locked ? ' is-locked' : '');
             card.dataset.slug = t.slug;
             card.innerHTML =
                 '<span class="ll-bt-thumb" style="background:' + gradientFor(t) + '">' +
+                    (t.tier === 'pro' ? '<span class="ll-bt-pro-chip"><i class="bi bi-gem"></i> Pro</span>' : '') +
+                    (locked ? '<span class="ll-bt-lock"><i class="bi bi-lock-fill"></i></span>' : '') +
                     '<span class="ll-bt-used"><i class="bi bi-people-fill"></i> ' + used + (used === 1 ? ' use' : ' uses') + '</span>' +
                 '</span>' +
                 '<span class="ll-bt-card-name">' + escapeHtml(t.name || t.slug) + '</span>' +
@@ -487,6 +541,7 @@
         renderSliders();
         renderCustomCss();
         syncIconControls();
+        updateApplyLock();
         schedulePreview();
     }
 
@@ -688,6 +743,7 @@
     }
     function bindActions() {
         $('#ll-bt-save').addEventListener('click', () => {
+            if (isLocked(state.slug)) { toast('#ll-bt-error', 'Upgrade to Pro to apply this theme.'); return; }
             const btn = $('#ll-bt-save');
             btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Applying';
             postJson(D.urls.update, { theme_slug: state.slug, settings: state.settings })
@@ -807,6 +863,7 @@
     syncIconControls();
     fitDevice();
     refreshPreview();
+    updateApplyLock();
     window.addEventListener('resize', fitDevice);
 })();
 </script>

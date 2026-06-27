@@ -1,6 +1,7 @@
 {
   "name": "Black Hole",
   "slug": "blackhole",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A glowing accretion disk spirals into a dark core (Three.js), tilting toward your pointer with a swallowed-light event horizon.",

@@ -1,6 +1,7 @@
 {
   "name": "Crystal",
   "slug": "crystal",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A slowly turning faceted gem floats behind your profile, catching light and following your pointer. Glassy, prismatic, hypnotic.",

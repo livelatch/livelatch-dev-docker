@@ -1,6 +1,7 @@
 {
   "name": "Minecraft",
   "slug": "minecraft",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

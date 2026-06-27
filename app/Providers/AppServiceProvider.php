@@ -50,5 +50,11 @@ class AppServiceProvider extends ServiceProvider
             return in_array(parse_url($value, PHP_URL_SCHEME), $allowed_schemes, true);
         });
         View::addNamespace('blocks', base_path('blocks'));
+
+        // Synced S3 blade themes are written here; registering it as a view
+        // location lets them resolve as themes.<slug> alongside baked themes.
+        // Baked views (resources/views) are searched first, so they win on a
+        // slug collision and S3 acts as the fallback/extension source.
+        View::addLocation(storage_path('app/theme-views'));
     }
 }

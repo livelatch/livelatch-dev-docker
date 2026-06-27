@@ -327,4 +327,64 @@ The partial reads these from `$settings` (inherited through `@include`), and `Bl
 3. Put static assets in `assets/themes/<slug>/` (project-root web dir — **not** `public/`). Inline them from the blade via `public_path('assets/themes/<slug>/...')`, or reference them with `asset('assets/themes/<slug>/...')`.
 4. Call `app(ThemeRegistry::class)->clearCache()` (or wait up to 5 minutes) for the new theme to appear in `ThemeRegistry::all()`.
 
-Themes authored by Alex or trusted creators are stored in the app filesystem and deployed with the app. Third-party or user-uploaded themes are not supported in the current architecture.
+Themes authored by Alex or trusted creators can be shipped in the app filesystem (baked) **or** delivered from S3 without a redeploy — see the next section.
+
+## S3 delivery, tiers, and the Theme Manager
+
+Livelatch's runtime disk is **not persistent**: a theme added while the app is deployed disappears on the next deploy. To add, disable, or re-tier a theme without rebuilding the platform, themes can be delivered from the project's S3 bucket. The model is **S3 = source of truth; local disk = a disposable cache** that re-hydrates on demand.
+
+### How a theme is loaded from S3
+
+Bucket layout (under the `themes/` prefix):
+
+```text
+themes/
+  index.json                 { "version": "<token>", "slugs": ["aurora", ...] }
+  <slug>/
+    manifest.json
+    <slug>.blade.php
+    assets/                  (style.css, <slug>.js, images, fonts…)
+```
+
+`ThemeRegistry` merges **baked** themes (`resources/themes/<slug>`) with the slugs listed in `themes/index.json`. When a user (or admin preview) hits an S3-only theme, `ThemeRegistry::viewExists()` **syncs it down on demand**:
+
+- the view → `storage/app/theme-views/themes/<slug>.blade.php` (registered as a Blade view location in `AppServiceProvider`), and
+- the assets → `public_path('assets/themes/<slug>/…)` — the same place baked themes already reference, so **baked and S3 themes render through the identical code path** and no theme blade needs changing.
+
+Because syncing means compiling Blade fetched from object storage, **the bucket must be treated as trusted code** — restrict write access to ops credentials only.
+
+Cache busting rides on the `version` token in `index.json` (the registry's cache key is suffixed with it), so a publish propagates to every app instance within ~5 minutes with no shared cache required (works on `CACHE_DRIVER=file`). When no AWS credentials are configured, the registry transparently falls back to baked-only behaviour.
+
+### Free / Pro tiers
+
+Every `manifest.json` carries a `"tier"` field (`"free"` by default). Pro themes are **previewable by everyone but only applicable on a Pro plan** — the Theme Studio shows a Pro chip + lock and disables Apply for free users, and `BladeThemeController::update()` enforces it server-side.
+
+### Admin state (the catalog)
+
+Admin overrides live in the `blade_theme_catalog` table (model `BladeThemeCatalog`, keyed by slug):
+
+| Column | Purpose |
+|---|---|
+| `slug` | Primary key |
+| `enabled` | Hidden from the user Themes tab when false |
+| `tier` | `free`/`pro` override (null = use the manifest's tier) |
+| `source` | `baked` or `s3` (informational) |
+
+A **missing row means enabled + manifest tier**, so existing themes are on by default and nothing needs seeding.
+
+### Theme Manager (Admin)
+
+`/admin/theme-manager` (`App\Http\Controllers\Admin\ThemeManagerController`, admin middleware) is the control plane:
+
+- lists every theme (baked + S3) with its source and usage count,
+- **enable/disable** each theme and set it **Free/Pro** (AJAX, applies immediately),
+- **upload a new theme as a `.zip`** — it is validated (must contain `manifest.json` + `<slug>.blade.php`, optional `assets/`) and pushed straight to `themes/<slug>/…` on S3, then `index.json` is bumped.
+
+### Migrating the baked themes to S3
+
+```bash
+php artisan themes:publish            # publish every baked theme
+php artisan themes:publish singularity  # one theme
+```
+
+This packages each baked theme (manifest + view + `public_path` assets) into the S3 layout above and writes `index.json`. **Run it where the `AWS_*` credentials exist (Railway), not a local checkout without creds.**

@@ -1,6 +1,7 @@
 {
   "name": "Cute",
   "slug": "cute",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

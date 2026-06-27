@@ -195,7 +195,11 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/edit-link/{id}', [UserController::class, 'AddUpdateLink'])->name('showLink')->middleware('link-id');
             Route::post('/studio/sort-link', [UserController::class, 'sortLinks'])->name('sortLinks');
             Route::get('/studio/links', [UserController::class, $LinkPage])->name($LinkPage);
-            Route::get('/studio/theme', [ThemeController::class, 'edit'])->name('showTheme');
+            // Legacy CSS-variable Theme Studio is decommissioned from the UI;
+            // the single Themes tab is the blade studio. The public fallback
+            // renderer (ThemeService) is unchanged, so existing profiles that
+            // never picked a blade theme keep rendering as before.
+            Route::get('/studio/theme', fn () => redirect()->route('showBladeThemes'))->name('showTheme');
             Route::post('/studio/theme', [ThemeController::class, 'update'])->name('editTheme');
             // Theme Studio (Beta) — new blade-based theme system, built alongside the
             // CSS-variable studio above without touching it.
@@ -361,6 +365,13 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::get('/admin/backups', [AdminController::class, 'showBackups'])->name('showBackups');
         Route::post('/admin/theme', [AdminController::class, 'deleteTheme'])->name('deleteTheme');
         Route::get('/admin/theme', [AdminController::class, 'showThemes'])->name('showThemes');
+
+        // Theme Manager — control plane for blade themes (enable/disable,
+        // Free/Pro tier, upload .zip to S3). Distinct from /admin/theme above,
+        // which manages the legacy LinkStack file-based themes.
+        Route::get('/admin/theme-manager', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'index'])->name('admin.themeManager');
+        Route::post('/admin/theme-manager/update', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'update'])->name('admin.themeManager.update');
+        Route::post('/admin/theme-manager/upload', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'upload'])->name('admin.themeManager.upload');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
         Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');

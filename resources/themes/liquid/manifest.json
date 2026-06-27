@@ -1,6 +1,7 @@
 {
   "name": "Liquid",
   "slug": "liquid",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "Molten metaball blobs that merge and split in a GLSL shader and bulge toward your pointer. Lava-lamp meets liquid metal.",

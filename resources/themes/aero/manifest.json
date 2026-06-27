@@ -1,6 +1,7 @@
 {
   "name": "Frutiger Aero",
   "slug": "aero",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

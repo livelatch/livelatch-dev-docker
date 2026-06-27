@@ -1,6 +1,7 @@
 {
   "name": "Constellation",
   "slug": "constellation",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "A living star map: drifting points wire themselves into constellations near your pointer, and a click drops a new star. Pure interactive canvas.",

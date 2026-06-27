@@ -1,6 +1,7 @@
 {
   "name": "Plasma",
   "slug": "plasma",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",

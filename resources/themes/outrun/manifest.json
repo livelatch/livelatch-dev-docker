@@ -1,6 +1,7 @@
 {
   "name": "Outrun",
   "slug": "outrun",
+  "tier": "free",
   "author": "livelatch", "authorName": "Livelatch", "authorHandle": "@livelatch",
   "version": "1.0.0",
   "description": "An endless neon grid highway racing toward a synth sun, in real 3D (Three.js). Steer the horizon with your pointer.",

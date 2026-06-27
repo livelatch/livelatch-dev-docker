@@ -1,6 +1,7 @@
 {
   "name": "Windows 98",
   "slug": "win98",
+  "tier": "free",
   "author": "livelatch",
   "authorName": "Livelatch",
   "authorHandle": "@livelatch",
