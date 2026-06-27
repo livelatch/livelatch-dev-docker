@@ -2414,6 +2414,11 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <script src="{{ asset('assets/js/jquery-block-ui.js') }}"></script>
     <script src="{{ asset('assets/js/main-dashboard.js') }}"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <!-- Preload extension: prefetches a nav target on hover/press and serves it
+         from cache on the real click, so studio navigation feels instant. Only
+         elements with a `preload` attribute under an `hx-ext="preload"` ancestor
+         are affected (the studio nav rail), so we never eagerly fetch every page. -->
+    <script src="https://unpkg.com/htmx-ext-preload@2.1.1/preload.js"></script>
 
     <script>
         (function () {
