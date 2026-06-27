@@ -86,8 +86,12 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         /* Dark is the default theme: its values live on :root so dark wins even
            before JS runs. Light is an explicit [data-ll-theme="light"] override.
-           Theme-agnostic tokens (font, radii, widths) stay on :root. */
-        :root {
+           The explicit [data-ll-theme="dark"] selector is kept so any element can
+           be force-rendered dark independent of the page theme (the Dev Tools
+           side-by-side previews depend on this). Theme-agnostic tokens (font,
+           radii, widths) are inherited from :root. */
+        :root,
+        [data-ll-theme="dark"] {
             color-scheme: dark;
             --ll-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             --ll-bg: #000421;
