@@ -210,6 +210,9 @@ class StreamScheduleService
     private static function clean(array $d): array
     {
         $kind = ($d['kind'] ?? 'once') === 'weekly' ? 'weekly' : 'once';
+        $tzName = self::isValidTz((string) ($d['timezone'] ?? '')) ? (string) $d['timezone'] : 'UTC';
+        $tz = self::safeTz($tzName);
+
         $out = [
             'title'            => mb_substr(trim((string) ($d['title'] ?? 'Stream')), 0, 120) ?: 'Stream',
             'platform'         => ($d['platform'] ?? '') !== '' ? mb_substr((string) $d['platform'], 0, 32) : null,
@@ -217,17 +220,19 @@ class StreamScheduleService
             'kind'             => $kind,
             'reminder_minutes' => isset($d['reminder_minutes']) && $d['reminder_minutes'] !== '' ? max(0, min(10080, (int) $d['reminder_minutes'])) : null,
             'is_active'        => array_key_exists('is_active', $d) ? (bool) $d['is_active'] : true,
-            'starts_at'        => null, 'ends_at' => null, 'weekday' => null, 'start_time' => null, 'end_time' => null, 'timezone' => null,
+            'timezone'         => $tzName,
+            'starts_at'        => null, 'ends_at' => null, 'weekday' => null, 'start_time' => null, 'end_time' => null,
         ];
 
         if ($kind === 'once') {
-            $out['starts_at'] = !empty($d['starts_at']) ? (new \DateTime((string) $d['starts_at']))->format(\DateTime::ATOM) : null;
-            $out['ends_at']   = !empty($d['ends_at']) ? (new \DateTime((string) $d['ends_at']))->format(\DateTime::ATOM) : null;
+            // Times arrive as the creator's wall-clock ("2026-07-01T19:00"); anchor
+            // them to the creator's timezone, not the server's, before storing.
+            $out['starts_at'] = !empty($d['starts_at']) ? (new \DateTime((string) $d['starts_at'], $tz))->format(\DateTime::ATOM) : null;
+            $out['ends_at']   = !empty($d['ends_at']) ? (new \DateTime((string) $d['ends_at'], $tz))->format(\DateTime::ATOM) : null;
         } else {
             $out['weekday']    = max(0, min(6, (int) ($d['weekday'] ?? 0)));
             $out['start_time'] = self::hm($d['start_time'] ?? '') ? sprintf('%02d:%02d', ...self::hm($d['start_time'])) : '19:00';
             $out['end_time']   = self::hm($d['end_time'] ?? '') ? sprintf('%02d:%02d', ...self::hm($d['end_time'])) : null;
-            $out['timezone']   = self::isValidTz((string) ($d['timezone'] ?? '')) ? (string) $d['timezone'] : 'UTC';
         }
 
         return $out;

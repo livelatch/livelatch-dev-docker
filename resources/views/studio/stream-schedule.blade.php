@@ -100,10 +100,12 @@
                 </div>
 
                 <div id="fields-once">
+                    <div class="ll-ss-field"><label>Date</label><input type="date" id="f-date"></div>
                     <div class="ll-ss-2">
-                        <div class="ll-ss-field"><label>Starts</label><input type="datetime-local" id="f-starts"></div>
-                        <div class="ll-ss-field"><label>Ends</label><input type="datetime-local" id="f-ends"></div>
+                        <div class="ll-ss-field"><label>From</label><input type="time" id="f-once-start" value="19:00"></div>
+                        <div class="ll-ss-field"><label>To</label><input type="time" id="f-once-end" value="21:00"></div>
                     </div>
+                    <p class="ll-ss-meta" id="f-tz-note-once"></p>
                 </div>
                 <div id="fields-weekly" style="display:none;">
                     <div class="ll-ss-field"><label>Day</label>
@@ -195,6 +197,9 @@
     var tz = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
     if ($('f-timezone')) $('f-timezone').value = tz;
     if ($('f-tz-note')) $('f-tz-note').textContent = 'Times are in your timezone: ' + tz;
+    if ($('f-tz-note-once')) $('f-tz-note-once').textContent = 'Times are in your timezone: ' + tz;
+    function dDate(d) { var p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+    if ($('f-date') && !$('f-date').value) $('f-date').value = dDate(new Date());
 
     // Render the preview times in the viewer's local timezone.
     document.querySelectorAll('[data-utc]').forEach(function (el) {
@@ -217,7 +222,8 @@
 
     function resetForm() {
         $('f-id').value = ''; $('f-title').value = ''; $('f-platform').value = ''; $('f-reminder').value = '';
-        $('f-url').value = ''; $('f-starts').value = ''; $('f-ends').value = ''; $('f-weekday').value = '4';
+        $('f-url').value = ''; $('f-weekday').value = '4';
+        $('f-date').value = dDate(new Date()); $('f-once-start').value = '19:00'; $('f-once-end').value = '21:00';
         $('f-start-time').value = '19:00'; $('f-end-time').value = '21:00';
         setKind('once'); $('ll-ss-cancel').style.display = 'none';
         $('ll-ss-formtitle').innerHTML = '<i class="bi bi-plus-circle"></i> Add a stream';
@@ -240,8 +246,9 @@
                 $('f-end-time').value = e.end_time || '';
             } else {
                 setKind('once');
-                $('f-starts').value = e.starts_at ? e.starts_at.substring(0, 16) : '';
-                $('f-ends').value = e.ends_at ? e.ends_at.substring(0, 16) : '';
+                $('f-date').value = e.starts_at ? e.starts_at.substring(0, 10) : dDate(new Date());
+                $('f-once-start').value = e.starts_at ? e.starts_at.substring(11, 16) : '19:00';
+                $('f-once-end').value = e.ends_at ? e.ends_at.substring(11, 16) : '';
             }
             $('ll-ss-cancel').style.display = '';
             $('ll-ss-formtitle').innerHTML = '<i class="bi bi-pencil"></i> Edit stream';
@@ -263,8 +270,16 @@
             title: title, platform: $('f-platform').value, url: ($('f-url').value || '').trim(),
             reminder_minutes: $('f-reminder').value, kind: kind, timezone: tz
         };
-        if (kind === 'once') { body.starts_at = $('f-starts').value; body.ends_at = $('f-ends').value; }
-        else { body.weekday = Number($('f-weekday').value); body.start_time = $('f-start-time').value; body.end_time = $('f-end-time').value; }
+        if (kind === 'once') {
+            var date = $('f-date').value, st = $('f-once-start').value, et = $('f-once-end').value;
+            if (!date || !st) { toast('#ll-ss-err', 'Pick a date and start time.'); return; }
+            body.starts_at = date + 'T' + st;
+            if (et) {
+                var endDate = date;
+                if (et <= st) { var nd = new Date(date + 'T00:00'); nd.setDate(nd.getDate() + 1); endDate = dDate(nd); }
+                body.ends_at = endDate + 'T' + et;
+            } else { body.ends_at = ''; }
+        } else { body.weekday = Number($('f-weekday').value); body.start_time = $('f-start-time').value; body.end_time = $('f-end-time').value; }
         var id = $('f-id').value;
         var url = id ? (D.base + '/' + id) : D.store;
         var btn = $('ll-ss-save'); btn.disabled = true; btn.textContent = 'Saving…';
