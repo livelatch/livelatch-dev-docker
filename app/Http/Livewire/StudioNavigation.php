@@ -188,6 +188,13 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [
+                        'label' => 'Impersonation Mitigation',
+                        'icon' => 'bi bi-shield-lock-fill',
+                        'url' => url('admin/impersonation'),
+                        'active' => request()->segment(2) === 'impersonation',
+                        'skeleton' => '#ll-table-skeleton',
+                    ],
+                    [
                         'label' => 'Dev Tools',
                         'icon' => 'bi bi-code-square',
                         'url' => url('admin/dev-tools'),

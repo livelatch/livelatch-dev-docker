@@ -379,6 +379,8 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::get('/admin/creator-requests', [\App\Http\Controllers\CreatorRequestController::class, 'index'])->name('admin.creatorRequests');
         Route::get('/admin/user-requests', [\App\Http\Controllers\Admin\UserRequestController::class, 'index'])->name('admin.userRequests');
         Route::post('/admin/user-requests/decide', [\App\Http\Controllers\Admin\UserRequestController::class, 'decide'])->name('admin.userRequests.decide');
+        Route::get('/admin/impersonation', [\App\Http\Controllers\Admin\ImpersonationController::class, 'index'])->name('admin.impersonation');
+        Route::post('/admin/impersonation/add', [\App\Http\Controllers\Admin\ImpersonationController::class, 'bulkAdd'])->name('admin.impersonation.add');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
         Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');

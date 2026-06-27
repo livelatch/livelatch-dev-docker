@@ -115,6 +115,9 @@ class UserController extends Controller
                 }
             }
 
+            // Count visits to a protected name (no-op when it isn't reserved).
+            \App\Services\ImpersonationService::recordAttempt((string) $littlelink_name, 'visit');
+
             return response()->view('errors.creator-not-found', [
                 'handle' => $littlelink_name,
             ], 404);
