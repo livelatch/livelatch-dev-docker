@@ -8,6 +8,10 @@
     $source = $analytics['source'] ?? [];
     $peakDayClicks = max(1, (int) ($analytics['peakDayClicks'] ?? 1));
     $statusIcon = ['up' => 'bi-arrow-up-right', 'down' => 'bi-lightning-charge', 'steady' => 'bi-stars'][$status['tone'] ?? 'steady'] ?? 'bi-stars';
+    // Stat-ring source: today's clicks as a share of the peak day (existing data,
+    // shown as a gauge instead of a sentence — no new metric).
+    $todayClicks = (int) ($analytics['todayClicks'] ?? 0);
+    $ringPct = max(4, min(100, $peakDayClicks > 0 ? (int) round($todayClicks / $peakDayClicks * 100) : 4));
 @endphp
 
 <div class="container-fluid content-inner mt-n5 py-0 ll-dashboard">
@@ -18,12 +22,14 @@
         }
 
         .ll-dashboard-hero {
-            border: 1px solid color-mix(in srgb, var(--ll-primary) 28%, var(--ll-border));
+            position: relative;
+            border: 1px solid color-mix(in srgb, var(--ll-primary) 30%, var(--ll-border));
             border-radius: calc(var(--ll-radius) + 8px);
             background:
-                radial-gradient(circle at top left, color-mix(in srgb, var(--ll-primary) 20%, transparent), transparent 34%),
-                linear-gradient(135deg, var(--ll-surface-solid), color-mix(in srgb, var(--ll-bg-soft) 86%, var(--ll-primary)));
-            box-shadow: var(--ll-shadow-soft);
+                radial-gradient(circle at top left, color-mix(in srgb, var(--ll-primary) 22%, transparent), transparent 36%),
+                radial-gradient(circle at bottom right, color-mix(in srgb, var(--ll-primary-2) 16%, transparent), transparent 42%),
+                linear-gradient(135deg, var(--ll-surface-solid), color-mix(in srgb, var(--ll-bg-soft) 84%, var(--ll-primary)));
+            box-shadow: var(--ll-shadow-soft), inset 0 1px 0 color-mix(in srgb, var(--ll-text) 10%, transparent);
             padding: clamp(18px, 3vw, 26px);
             overflow: hidden;
         }
@@ -130,11 +136,18 @@
         }
 
         .ll-dashboard-card {
-            border: 1px solid var(--ll-border);
+            position: relative;
+            border: 1px solid color-mix(in srgb, var(--ll-primary) 12%, var(--ll-border));
             border-radius: var(--ll-radius);
-            background: var(--ll-surface-solid);
-            box-shadow: var(--ll-shadow-soft);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--ll-text) 5%, var(--ll-surface-solid)), var(--ll-surface-solid));
+            box-shadow: var(--ll-shadow-soft), inset 0 1px 0 color-mix(in srgb, var(--ll-text) 9%, transparent);
             padding: 16px;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .ll-dashboard-card:hover {
+            border-color: color-mix(in srgb, var(--ll-primary) 30%, var(--ll-border));
+            box-shadow: var(--ll-shadow), inset 0 1px 0 color-mix(in srgb, var(--ll-text) 12%, transparent);
         }
 
         .ll-dashboard-metric {
@@ -148,9 +161,14 @@
             height: 42px;
             display: grid;
             place-items: center;
-            border-radius: 15px;
+            border-radius: 12px;
             color: #fff;
             background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            box-shadow: 0 6px 18px color-mix(in srgb, var(--ll-primary) 34%, transparent);
+        }
+
+        .ll-dashboard-metric-value {
+            font-variant-numeric: tabular-nums;
         }
 
         .ll-dashboard-metric-value {
@@ -300,6 +318,62 @@
             background: color-mix(in srgb, var(--ll-bg-soft) 62%, transparent);
         }
 
+        .ll-dashboard-action-primary {
+            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 8px 22px color-mix(in srgb, var(--ll-primary) 30%, transparent);
+        }
+
+        .ll-dashboard-action-primary:hover {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .ll-dashboard-pulse {
+            display: grid;
+            align-content: start;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .ll-dashboard-pulse h3 {
+            justify-self: start;
+        }
+
+        .ll-dashboard-ring {
+            --ring: 50%;
+            width: 168px;
+            height: 168px;
+            margin: 8px auto 16px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(closest-side, var(--ll-surface-solid) 70%, transparent 71% 100%),
+                conic-gradient(var(--ll-primary-2) 0, var(--ll-primary) var(--ring), color-mix(in srgb, var(--ll-text) 12%, transparent) var(--ring) 100%);
+            box-shadow: 0 0 30px color-mix(in srgb, var(--ll-primary) 22%, transparent);
+        }
+
+        .ll-dashboard-ring-value {
+            display: block;
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--ll-text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ll-dashboard-ring-label {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ll-muted);
+        }
+
         @media (max-width: 1199.98px) {
             .ll-dashboard-grid,
             .ll-dashboard-social-grid {
@@ -344,7 +418,7 @@
                 <p>Live link performance from Supabase, with your creator connections alongside it.</p>
 
                 <div class="ll-dashboard-actions" data-tour="dashboard-actions">
-                    <a href="{{ url('/studio/links') }}" class="ll-dashboard-action" data-tour="add-links" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                    <a href="{{ url('/studio/links') }}" class="ll-dashboard-action ll-dashboard-action-primary" data-tour="add-links" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
                         <i class="bi bi-plus-circle"></i>
                         Add links
                     </a>
@@ -466,9 +540,14 @@
             @endif
         </article>
 
-        <article class="ll-dashboard-card">
+        <article class="ll-dashboard-card ll-dashboard-pulse">
             <h3>Creator pulse</h3>
-            <p class="mb-3">Today has {{ number_format((int) ($analytics['todayClicks'] ?? 0)) }} clicks compared with {{ number_format((int) ($analytics['yesterdayClicks'] ?? 0)) }} yesterday.</p>
+            <div class="ll-dashboard-ring" style="--ring: {{ $ringPct }}%;" role="img" aria-label="{{ number_format($todayClicks) }} clicks today, {{ $ringPct }} percent of your peak day">
+                <div>
+                    <span class="ll-dashboard-ring-value">{{ number_format($todayClicks) }}</span>
+                    <span class="ll-dashboard-ring-label">clicks today</span>
+                </div>
+            </div>
             @php $delta = $analytics['clickDeltaPercent'] ?? null; @endphp
             <span class="ll-dashboard-chip {{ $delta !== null && $delta >= 0 ? 'up' : ($delta !== null ? 'down' : '') }}">
                 <i class="bi {{ $delta !== null && $delta >= 0 ? 'bi-arrow-up-right' : ($delta !== null ? 'bi-arrow-down-right' : 'bi-dash') }}"></i>
