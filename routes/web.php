@@ -117,6 +117,9 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
         Route::get('/@{littlelink}', [UserController::class, 'littlelink'])->middleware('disableCookies');
         // Public: a visitor asking a non-existent @handle to join Livelatch.
         Route::post('/creator-request', [\App\Http\Controllers\CreatorRequestController::class, 'store'])->name('creatorRequest.store')->middleware('throttle:12,1');
+        // Public subscribable stream-schedule calendar feed.
+        Route::get('/@{handle}/schedule.ics', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'ics'])->name('schedule.ics')->middleware('disableCookies');
+        Route::view('/help/calendar', 'public.calendar-help')->name('help.calendar')->middleware('disableCookies');
         Route::get('/pages/' . strtolower(footer('Terms')), [AdminController::class, 'pagesTerms'])->name('pagesTerms')->middleware('disableCookies');
         Route::get('/pages/' . strtolower(footer('Privacy')), [AdminController::class, 'pagesPrivacy'])->name('pagesPrivacy')->middleware('disableCookies');
         Route::get('/pages/' . strtolower(footer('Contact')), [AdminController::class, 'pagesContact'])->name('pagesContact')->middleware('disableCookies');
@@ -218,6 +221,10 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/no_page_name', [UserController::class, 'showPage'])->name('showPageNoPageName');
             Route::post('/studio/page', [UserController::class, 'editPage'])->name('editPage');
             Route::post('/studio/request-name', [UserController::class, 'requestNameChange'])->name('requestNameChange');
+            Route::get('/studio/stream-schedule', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'manage'])->name('streamSchedule');
+            Route::post('/studio/stream-schedule', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'store'])->name('streamSchedule.store');
+            Route::post('/studio/stream-schedule/{id}', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'update'])->name('streamSchedule.update')->whereNumber('id');
+            Route::post('/studio/stream-schedule/{id}/delete', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'destroy'])->name('streamSchedule.destroy')->whereNumber('id');
             Route::post('/studio/background', [UserController::class, 'themeBackground'])->name('themeBackground');
             Route::get('/studio/rem-background', [UserController::class, 'removeBackground'])->name('removeBackground');
             Route::get('/studio/profile', [UserController::class, 'showProfile'])->name('showProfile');

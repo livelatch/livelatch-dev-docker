@@ -1,0 +1,5 @@
+id: 10
+typename: streamschedule
+icon: "bi bi-calendar-week-fill"
+custom_html: true
+ignore_container: false

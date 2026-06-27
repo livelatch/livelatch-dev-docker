@@ -74,6 +74,14 @@ class StudioNavigation extends Component
                         'badge' => 'In development',
                     ],
                     [
+                        'label' => 'Stream Schedule',
+                        'icon' => 'bi bi-calendar-week-fill',
+                        'url' => url('/studio/stream-schedule'),
+                        'active' => request()->is('studio/stream-schedule'),
+                        'skeleton' => '#ll-page-skeleton',
+                        'badge' => 'Pro',
+                    ],
+                    [
                         'label' => 'Fax',
                         'icon' => 'bi bi-send-fill',
                         'url' => url('/studio/fax'),
