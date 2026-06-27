@@ -195,6 +195,13 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [
+                        'label' => 'Username Blacklist',
+                        'icon' => 'bi bi-slash-circle-fill',
+                        'url' => url('admin/username-blacklist'),
+                        'active' => request()->segment(2) === 'username-blacklist',
+                        'skeleton' => '#ll-table-skeleton',
+                    ],
+                    [
                         'label' => 'Dev Tools',
                         'icon' => 'bi bi-code-square',
                         'url' => url('admin/dev-tools'),

@@ -381,6 +381,8 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::post('/admin/user-requests/decide', [\App\Http\Controllers\Admin\UserRequestController::class, 'decide'])->name('admin.userRequests.decide');
         Route::get('/admin/impersonation', [\App\Http\Controllers\Admin\ImpersonationController::class, 'index'])->name('admin.impersonation');
         Route::post('/admin/impersonation/add', [\App\Http\Controllers\Admin\ImpersonationController::class, 'bulkAdd'])->name('admin.impersonation.add');
+        Route::get('/admin/username-blacklist', [\App\Http\Controllers\Admin\UsernameBlacklistController::class, 'index'])->name('admin.usernameBlacklist');
+        Route::post('/admin/username-blacklist/add', [\App\Http\Controllers\Admin\UsernameBlacklistController::class, 'bulkAdd'])->name('admin.usernameBlacklist.add');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
         Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');

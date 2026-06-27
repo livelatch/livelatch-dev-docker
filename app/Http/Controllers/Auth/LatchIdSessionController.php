@@ -125,12 +125,23 @@ class LatchIdSessionController extends Controller
                     $displayName = Str::before($requestEmail, '@');
                 }
 
+                $generatedHandle = $this->uniqueLittlelinkName($requestEmail);
+
+                // Block signups whose generated handle hits the username blacklist
+                // (profanity/slurs/banned persons/single char). Fails open if
+                // Supabase is unreachable, so a hiccup never blocks legit signups.
+                if (\App\Services\UsernameBlacklistService::check($generatedHandle) !== null) {
+                    throw ValidationException::withMessages([
+                        'littlelink_name' => 'This username is not allowed. Please use a different email, or contact support.',
+                    ]);
+                }
+
                 $userData = [
                     'name' => $this->uniqueName($displayName),
                     'email' => $requestEmail,
                     'password' => Hash::make(Str::random(48)),
                     'supabase_user_id' => $validated['supabase_user_id'],
-                    'littlelink_name' => $this->uniqueLittlelinkName($requestEmail),
+                    'littlelink_name' => $generatedHandle,
                     'email_verified_at' => now(),
                     'marketing_opt_in' => $marketingOptIn,
                 ];
