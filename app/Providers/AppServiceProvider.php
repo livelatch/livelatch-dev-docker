@@ -55,6 +55,17 @@ class AppServiceProvider extends ServiceProvider
         // location lets them resolve as themes.<slug> alongside baked themes.
         // Baked views (resources/views) are searched first, so they win on a
         // slug collision and S3 acts as the fallback/extension source.
-        View::addLocation(storage_path('app/theme-views'));
+        //
+        // The directory must exist before it is registered: `view:cache` (run
+        // during the build) scans every view location with Symfony Finder,
+        // which throws if a path is missing. Ensure it, and only register it if
+        // it is present, so a read-only filesystem can never break the build.
+        $themeViews = storage_path('app/theme-views');
+        if (!is_dir($themeViews)) {
+            @mkdir($themeViews, 0775, true);
+        }
+        if (is_dir($themeViews)) {
+            View::addLocation($themeViews);
+        }
     }
 }
