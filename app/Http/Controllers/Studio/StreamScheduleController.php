@@ -24,11 +24,13 @@ class StreamScheduleController extends Controller
         $events = $isPro ? StreamScheduleService::forUser($user->id) : [];
 
         return view('studio.stream-schedule', [
-            'isPro'   => $isPro,
-            'events'  => $events,
-            'icsUrl'  => url('/@' . $user->littlelink_name . '/schedule.ics'),
-            'webcal'  => 'webcal://' . preg_replace('#^https?://#', '', url('/@' . $user->littlelink_name . '/schedule.ics')),
-            'handle'  => $user->littlelink_name,
+            'isPro'       => $isPro,
+            'events'      => $events,
+            'icsUrl'      => url('/@' . $user->littlelink_name . '/schedule.ics'),
+            'webcal'      => 'webcal://' . preg_replace('#^https?://#', '', url('/@' . $user->littlelink_name . '/schedule.ics')),
+            'handle'      => $user->littlelink_name,
+            'rawgEnabled' => (bool) config('services.rawg.key'),
+            'gamesUrl'    => route('streamSchedule.games'),
         ]);
     }
 
@@ -95,7 +97,23 @@ class StreamScheduleController extends Controller
             'timezone'         => ['nullable', 'string', 'max:64'],
             'reminder_minutes' => ['nullable', 'integer', 'between:0,10080'],
             'is_active'        => ['nullable', 'boolean'],
+            'is_adult'         => ['nullable', 'boolean'],
+            'tags'             => ['nullable', 'string', 'max:400'],
+            'game_name'        => ['nullable', 'string', 'max:120'],
+            'game_image'       => ['nullable', 'string', 'max:500'],
+            'game_esrb'        => ['nullable', 'string', 'max:40'],
+            'game_rawg_id'     => ['nullable', 'integer'],
         ]);
+    }
+
+    /** RAWG game search for the "show game" picker (Pro). */
+    public function games(Request $request)
+    {
+        if (!$this->isPro($request->user())) {
+            return response()->json([], 403);
+        }
+
+        return response()->json(StreamScheduleService::searchGames((string) $request->query('q', '')));
     }
 
     private function isPro($user): bool

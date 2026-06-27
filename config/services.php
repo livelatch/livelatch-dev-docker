@@ -69,6 +69,12 @@ return [
         'api_key' => env('LATCHDECK_SERVICE_API_KEY'),
     ],
 
+    // RAWG video-game database — powers the Stream Schedule "show game" picker
+    // (game art + ESRB rating). Free key from https://rawg.io/apidocs.
+    'rawg' => [
+        'key' => env('RAWG_API_KEY'),
+    ],
+
     'posthog' => [
         'key' => env('POSTHOG_API_KEY'),
         'host' => env('POSTHOG_HOST', 'https://eu.i.posthog.com'),

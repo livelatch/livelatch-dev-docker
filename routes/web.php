@@ -222,6 +222,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::post('/studio/page', [UserController::class, 'editPage'])->name('editPage');
             Route::post('/studio/request-name', [UserController::class, 'requestNameChange'])->name('requestNameChange');
             Route::get('/studio/stream-schedule', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'manage'])->name('streamSchedule');
+            Route::get('/studio/stream-schedule/games', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'games'])->name('streamSchedule.games');
             Route::post('/studio/stream-schedule', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'store'])->name('streamSchedule.store');
             Route::post('/studio/stream-schedule/{id}', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'update'])->name('streamSchedule.update')->whereNumber('id');
             Route::post('/studio/stream-schedule/{id}/delete', [\App\Http\Controllers\Studio\StreamScheduleController::class, 'destroy'])->name('streamSchedule.destroy')->whereNumber('id');

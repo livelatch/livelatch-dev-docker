@@ -172,9 +172,17 @@ class StreamScheduleService
         foreach ($occ as $o) {
             $e = $o['event'];
             $platform = !empty($e['platform']) ? ' · ' . ucfirst((string) $e['platform']) : '';
-            $summary = ($e['title'] ?? 'Stream') . $platform;
-            $desc = $summary . "\n\n"
-                . 'Visit @' . $handle . "'s Livelatch to explore more: " . $profileUrl . "\n\n"
+            $game = !empty($e['game_name']) ? ' · ' . $e['game_name'] : '';
+            $summary = (!empty($e['is_adult']) ? '[18+] ' : '') . ($e['title'] ?? 'Stream') . $platform . $game;
+
+            $desc = $summary;
+            if (!empty($e['game_name'])) {
+                $desc .= "\n" . 'Game: ' . $e['game_name'] . (!empty($e['game_esrb']) ? ' (ESRB: ' . $e['game_esrb'] . ')' : '');
+            }
+            if (!empty($e['tags'])) {
+                $desc .= "\n" . 'Tags: ' . implode(', ', (array) $e['tags']);
+            }
+            $desc .= "\n\n" . 'Visit @' . $handle . "'s Livelatch to explore more: " . $profileUrl . "\n\n"
                 . 'To remove this calendar, unsubscribe from it in your calendar app. How: ' . $removeUrl;
 
             $lines[] = 'BEGIN:VEVENT';
@@ -220,6 +228,12 @@ class StreamScheduleService
             'kind'             => $kind,
             'reminder_minutes' => isset($d['reminder_minutes']) && $d['reminder_minutes'] !== '' ? max(0, min(10080, (int) $d['reminder_minutes'])) : null,
             'is_active'        => array_key_exists('is_active', $d) ? (bool) $d['is_active'] : true,
+            'is_adult'         => array_key_exists('is_adult', $d) ? (bool) $d['is_adult'] : false,
+            'tags'             => self::cleanTags($d['tags'] ?? []),
+            'game_name'        => ($d['game_name'] ?? '') !== '' ? mb_substr((string) $d['game_name'], 0, 120) : null,
+            'game_image'       => ($d['game_image'] ?? '') !== '' ? mb_substr((string) $d['game_image'], 0, 500) : null,
+            'game_esrb'        => ($d['game_esrb'] ?? '') !== '' ? mb_substr((string) $d['game_esrb'], 0, 40) : null,
+            'game_rawg_id'     => isset($d['game_rawg_id']) && $d['game_rawg_id'] !== '' ? (int) $d['game_rawg_id'] : null,
             'timezone'         => $tzName,
             'starts_at'        => null, 'ends_at' => null, 'weekday' => null, 'start_time' => null, 'end_time' => null,
         ];
@@ -236,6 +250,68 @@ class StreamScheduleService
         }
 
         return $out;
+    }
+
+    /** Up to 8 short custom tags from a comma string or array. */
+    private static function cleanTags($tags): array
+    {
+        if (is_string($tags)) {
+            $tags = explode(',', $tags);
+        }
+        if (!is_array($tags)) {
+            return [];
+        }
+        $out = [];
+        foreach ($tags as $t) {
+            $t = trim((string) $t);
+            if ($t !== '') {
+                $out[] = mb_substr($t, 0, 40);
+            }
+        }
+
+        return array_values(array_slice(array_unique($out), 0, 8));
+    }
+
+    /**
+     * Search the RAWG game database for the "show game" picker.
+     *
+     * @return array<int, array{id:?int,name:string,image:?string,esrb:?string,released:?string}>
+     */
+    public static function searchGames(string $q): array
+    {
+        $q = trim($q);
+        $key = (string) config('services.rawg.key');
+        if ($q === '' || $key === '') {
+            return [];
+        }
+
+        try {
+            $r = Http::timeout(6)->get('https://api.rawg.io/api/games', [
+                'key'       => $key,
+                'search'    => $q,
+                'page_size' => 8,
+            ]);
+            if (!$r->successful()) {
+                return [];
+            }
+
+            $out = [];
+            foreach ($r->json('results') ?? [] as $g) {
+                $out[] = [
+                    'id'       => $g['id'] ?? null,
+                    'name'     => (string) ($g['name'] ?? ''),
+                    'image'    => $g['background_image'] ?? null,
+                    'esrb'     => $g['esrb_rating']['name'] ?? null,
+                    'released' => $g['released'] ?? null,
+                ];
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            Log::warning('StreamScheduleService: RAWG search failed', ['error' => $e->getMessage()]);
+
+            return [];
+        }
     }
 
     private static function hm($value): ?array

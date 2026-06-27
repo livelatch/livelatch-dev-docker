@@ -905,6 +905,10 @@ return [
     'block.title.latchdeck' => 'LatchDeck cards',
     'block.description.latchdeck' => 'Show your LatchDeck collectible cards on your profile. Add to turn on, remove to turn off.',
 
+    # streamschedule
+    'block.title.streamschedule' => 'Stream Schedule',
+    'block.description.streamschedule' => 'Show your upcoming streams with a one-tap calendar subscribe. Manage them in the Stream Schedule app. Add to turn on, remove to turn off.',
+
 
     /*
     |--------------------------------------------------------------------------

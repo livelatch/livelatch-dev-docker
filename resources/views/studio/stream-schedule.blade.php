@@ -94,6 +94,31 @@
                 </div>
                 <div class="ll-ss-field"><label>Link (optional)</label><input type="text" id="f-url" maxlength="400" placeholder="https://twitch.tv/you"></div>
 
+                <div class="ll-ss-field">
+                    <label>Show game <span style="color:var(--ll-muted);font-weight:500;">optional — adds art &amp; ESRB rating</span></label>
+                    <div id="f-game-chip" style="display:none; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--ll-border); border-radius:10px; background:var(--ll-bg-soft);">
+                        <img id="f-game-chip-img" src="" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;flex:0 0 auto;">
+                        <div style="flex:1;min-width:0;"><div id="f-game-chip-name" style="font-weight:700;font-size:.86rem;color:var(--ll-text);"></div><div id="f-game-chip-esrb" style="font-size:.72rem;color:var(--ll-muted);"></div></div>
+                        <button type="button" id="f-game-clear" class="ll-ss-btn ghost" style="padding:6px 10px;">Clear</button>
+                    </div>
+                    @if($rawgEnabled)
+                        <div id="f-game-pick" style="position:relative;">
+                            <input type="text" id="f-game-search" placeholder="Search a game…" autocomplete="off">
+                            <div id="f-game-results" style="display:none; position:absolute; z-index:5; left:0; right:0; top:100%; margin-top:4px; background:var(--ll-surface-solid); border:1px solid var(--ll-border); border-radius:10px; box-shadow:var(--ll-shadow); max-height:240px; overflow:auto;"></div>
+                        </div>
+                    @else
+                        <p class="ll-ss-meta">Game search is off — set <code>RAWG_API_KEY</code> to enable it.</p>
+                    @endif
+                    <input type="hidden" id="f-game-name"><input type="hidden" id="f-game-image"><input type="hidden" id="f-game-esrb"><input type="hidden" id="f-game-rawg-id">
+                </div>
+
+                <div class="ll-ss-2">
+                    <div class="ll-ss-field"><label>Tags <span style="color:var(--ll-muted);font-weight:500;">comma separated</span></label><input type="text" id="f-tags" maxlength="200" placeholder="12 hour challenge, new to this"></div>
+                    <div class="ll-ss-field"><label>Audience</label>
+                        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:.86rem;color:var(--ll-text);cursor:pointer;padding-top:8px;"><input type="checkbox" id="f-adult" style="width:auto;"> Mark as 18+</label>
+                    </div>
+                </div>
+
                 <div class="ll-ss-seg" role="tablist">
                     <button type="button" id="seg-once" class="on" data-kind="once">One-off</button>
                     <button type="button" id="seg-weekly" data-kind="weekly">Every week</button>
@@ -184,7 +209,8 @@
     window.LL_SS = {
         csrf: '{{ csrf_token() }}',
         store: '{{ route('streamSchedule.store') }}',
-        base: '{{ url('/studio/stream-schedule') }}'
+        base: '{{ url('/studio/stream-schedule') }}',
+        games: '{{ route('streamSchedule.games') }}'
     };
 </script>
 @verbatim
@@ -209,6 +235,58 @@
         } catch (e) {}
     });
 
+    // ---- Game picker (RAWG) ----
+    function gameSet(g) {
+        $('f-game-name').value = g.name || '';
+        $('f-game-image').value = g.image || '';
+        $('f-game-esrb').value = g.esrb || '';
+        $('f-game-rawg-id').value = g.id || '';
+        $('f-game-chip-img').src = g.image || '';
+        $('f-game-chip-img').style.display = g.image ? '' : 'none';
+        $('f-game-chip-name').textContent = g.name || '';
+        $('f-game-chip-esrb').textContent = g.esrb ? ('ESRB: ' + g.esrb) : 'No ESRB rating';
+        $('f-game-chip').style.display = 'flex';
+        if ($('f-game-pick')) $('f-game-pick').style.display = 'none';
+    }
+    function gameClear() {
+        ['f-game-name', 'f-game-image', 'f-game-esrb', 'f-game-rawg-id'].forEach(function (id) { if ($(id)) $(id).value = ''; });
+        if ($('f-game-chip')) $('f-game-chip').style.display = 'none';
+        if ($('f-game-pick')) $('f-game-pick').style.display = '';
+        if ($('f-game-search')) $('f-game-search').value = '';
+        if ($('f-game-results')) $('f-game-results').style.display = 'none';
+    }
+    if ($('f-game-clear')) $('f-game-clear').addEventListener('click', gameClear);
+    if ($('f-game-search')) {
+        var gtimer;
+        $('f-game-search').addEventListener('input', function () {
+            clearTimeout(gtimer);
+            var q = this.value.trim(), box = $('f-game-results');
+            if (q.length < 2) { box.style.display = 'none'; return; }
+            gtimer = setTimeout(function () {
+                fetch(D.games + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (list) {
+                        box.innerHTML = '';
+                        if (!list || !list.length) { box.style.display = 'none'; return; }
+                        list.forEach(function (g) {
+                            var row = document.createElement('button');
+                            row.type = 'button';
+                            row.style.cssText = 'display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;color:var(--ll-text);padding:8px 10px;cursor:pointer;';
+                            row.onmouseover = function () { row.style.background = 'color-mix(in srgb, var(--ll-primary) 12%, transparent)'; };
+                            row.onmouseout = function () { row.style.background = 'transparent'; };
+                            row.innerHTML = (g.image ? '<img src="' + g.image + '" style="width:34px;height:34px;border-radius:6px;object-fit:cover;flex:0 0 auto;">' : '') +
+                                '<span style="min-width:0;"><span style="display:block;font-weight:600;font-size:.84rem;">' + (g.name || '') + '</span>' +
+                                '<span style="display:block;font-size:.72rem;color:var(--ll-muted);">' + (g.released ? g.released.substring(0, 4) + ' · ' : '') + (g.esrb || 'No ESRB') + '</span></span>';
+                            row.addEventListener('click', function () { gameSet(g); box.style.display = 'none'; });
+                            box.appendChild(row);
+                        });
+                        box.style.display = '';
+                    }).catch(function () { box.style.display = 'none'; });
+            }, 300);
+        });
+        document.addEventListener('click', function (ev) { var box = $('f-game-results'); if (box && $('f-game-pick') && !$('f-game-pick').contains(ev.target)) box.style.display = 'none'; });
+    }
+
     var kind = 'once';
     function setKind(k) {
         kind = k;
@@ -225,6 +303,7 @@
         $('f-url').value = ''; $('f-weekday').value = '4';
         $('f-date').value = dDate(new Date()); $('f-once-start').value = '19:00'; $('f-once-end').value = '21:00';
         $('f-start-time').value = '19:00'; $('f-end-time').value = '21:00';
+        $('f-tags').value = ''; $('f-adult').checked = false; gameClear();
         setKind('once'); $('ll-ss-cancel').style.display = 'none';
         $('ll-ss-formtitle').innerHTML = '<i class="bi bi-plus-circle"></i> Add a stream';
     }
@@ -239,6 +318,9 @@
             $('f-platform').value = e.platform || '';
             $('f-reminder').value = e.reminder_minutes || '';
             $('f-url').value = e.url || '';
+            $('f-tags').value = Array.isArray(e.tags) ? e.tags.join(', ') : (e.tags || '');
+            $('f-adult').checked = !!e.is_adult;
+            if (e.game_name) { gameSet({ name: e.game_name, image: e.game_image, esrb: e.game_esrb, id: e.game_rawg_id }); } else { gameClear(); }
             if ((e.kind || 'once') === 'weekly') {
                 setKind('weekly');
                 $('f-weekday').value = String(e.weekday != null ? e.weekday : 4);
@@ -280,6 +362,12 @@
                 body.ends_at = endDate + 'T' + et;
             } else { body.ends_at = ''; }
         } else { body.weekday = Number($('f-weekday').value); body.start_time = $('f-start-time').value; body.end_time = $('f-end-time').value; }
+        body.is_adult = $('f-adult').checked ? 1 : 0;
+        body.tags = ($('f-tags').value || '').trim();
+        body.game_name = $('f-game-name').value;
+        body.game_image = $('f-game-image').value;
+        body.game_esrb = $('f-game-esrb').value;
+        body.game_rawg_id = $('f-game-rawg-id').value;
         var id = $('f-id').value;
         var url = id ? (D.base + '/' + id) : D.store;
         var btn = $('ll-ss-save'); btn.disabled = true; btn.textContent = 'Saving…';
