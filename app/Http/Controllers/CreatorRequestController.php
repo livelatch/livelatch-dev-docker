@@ -14,11 +14,13 @@ class CreatorRequestController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'handle' => ['required', 'string', 'max:80'],
-            'email'  => ['nullable', 'email', 'max:190'],
+            'handle'      => ['required', 'string', 'max:80'],
+            'email'       => ['nullable', 'email', 'max:190'],
+            'platforms'   => ['nullable', 'array', 'max:20'],
+            'platforms.*' => ['string', 'max:32'],
         ]);
 
-        CreatorRequestService::record($data['handle'], $request, $data['email'] ?? null);
+        CreatorRequestService::record($data['handle'], $request, $data['email'] ?? null, $data['platforms'] ?? []);
 
         return response()->json([
             'ok'      => true,

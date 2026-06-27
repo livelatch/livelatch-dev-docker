@@ -217,6 +217,7 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/page', [UserController::class, 'showPage'])->name('showPage');
             Route::get('/studio/no_page_name', [UserController::class, 'showPage'])->name('showPageNoPageName');
             Route::post('/studio/page', [UserController::class, 'editPage'])->name('editPage');
+            Route::post('/studio/request-name', [UserController::class, 'requestNameChange'])->name('requestNameChange');
             Route::post('/studio/background', [UserController::class, 'themeBackground'])->name('themeBackground');
             Route::get('/studio/rem-background', [UserController::class, 'removeBackground'])->name('removeBackground');
             Route::get('/studio/profile', [UserController::class, 'showProfile'])->name('showProfile');
@@ -376,6 +377,8 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::post('/admin/theme-manager/upload', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'upload'])->name('admin.themeManager.upload');
         Route::post('/admin/theme-manager/manifest', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'editManifest'])->name('admin.themeManager.manifest');
         Route::get('/admin/creator-requests', [\App\Http\Controllers\CreatorRequestController::class, 'index'])->name('admin.creatorRequests');
+        Route::get('/admin/user-requests', [\App\Http\Controllers\Admin\UserRequestController::class, 'index'])->name('admin.userRequests');
+        Route::post('/admin/user-requests/decide', [\App\Http\Controllers\Admin\UserRequestController::class, 'decide'])->name('admin.userRequests.decide');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
         Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');

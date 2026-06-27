@@ -181,6 +181,13 @@ class StudioNavigation extends Component
                         'skeleton' => '#ll-table-skeleton',
                     ],
                     [
+                        'label' => 'User Requests',
+                        'icon' => 'bi bi-person-badge-fill',
+                        'url' => url('admin/user-requests'),
+                        'active' => request()->segment(2) === 'user-requests',
+                        'skeleton' => '#ll-table-skeleton',
+                    ],
+                    [
                         'label' => 'Dev Tools',
                         'icon' => 'bi bi-code-square',
                         'url' => url('admin/dev-tools'),

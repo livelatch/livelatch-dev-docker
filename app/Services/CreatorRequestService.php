@@ -32,7 +32,7 @@ class CreatorRequestService
      * Record a request for a non-existent creator. Dedupes per (handle, salted
      * IP hash). Returns true on a successful write.
      */
-    public static function record(string $handle, Request $request, ?string $email = null): bool
+    public static function record(string $handle, Request $request, ?string $email = null, array $platforms = []): bool
     {
         $handle = self::normalizeHandle($handle);
         if ($handle === '') {
@@ -47,9 +47,21 @@ class CreatorRequestService
             'p_email'       => $email ?: null,
             'p_user_agent'  => mb_substr((string) $request->userAgent(), 0, 400),
             'p_referer'     => mb_substr((string) $request->headers->get('referer', ''), 0, 400),
+            'p_platforms'   => self::cleanPlatforms($platforms),
         ]);
 
         return (bool) ($response && $response->successful());
+    }
+
+    /** Keep only known platform keys (config/creator_platforms.php), deduped. */
+    public static function cleanPlatforms(array $platforms): array
+    {
+        $allowed = array_keys(config('creator_platforms', []));
+
+        return array_values(array_unique(array_filter(
+            array_map(fn ($p) => strtolower(trim((string) $p)), $platforms),
+            fn ($p) => in_array($p, $allowed, true)
+        )));
     }
 
     /**

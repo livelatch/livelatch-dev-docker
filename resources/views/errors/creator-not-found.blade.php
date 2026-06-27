@@ -54,6 +54,14 @@
             background: rgba(255,255,255,.04); color: var(--text); padding: 12px 14px; font-size: .95rem; font-family: inherit; text-align: center;
         }
         .cr-email small { display: block; color: var(--muted); font-size: .8rem; margin: 0 0 8px; }
+        .cr-platforms { margin-top: 16px; display: none; }
+        .cr-platforms.is-on { display: block; }
+        .cr-platforms small { display: block; color: var(--muted); font-size: .8rem; margin: 0 0 9px; }
+        .cr-plat-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .cr-plat { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; user-select: none; transition: border-color .14s, color .14s, background .14s; }
+        .cr-plat input { display: none; }
+        .cr-plat .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc, var(--muted)); display: inline-block; box-shadow: 0 0 8px color-mix(in srgb, var(--pc, var(--muted)) 60%, transparent); }
+        .cr-plat.is-checked { color: var(--text); border-color: color-mix(in srgb, var(--p1) 55%, var(--border)); background: color-mix(in srgb, var(--p1) 14%, transparent); }
         .cr-thanks { display: none; }
         .cr-thanks.is-on { display: block; }
         .cr-thanks .cr-check { width: 56px; height: 56px; border-radius: 50%; display: inline-grid; place-items: center; margin-bottom: 12px;
@@ -74,6 +82,15 @@
             <div class="cr-row">
                 <button type="button" class="cr-btn" id="cr-yes"><i></i> Yes — they should!</button>
                 <a class="cr-btn cr-ghost" href="{{ url('/') }}">Make your own Livelatch</a>
+            </div>
+
+            <div class="cr-platforms" id="cr-platforms">
+                <small>Where does {{ '@' . $handle }} post? (optional — helps us find them)</small>
+                <div class="cr-plat-grid">
+                    @foreach(config('creator_platforms') as $key => $p)
+                        <label class="cr-plat" style="--pc: {{ $p['color'] }}"><input type="checkbox" value="{{ $key }}"><span class="dot"></span>{{ $p['label'] }}</label>
+                    @endforeach
+                </div>
             </div>
 
             <div class="cr-email" id="cr-email">
@@ -101,6 +118,11 @@
             var emailWrap = document.getElementById('cr-email');
             var emailInput = document.getElementById('cr-email-input');
             var yes = document.getElementById('cr-yes');
+            var platWrap = document.getElementById('cr-platforms');
+
+            Array.prototype.forEach.call(document.querySelectorAll('.cr-plat input'), function (cb) {
+                cb.addEventListener('change', function () { cb.parentNode.classList.toggle('is-checked', cb.checked); });
+            });
 
             function showThanks() { ask.style.display = 'none'; thanks.classList.add('is-on'); }
 
@@ -110,7 +132,7 @@
 
             var revealed = false;
             yes.addEventListener('click', function () {
-                if (!revealed) { emailWrap.classList.add('is-on'); yes.textContent = 'Send request'; revealed = true; emailInput.focus(); return; }
+                if (!revealed) { platWrap.classList.add('is-on'); emailWrap.classList.add('is-on'); yes.textContent = 'Send request'; revealed = true; return; }
                 submit();
             });
             emailInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
@@ -122,7 +144,7 @@
                     method: 'POST',
                     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': token },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ handle: handle, email: (emailInput.value || '').trim() })
+                    body: JSON.stringify({ handle: handle, email: (emailInput.value || '').trim(), platforms: Array.prototype.slice.call(document.querySelectorAll('.cr-plat input:checked')).map(function (c) { return c.value; }) })
                 }).then(function () {
                     try { localStorage.setItem(key, '1'); } catch (e) {}
                     showThanks();

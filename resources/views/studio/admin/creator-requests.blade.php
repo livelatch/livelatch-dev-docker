@@ -26,6 +26,9 @@
     .ll-crq-metric.accent .v { color: var(--ll-primary); }
     .ll-crq-metric .l { color: var(--ll-muted); font-size: .66rem; text-transform: uppercase; letter-spacing: .04em; }
     .ll-crq-empty { border: 1px dashed var(--ll-border); border-radius: 14px; padding: 22px; text-align: center; color: var(--ll-muted); }
+    .ll-crq-plats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+    .ll-crq-plat { display: inline-flex; align-items: center; gap: 5px; font-size: .66rem; font-weight: 700; color: var(--ll-text); border: 1px solid color-mix(in srgb, var(--pc) 40%, var(--ll-border)); background: color-mix(in srgb, var(--pc) 12%, transparent); border-radius: 999px; padding: 2px 8px; }
+    .ll-crq-plat .d { width: 7px; height: 7px; border-radius: 50%; background: var(--pc); display: inline-block; }
 
     @media (max-width: 820px) {
         .ll-crq-row { grid-template-columns: 28px 1fr auto; }
@@ -66,6 +69,15 @@
                         @if(!empty($row['last_seen'])) last asked {{ \Illuminate\Support\Carbon::parse($row['last_seen'])->diffForHumans() }} @endif
                         @if(!empty($row['emails']) && $row['emails'] > 0) · {{ $row['emails'] }} want a heads-up @endif
                     </small>
+                    @php $rowPlatforms = $row['platforms'] ?? []; @endphp
+                    @if(!empty($rowPlatforms))
+                        <div class="ll-crq-plats">
+                            @foreach($rowPlatforms as $pk)
+                                @php $pc = config('creator_platforms')[$pk] ?? null; @endphp
+                                @if($pc)<span class="ll-crq-plat" style="--pc: {{ $pc['color'] }}"><span class="d"></span>{{ $pc['label'] }}</span>@endif
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 <div class="ll-crq-metric accent"><div class="v">{{ number_format($row['unique_count'] ?? 0) }}</div><div class="l">unique</div></div>
                 <div class="ll-crq-metric"><div class="v">{{ number_format($row['attempts'] ?? 0) }}</div><div class="l">attempts</div></div>

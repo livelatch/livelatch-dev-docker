@@ -106,6 +106,15 @@ class UserController extends Controller
                 return abort(404);
             }
 
+            // An old handle from an approved name change? 301 to the new canonical one.
+            $aliasUserId = DB::table('handle_aliases')->where('alias', strtolower((string) $littlelink_name))->value('user_id');
+            if ($aliasUserId) {
+                $canonical = User::where('id', $aliasUserId)->value('littlelink_name');
+                if (!empty($canonical) && strtolower($canonical) !== strtolower((string) $littlelink_name)) {
+                    return redirect('/@' . $canonical, 301);
+                }
+            }
+
             return response()->view('errors.creator-not-found', [
                 'handle' => $littlelink_name,
             ], 404);
@@ -639,11 +648,45 @@ class UserController extends Controller
     //Show littlelinke page for edit
     public function showPage(request $request)
     {
-        $userId = Auth::user()->id;
+        $user = Auth::user();
+        $userId = $user->id;
 
         $data['pages'] = User::where('id', $userId)->select('littlelink_name', 'littlelink_description', 'image', 'name')->get();
 
+        // Name/URL pick-list from the creator's linked LatchID identities, with
+        // per-handle availability so taken ones can be disabled in the picker.
+        $candidates = \App\Services\HandleChangeService::candidateNames($user);
+        foreach ($candidates as &$c) {
+            $c['available'] = \App\Services\HandleChangeService::handleAvailable($c['handle'], $userId);
+        }
+        unset($c);
+        $data['candidates'] = $candidates;
+        $data['hasPendingRequest'] = \App\Services\HandleChangeService::hasPending($user);
+
         return view('/studio/page', $data);
+    }
+
+    // Submit a request for a custom name/URL (one not in the creator's linked
+    // identities). Stored in Supabase and reviewed in admin "User Requests".
+    public function requestNameChange(Request $request)
+    {
+        $data = $request->validate([
+            'requested_handle' => ['nullable', 'string', 'max:60'],
+            'requested_name'   => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $user = Auth::user();
+
+        if (\App\Services\HandleChangeService::hasPending($user)) {
+            return back()->with('error', __('messages.You already have a pending name request.'));
+        }
+        if (empty($data['requested_handle']) && empty($data['requested_name'])) {
+            return back()->with('error', __('messages.Enter a custom name or URL to request.'));
+        }
+
+        \App\Services\HandleChangeService::submit($user, $data['requested_handle'] ?? null, $data['requested_name'] ?? null, $user->email);
+
+        return back()->with('success', __("messages.Request sent — we'll review it shortly."));
     }
 
     //Save littlelink page (name, description, logo)
@@ -682,10 +725,40 @@ class UserController extends Controller
         $sharebtn = $request->sharebtn;
         $tablinks = $request->tablinks;
 
+        // Name + URL may only be set to a value from the creator's linked LatchID
+        // identities (those auto-apply). Anything custom must go through the
+        // admin-reviewed request flow (requestNameChange), so reject free-text here.
+        $authUser = Auth::user();
+        $candidates = \App\Services\HandleChangeService::candidateNames($authUser);
+        $candNames = array_map(fn ($c) => mb_strtolower($c['name']), $candidates);
+        $candHandles = array_map(fn ($c) => $c['handle'], $candidates);
+
+        if ($name !== null && trim($name) !== ''
+            && mb_strtolower(trim($name)) !== mb_strtolower((string) $authUser->name)
+            && !in_array(mb_strtolower(trim($name)), $candNames, true)) {
+            return redirect('/studio/page')->withErrors(['name' => __('messages.Pick a name from your linked accounts, or request a custom one below.')])->withInput();
+        }
+
+        $newHandle = strtolower(trim((string) $pageName));
+        $oldHandle = strtolower((string) $littlelink_name);
+        $handleChanged = $newHandle !== '' && $newHandle !== $oldHandle;
+        if ($handleChanged) {
+            if (!in_array($newHandle, $candHandles, true) || !\App\Services\HandleChangeService::handleAvailable($newHandle, $userId)) {
+                return redirect('/studio/page')->withErrors(['littlelink_name' => __('messages.Pick a URL from your linked accounts, or request a custom one below.')])->withInput();
+            }
+            $pageName = $newHandle;
+        }
+
         if(env('HOME_URL') !== '' && $pageName != $littlelink_name && $littlelink_name == env('HOME_URL')){
             EnvEditor::editKey('HOME_URL', $pageName);
         }
-    
+
+        // Keep old /@oldhandle links alive after an identity-name handle change.
+        if ($handleChanged && $oldHandle !== '') {
+            DB::table('handle_aliases')->insertOrIgnore(['alias' => $oldHandle, 'user_id' => $userId, 'created_at' => now(), 'updated_at' => now()]);
+            DB::table('handle_aliases')->where('alias', $newHandle)->delete();
+        }
+
         User::where('id', $userId)->update([
             'littlelink_name' => $pageName,
             'littlelink_description' => $pageDescription,

@@ -215,6 +215,15 @@
             </div>
             @endif
 
+            @php
+                $candidates = $candidates ?? [];
+                $hasPendingRequest = $hasPendingRequest ?? false;
+                $currentHandle = $page->littlelink_name ?? '';
+                $currentName = $page->name ?? '';
+                $haveCurrentHandle = collect($candidates)->contains(fn ($c) => strtolower($c['handle']) === strtolower($currentHandle));
+                $haveCurrentName = collect($candidates)->contains(fn ($c) => mb_strtolower($c['name']) === mb_strtolower($currentName));
+            @endphp
+
             <div class="ll-field">
                 <?php
                     $url = $_SERVER['REQUEST_URI'];
@@ -223,16 +232,78 @@
                 <label for="littlelink_name" class="form-label">{{ __('messages.Page URL') }}</label>
                 <div class="ll-input-group">
                     <span class="ll-input-prefix" id="basic-addon3">{{ str_replace(['http://', 'https://'], '', url('')) }}/@</span>
-                    <input type="littlelink_name" id="littlelink_name" name="littlelink_name" aria-describedby="littlelink_name" value="{{ $page->littlelink_name ?? '' }}" :value="old('littlelink_name')" required autofocus>
+                    <select id="littlelink_name" name="littlelink_name" required style="flex:1; border:0; background:transparent; color:var(--ll-text); padding:0 6px; min-height:38px; font-size:inherit;">
+                        @unless($haveCurrentHandle)
+                            <option value="{{ $currentHandle }}" selected>{{ $currentHandle }}</option>
+                        @endunless
+                        @foreach($candidates as $c)
+                            @php $isCurrent = strtolower($c['handle']) === strtolower($currentHandle); $taken = !$c['available'] && !$isCurrent; @endphp
+                            <option value="{{ $c['handle'] }}" @selected($isCurrent) @disabled($taken)>{{ $c['handle'] }}{{ $taken ? ' (taken)' : '' }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <script>var exceptionvar = " value="{{ $page->littlelink_name }}";</script>
-                @include('auth.url-validation')
             </div>
 
             <div class="ll-field">
                 <label>{{ __('messages.Display name') }}</label>
-                <input type="text" class="ll-input" name="name" value="{{ $page->name }}" required>
+                <select class="ll-input" name="name" required>
+                    @unless($haveCurrentName)
+                        <option value="{{ $currentName }}" selected>{{ $currentName }}</option>
+                    @endunless
+                    @foreach($candidates as $c)
+                        <option value="{{ $c['name'] }}" @selected(mb_strtolower($c['name']) === mb_strtolower($currentName))>{{ $c['name'] }}@if(($c['source'] ?? '') !== 'Current name') · {{ $c['source'] }}@endif</option>
+                    @endforeach
+                </select>
             </div>
+
+            <div class="ll-field" id="ll-req-wrap" data-req-url="{{ route('requestNameChange') }}" data-csrf="{{ csrf_token() }}">
+                @if($hasPendingRequest)
+                    <div class="ll-appearance-alert" role="alert" style="border:1px solid var(--ll-border); border-radius:12px; padding:10px 12px; color:var(--ll-muted); font-size:.85rem;">
+                        <i class="bi bi-hourglass-split"></i> You have a pending name request awaiting review.
+                    </div>
+                @else
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+                        <small style="color:var(--ll-muted);">These come from your linked accounts. Is your name missing? <a href="{{ url('/studio/latchid') }}" style="color:var(--ll-primary); font-weight:600; text-decoration:none;">Link it in LatchID</a>.</small>
+                        <button type="button" id="ll-req-toggle" style="border:1px solid var(--ll-border); background:transparent; color:var(--ll-text); border-radius:10px; padding:7px 13px; font-weight:600; font-size:.84rem; cursor:pointer;">Request a custom name</button>
+                    </div>
+                    <div id="ll-req-panel" style="display:none; margin-top:10px; gap:8px; grid-template-columns:1fr; display:none;">
+                        <small style="color:var(--ll-muted);">Want a name or URL that isn't linked to your account? Request it — an admin reviews custom names. Your current URL keeps working after a change.</small>
+                        <input type="text" id="ll-req-name" maxlength="120" placeholder="Custom display name (optional)" class="ll-input">
+                        <input type="text" id="ll-req-handle" maxlength="60" placeholder="custom-url (optional)" class="ll-input">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <button type="button" id="ll-req-submit" style="border:0; background:linear-gradient(135deg,var(--ll-primary),var(--ll-primary-2)); color:#fff; border-radius:10px; padding:9px 16px; font-weight:700; font-size:.85rem; cursor:pointer;">Send request</button>
+                            <small id="ll-req-status" style="color:var(--ll-muted);"></small>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            <script>
+                (function () {
+                    var wrap = document.getElementById('ll-req-wrap');
+                    if (!wrap) return;
+                    var toggle = document.getElementById('ll-req-toggle');
+                    var panel = document.getElementById('ll-req-panel');
+                    var submit = document.getElementById('ll-req-submit');
+                    if (toggle && panel) toggle.addEventListener('click', function () { panel.style.display = panel.style.display === 'grid' ? 'none' : 'grid'; });
+                    if (submit) submit.addEventListener('click', function () {
+                        var status = document.getElementById('ll-req-status');
+                        var name = (document.getElementById('ll-req-name').value || '').trim();
+                        var handle = (document.getElementById('ll-req-handle').value || '').trim();
+                        if (!name && !handle) { status.textContent = 'Enter a name or URL.'; return; }
+                        submit.disabled = true; status.textContent = 'Sending…';
+                        fetch(wrap.dataset.reqUrl, {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': wrap.dataset.csrf },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ requested_name: name, requested_handle: handle })
+                        }).then(function () {
+                            panel.innerHTML = '<div style="color:var(--ll-primary); font-weight:600; font-size:.88rem;">Request sent — we\'ll review it shortly.</div>';
+                        }).catch(function () {
+                            submit.disabled = false; status.textContent = 'Could not send — try again.';
+                        });
+                    });
+                })();
+            </script>
 
             <div class="ll-field">
                 <label>{{ __('messages.Page Description') }}</label>
