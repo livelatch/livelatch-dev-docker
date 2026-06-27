@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BladeThemeCatalog;
 use App\Models\UserBladeThemeSetting;
 use App\Services\ThemeRegistry;
+use App\Support\Ai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -40,10 +41,21 @@ class ThemeManagerController extends Controller
             ->values()
             ->all();
 
+        // Raw manifests (un-annotated) keyed by slug — what the editor loads/saves.
+        $manifests = [];
+        foreach ($themes as $t) {
+            $manifests[$t['slug']] = $this->registry->get($t['slug']) ?? [];
+        }
+
         return view('studio.admin.theme-manager', [
-            'themes'    => $themes,
-            'usage'     => $usage,
-            's3Enabled' => $this->registry->s3Enabled(),
+            'themes'         => $themes,
+            'manifests'      => $manifests,
+            'usage'          => $usage,
+            's3Enabled'      => $this->registry->s3Enabled(),
+            'aiTools'        => config('ai.tools', []),
+            'aiCategories'   => config('ai.categories', ['none', 'assisted', 'generated']),
+            'aiScopes'       => config('ai.scopes', ['code', 'text']),
+            'aiDefaultColor' => config('ai.default_color', '#D97757'),
         ]);
     }
 
@@ -143,8 +155,12 @@ class ThemeManagerController extends Controller
                 }
             }
 
+            // Normalise the AI disclosure block to policy-legal values before storing.
+            $manifest['slug'] = $slug;
+            $manifest['ai'] = Ai::normalize($manifest['ai'] ?? []);
+
             $disk = Storage::disk('s3');
-            $disk->put("themes/{$slug}/manifest.json", File::get($base . '/manifest.json'));
+            $disk->put("themes/{$slug}/manifest.json", json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
             $disk->put("themes/{$slug}/{$slug}.blade.php", File::get($view));
 
             $assetCount = 0;
@@ -179,6 +195,66 @@ class ThemeManagerController extends Controller
         } finally {
             File::deleteDirectory($tmp);
         }
+    }
+
+    /**
+     * Save an edited manifest. Writes manifest.json to S3 and ensures the slug
+     * is in the index so the S3 copy becomes authoritative (this also lets a
+     * baked theme's manifest be edited — its blade stays baked, the manifest is
+     * overridden from S3). enabled / Free-Pro live in the catalog and are set
+     * from the list, not here.
+     */
+    public function editManifest(Request $request)
+    {
+        $data = $request->validate([
+            'slug'     => ['required', 'string', 'max:64'],
+            'manifest' => ['required', 'array'],
+        ]);
+
+        $slug = $this->safeSlug($data['slug']);
+        $manifest = $data['manifest'];
+
+        if ($slug === '' || !$this->registry->get($slug)) {
+            return $this->respond($request, ['error' => 'Unknown theme.'], 404);
+        }
+        if ($this->safeSlug((string) ($manifest['slug'] ?? '')) !== $slug) {
+            return $this->respond($request, ['error' => 'The manifest slug must stay the same.'], 422);
+        }
+        if (empty($manifest['name'])) {
+            return $this->respond($request, ['error' => 'A theme name is required.'], 422);
+        }
+        if (!$this->registry->s3Enabled()) {
+            return $this->respond($request, ['error' => 'S3 is not configured on this environment.'], 422);
+        }
+
+        $manifest['slug'] = $slug;
+        $manifest['ai'] = Ai::normalize($manifest['ai'] ?? []);
+        if (isset($manifest['tier']) && !in_array($manifest['tier'], ['free', 'pro'], true)) {
+            $manifest['tier'] = 'free';
+        }
+
+        try {
+            $disk = Storage::disk('s3');
+            $disk->put("themes/{$slug}/manifest.json", json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            $this->bumpIndex($disk, $slug);
+
+            $row = BladeThemeCatalog::firstOrNew(['slug' => $slug]);
+            if (!$row->exists) {
+                $row->enabled = true;
+            }
+            $row->source = 's3';
+            $row->save();
+
+            $this->registry->clearCache();
+        } catch (\Throwable $e) {
+            return $this->respond($request, ['error' => 'Save failed: ' . $e->getMessage()], 500);
+        }
+
+        return $this->respond($request, [
+            'message'  => "Saved manifest for '{$slug}'.",
+            'slug'     => $slug,
+            'aiBadge'  => Ai::badge($manifest),
+        ]);
     }
 
     private function bumpIndex($disk, string $slug): void

@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\User;
 
+if (!function_exists('ai_badge')) {
+    /**
+     * Consumer-facing AI badge for a theme manifest, or null when no AI is
+     * disclosed. See App\Support\Ai and docs/policies/ai-use-policy.md.
+     */
+    function ai_badge(array $manifest): ?array
+    {
+        return \App\Support\Ai::badge($manifest);
+    }
+}
+
 if (!function_exists('preloadDirectoryFiles')) {
     /**
      * Preload all files in a directory and optionally cache in Redis or Laravel cache.

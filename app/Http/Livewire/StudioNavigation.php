@@ -31,14 +31,14 @@ class StudioNavigation extends Component
                 'icon' => 'bi bi-compass-fill',
                 'items' => [
                     [
-                        'label' => __('messages.Links'),
+                        'label' => 'Blocks',
                         'icon' => 'bi bi-link-45deg',
                         'url' => url('/studio/links'),
                         'active' => in_array(request()->segment(2), ['links', 'add-link'], true),
                         'skeleton' => '#ll-profile-skeleton',
                     ],
                     [
-                        'label' => __('messages.Appearance'),
+                        'label' => 'Profile',
                         'icon' => 'bi bi-person-badge-fill',
                         'url' => url('/studio/page'),
                         'active' => request()->segment(2) === 'page',
@@ -172,6 +172,13 @@ class StudioNavigation extends Component
                         'url' => url('admin/theme-manager'),
                         'active' => request()->segment(2) === 'theme-manager',
                         'skeleton' => '#ll-page-skeleton',
+                    ],
+                    [
+                        'label' => 'Creator Requests',
+                        'icon' => 'bi bi-fire',
+                        'url' => url('admin/creator-requests'),
+                        'active' => request()->segment(2) === 'creator-requests',
+                        'skeleton' => '#ll-table-skeleton',
                     ],
                     [
                         'label' => 'Dev Tools',

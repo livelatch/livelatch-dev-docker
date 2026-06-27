@@ -344,7 +344,7 @@
 <div class="container-fluid content-inner mt-n5 py-0">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
-            <h2 class="mb-1"><i class="bi bi-link-45deg"></i> Links</h2>
+            <h2 class="mb-1"><i class="bi bi-link-45deg"></i> Blocks</h2>
             <p class="text-muted mb-0">Add blocks, arrange your profile, and preview the public page in one place.</p>
         </div>
 

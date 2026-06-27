@@ -123,6 +123,18 @@ Themes already ship a `manifest.json` (see [`docs/themes/blade-theme-system.md`]
 | `tools` | array of names | Which AI tools were used. Omit or `[]` when `category` is `none`. |
 | `scope` | `code` · `text` | What AI touched. **Never** `art`, `video`, or `audio` — those aren't permitted. |
 | `notes` | free text | Optional, one line on how AI was used. |
+| `badgeColor` | hex (e.g. `#D97757`) | Optional. The badge colour; defaults to the brand colour of the first matched tool. |
+
+**Approved tools & badge colours.** The badge uses the tool's [Simple Icons](https://simpleicons.org) brand colour by default (override per-theme with `badgeColor`). The source of truth is `config/ai.php`:
+
+| Tool | Default badge colour |
+|---|---|
+| Claude (default) | `#D97757` |
+| ChatGPT | `#0081A5` |
+| GitHub Copilot | `#000000` |
+| Gemini | `#8E75B2` |
+
+The manifest editor in the **Admin → Theme Manager** validates the `ai` block on save (and on upload), dropping any disallowed `scope` (art/video/audio) automatically.
 
 Integrations and SDK projects disclose the same way — in their package/manifest metadata or a top-level `AI.md`. If your delivery format has no manifest, include the same `ai` block in your README or submission notes.
 

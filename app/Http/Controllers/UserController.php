@@ -100,9 +100,17 @@ class UserController extends Controller
         }
 
         if (empty($id)) {
-            return abort(404);
+            // A handle the visitor typed that nobody owns: instead of a dead 404,
+            // offer to request the creator. (Internal id-based lookups stay 404.)
+            if (isset($request->useif)) {
+                return abort(404);
+            }
+
+            return response()->view('errors.creator-not-found', [
+                'handle' => $littlelink_name,
+            ], 404);
         }
-     
+
         $userinfo = User::select('id', 'name', 'littlelink_name', 'littlelink_description', 'theme', 'role', 'block')->where('id', $id)->first();
         $information = User::select('name', 'littlelink_name', 'littlelink_description', 'theme')->where('id', $id)->get();
         

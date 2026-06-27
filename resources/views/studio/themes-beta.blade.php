@@ -146,6 +146,11 @@
     .ll-bt-upgrade-note.is-on { display: flex; }
     .ll-bt-upgrade-note i { color: #f5b301; }
     .ll-bt-upgrade-note a { color: var(--ll-primary); font-weight: 800; }
+
+    /* AI disclosure badge on theme cards (white coin keeps a #000 brand icon readable) */
+    .ll-bt-ai-badge { display: inline-flex; align-items: center; gap: 5px; width: max-content; margin-top: 2px; padding: 2px 8px 2px 3px; border-radius: 999px; font-size: .56rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--ll-text); border: 1px solid color-mix(in srgb, var(--ai) 50%, var(--ll-border)); background: color-mix(in srgb, var(--ai) 13%, transparent); }
+    .ll-bt-ai-coin { width: 14px; height: 14px; border-radius: 50%; background: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+    .ll-bt-ai-i { width: 10px; height: 10px; background: var(--ai); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; }
     .ll-bt-card-name { color: var(--ll-text); font-weight: 700; font-size: .88rem; line-height: 1.15; }
     .ll-bt-card-author { color: var(--ll-muted); font-size: .73rem; margin-top: -2px; }
     .ll-bt-stars { color: #f5b301; font-size: .74rem; letter-spacing: 1px; }
@@ -437,6 +442,16 @@
     }
     function usageFor(slug) { return (D.usage && D.usage[slug]) ? D.usage[slug] : 0; }
 
+    // AI disclosure badge (data precomputed server-side as t.aiBadge, or null).
+    function aiBadgeHtml(t) {
+        var b = t.aiBadge;
+        if (!b) return '';
+        var coin = b.iconUrl
+            ? '<span class="ll-bt-ai-coin"><span class="ll-bt-ai-i" style="-webkit-mask-image:url(\'' + b.iconUrl + '\');mask-image:url(\'' + b.iconUrl + '\')"></span></span>'
+            : '<span class="ll-bt-ai-coin"><i class="bi bi-robot" style="color:' + b.color + ';font-size:.62rem"></i></span>';
+        return '<span class="ll-bt-ai-badge" style="--ai:' + b.color + '" title="' + escapeHtml(b.label + (b.tools && b.tools.length ? ' · ' + b.tools.join(', ') : '')) + '">' + coin + escapeHtml(b.label) + '</span>';
+    }
+
     // Pro themes are previewable by everyone but only applicable by Pro users.
     function isLocked(t) {
         t = (typeof t === 'string') ? themesBySlug[t] : t;
@@ -515,6 +530,7 @@
                 '</span>' +
                 '<span class="ll-bt-card-name">' + escapeHtml(t.name || t.slug) + '</span>' +
                 '<span class="ll-bt-card-author">by ' + escapeHtml(t.authorHandle || ('@' + (t.author || 'livelatch'))) + '</span>' +
+                aiBadgeHtml(t) +
                 (tagChips ? '<span class="ll-bt-card-tagrow">' + tagChips + '</span>' : '') +
                 '<span class="ll-bt-stars">★★★★★ <span>ratings soon</span></span>';
             card.addEventListener('click', () => selectTheme(t.slug));

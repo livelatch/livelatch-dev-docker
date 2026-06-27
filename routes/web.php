@@ -115,6 +115,8 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
         }
 
         Route::get('/@{littlelink}', [UserController::class, 'littlelink'])->middleware('disableCookies');
+        // Public: a visitor asking a non-existent @handle to join Livelatch.
+        Route::post('/creator-request', [\App\Http\Controllers\CreatorRequestController::class, 'store'])->name('creatorRequest.store')->middleware('throttle:12,1');
         Route::get('/pages/' . strtolower(footer('Terms')), [AdminController::class, 'pagesTerms'])->name('pagesTerms')->middleware('disableCookies');
         Route::get('/pages/' . strtolower(footer('Privacy')), [AdminController::class, 'pagesPrivacy'])->name('pagesPrivacy')->middleware('disableCookies');
         Route::get('/pages/' . strtolower(footer('Contact')), [AdminController::class, 'pagesContact'])->name('pagesContact')->middleware('disableCookies');
@@ -372,6 +374,8 @@ Route::middleware(['auth', 'blocked', 'impersonate', 'approved'])->group(functio
         Route::get('/admin/theme-manager', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'index'])->name('admin.themeManager');
         Route::post('/admin/theme-manager/update', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'update'])->name('admin.themeManager.update');
         Route::post('/admin/theme-manager/upload', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'upload'])->name('admin.themeManager.upload');
+        Route::post('/admin/theme-manager/manifest', [\App\Http\Controllers\Admin\ThemeManagerController::class, 'editManifest'])->name('admin.themeManager.manifest');
+        Route::get('/admin/creator-requests', [\App\Http\Controllers\CreatorRequestController::class, 'index'])->name('admin.creatorRequests');
         Route::get('/update/theme', [AdminController::class, 'updateThemes'])->name('updateThemes');
         Route::post('/admin/alpha-gate', [AdminController::class, 'toggleAlphaGate'])->name('admin.alphaGate');
         Route::get('/admin/config', [AdminController::class, 'showConfig'])->name('showConfig');

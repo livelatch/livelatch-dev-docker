@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Studio;
 use App\Http\Controllers\Controller;
 use App\Models\UserBladeThemeSetting;
 use App\Services\ThemeRegistry;
+use App\Support\Ai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,8 +38,16 @@ class BladeThemeController extends Controller
 
         $current = UserBladeThemeSetting::where('user_id', $user->id)->first();
 
+        // Attach the consumer-facing AI badge (or null) to each theme so the
+        // card grid can show it next to the Pro chip.
+        $themes = array_map(function ($t) {
+            $t['aiBadge'] = Ai::badge($t);
+
+            return $t;
+        }, array_values($this->registry->all()));
+
         return view('studio.themes-beta', [
-            'themes'  => array_values($this->registry->all()),
+            'themes'  => $themes,
             'usage'   => $usage,
             'current' => $current,
             'isPro'   => $this->isPro($user),
