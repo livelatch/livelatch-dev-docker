@@ -14,7 +14,7 @@
     <style data-ll-dashboard-style>
         .ll-dashboard {
             display: grid;
-            gap: 18px;
+            gap: 14px;
         }
 
         .ll-dashboard-hero {
@@ -24,7 +24,7 @@
                 radial-gradient(circle at top left, color-mix(in srgb, var(--ll-primary) 20%, transparent), transparent 34%),
                 linear-gradient(135deg, var(--ll-surface-solid), color-mix(in srgb, var(--ll-bg-soft) 86%, var(--ll-primary)));
             box-shadow: var(--ll-shadow-soft);
-            padding: clamp(20px, 4vw, 34px);
+            padding: clamp(18px, 3vw, 26px);
             overflow: hidden;
         }
 
@@ -48,10 +48,10 @@
         }
 
         .ll-dashboard-hero h1 {
-            margin: 12px 0 10px;
+            margin: 10px 0 8px;
             color: var(--ll-text);
-            font-size: clamp(2rem, 4vw, 4rem);
-            line-height: 1;
+            font-size: clamp(1.6rem, 3vw, 2.6rem);
+            line-height: 1.05;
         }
 
         .ll-dashboard-hero p,
@@ -134,13 +134,13 @@
             border-radius: var(--ll-radius);
             background: var(--ll-surface-solid);
             box-shadow: var(--ll-shadow-soft);
-            padding: 18px;
+            padding: 16px;
         }
 
         .ll-dashboard-metric {
             display: grid;
-            gap: 12px;
-            min-height: 132px;
+            gap: 10px;
+            min-height: 104px;
         }
 
         .ll-dashboard-metric-icon {
@@ -155,7 +155,7 @@
 
         .ll-dashboard-metric-value {
             color: var(--ll-text);
-            font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
             font-weight: 800;
             line-height: 1;
         }

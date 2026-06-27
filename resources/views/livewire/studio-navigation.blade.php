@@ -1,4 +1,4 @@
-<nav class="ll-nav-rail" aria-label="Studio navigation" wire:ignore hx-ext="preload">
+<nav class="ll-nav-rail" aria-label="Studio navigation" wire:ignore>
     @foreach($sections as $section)
         @php
             $sectionIsSingle = $section['single'] ?? false;
@@ -19,7 +19,6 @@
                 hx-push-url="true"
                 hx-swap="innerHTML"
                 hx-indicator="{{ $section['skeleton'] ?? '#ll-page-skeleton' }}"
-                preload="mouseover"
             >
                 <i class="{{ $section['icon'] }}"></i>
                 <span>{{ $section['label'] }}</span>
@@ -63,7 +62,6 @@
                             hx-push-url="true"
                             hx-swap="innerHTML"
                             hx-indicator="{{ $item['skeleton'] ?? '#ll-page-skeleton' }}"
-                            preload="mouseover"
                         >
                         @endif
                             <i class="{{ $item['icon'] }}"></i>

@@ -4,7 +4,8 @@
   var root = document.documentElement;
   var storageKey = 'livelatch-theme';
   var legacyStorageKey = 'color-mode';
-  var theme = 'light';
+  // Dark is the default experience; only an explicit stored choice flips to light.
+  var theme = 'dark';
 
   function storedValue(key) {
     try {

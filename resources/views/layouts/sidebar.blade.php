@@ -84,9 +84,39 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
+        /* Dark is the default theme: its values live on :root so dark wins even
+           before JS runs. Light is an explicit [data-ll-theme="light"] override.
+           Theme-agnostic tokens (font, radii, widths) stay on :root. */
         :root {
-            color-scheme: light;
+            color-scheme: dark;
             --ll-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --ll-bg: #000421;
+            --ll-bg-soft: #000421;
+            --ll-surface: rgba(16, 16, 31, 0.78);
+            --ll-surface-solid: #000421;
+            --ll-text: #f8fbff;
+            --ll-muted: #aeb8cf;
+            --ll-border: rgba(255, 255, 255, 0.12);
+            --ll-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+            --ll-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.22);
+            --ll-primary: #16a6ff;
+            --ll-primary-2: #25f4ee;
+            --ll-primary-3: #b3f9ff;
+            --ll-danger: #ef4444;
+            --ll-success: #22c55e;
+            /* Tighter geometry for a more production / broadcast-tool feel. */
+            --ll-radius: 20px;
+            --ll-radius-sm: 10px;
+            --ll-button-radius: 12px;
+            --ll-dev-heading-weight: 600;
+            --ll-dev-button-weight: 400;
+            --ll-sidebar-width: 292px;
+            --ll-topbar-height: 74px;
+        }
+
+        :root[data-ll-theme="light"],
+        [data-ll-theme="light"] {
+            color-scheme: light;
             --ll-bg: #ffffff;
             --ll-bg-soft: #ffffff;
             --ll-surface: rgba(255, 255, 255, 0.78);
@@ -99,31 +129,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             --ll-primary: #0092ec;
             --ll-primary-2: #0ce5de;
             --ll-primary-3: #47f1ff;
-            --ll-danger: #ef4444;
-            --ll-success: #22c55e;
-            --ll-radius: 36px;
-            --ll-button-radius: 18px;
-            --ll-dev-heading-weight: 600;
-            --ll-dev-button-weight: 400;
-            --ll-sidebar-width: 292px;
-            --ll-topbar-height: 74px;
-        }
-
-        :root[data-ll-theme="dark"],
-        [data-ll-theme="dark"] {
-            color-scheme: dark;
-            --ll-bg: #000421;
-            --ll-bg-soft: #000421;
-            --ll-surface: rgba(16, 16, 31, 0.78);
-            --ll-surface-solid: #000421;
-            --ll-text: #f8fbff;
-            --ll-muted: #aeb8cf;
-            --ll-border: rgba(255, 255, 255, 0.10);
-            --ll-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-            --ll-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.22);
-            --ll-primary: #16a6ff;
-            --ll-primary-2: #25f4ee;
-            --ll-primary-3: #b3f9ff;
         }
 
         * { box-sizing: border-box; }
@@ -133,7 +138,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             min-height: 100%;
             font-family: var(--ll-font);
             background:
-                radial-gradient(circle at 18% -12%, rgba(98, 54, 255, 0.16), transparent 28%),
+                radial-gradient(circle at 18% -12%, color-mix(in srgb, var(--ll-primary) 16%, transparent), transparent 28%),
                 radial-gradient(circle at 90% 10%, rgba(18, 214, 223, 0.10), transparent 26%),
                 var(--ll-bg);
             color: var(--ll-text);
@@ -205,7 +210,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             background:
                 radial-gradient(circle at 30% 20%, rgba(255,255,255,0.8), transparent 18%),
                 linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
-            box-shadow: 0 14px 28px rgba(98, 54, 255, 0.32);
+            box-shadow: 0 14px 28px color-mix(in srgb, var(--ll-primary) 32%, transparent);
             overflow: hidden;
             flex: 0 0 auto;
         }
@@ -308,60 +313,63 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-nav-rail {
             display: grid;
-            gap: 8px;
+            gap: 5px;
         }
 
         .ll-nav-group {
             border: 1px solid transparent;
-            border-radius: 18px;
+            border-radius: 12px;
             transition: border-color 0.18s ease, background 0.18s ease;
         }
 
         .ll-nav-group.is-open,
         .ll-nav-group.is-active {
-            border-color: var(--ll-border);
-            background: rgba(98, 54, 255, 0.045);
+            border-color: color-mix(in srgb, var(--ll-primary) 22%, var(--ll-border));
+            background: color-mix(in srgb, var(--ll-primary) 6%, transparent);
         }
 
         .ll-nav-group-button {
             width: 100%;
-            min-height: 54px;
+            min-height: 48px;
             border: 0;
-            border-radius: 17px;
-            padding: 8px 10px;
+            border-radius: 11px;
+            padding: 7px 9px;
             display: grid;
-            grid-template-columns: 42px minmax(0, 1fr) 18px;
+            grid-template-columns: 38px minmax(0, 1fr) 16px;
             align-items: center;
             gap: 10px;
             color: var(--ll-text);
             background: transparent;
             text-align: left;
-            font-weight: 800;
+            font-weight: 700;
+            letter-spacing: 0.01em;
             transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
         }
 
         .ll-nav-group-button:hover,
         .ll-nav-group-button:focus {
-            background: rgba(98, 54, 255, 0.08);
+            background: color-mix(in srgb, var(--ll-primary) 9%, transparent);
             color: var(--ll-text);
         }
 
         .ll-nav-group-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 15px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: grid;
             place-items: center;
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.10);
-            font-size: 1.08rem;
+            background: color-mix(in srgb, var(--ll-primary) 12%, transparent);
+            border: 1px solid color-mix(in srgb, var(--ll-primary) 18%, transparent);
+            font-size: 1.05rem;
         }
 
         .ll-nav-group.is-active .ll-nav-group-icon,
         .ll-nav-group.is-open .ll-nav-group-icon {
             color: #fff;
             background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
-            box-shadow: 0 12px 24px rgba(98, 54, 255, 0.24);
+            border-color: transparent;
+            box-shadow: 0 6px 18px color-mix(in srgb, var(--ll-primary) 38%, transparent);
         }
 
         .ll-nav-group-label {
@@ -369,12 +377,12 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
         }
 
         .ll-nav-group-chevron {
             color: var(--ll-muted);
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             transition: transform 0.18s ease;
         }
 
@@ -386,7 +394,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             max-height: 0;
             opacity: 0;
             overflow: hidden;
-            padding: 0 8px 0 60px;
+            padding: 0 6px 0 54px;
             transform: translateY(-4px);
             transition: max-height 0.22s ease, opacity 0.18s ease, padding 0.18s ease, transform 0.18s ease;
         }
@@ -394,7 +402,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-nav-group.is-open .ll-nav-panel {
             max-height: 360px;
             opacity: 1;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             transform: translateY(0);
         }
 
@@ -416,18 +424,19 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         }
 
         .ll-nav-link {
-            min-height: 46px;
-            margin-bottom: 6px;
+            position: relative;
+            min-height: 42px;
+            margin-bottom: 4px;
             padding: 0 12px;
-            border-radius: 16px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             gap: 11px;
             color: var(--ll-muted);
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
-            transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+            transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
         }
 
         .ll-nav-link i,
@@ -439,25 +448,28 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-nav-link:hover {
             color: var(--ll-text);
-            background: rgba(98, 54, 255, 0.08);
+            background: color-mix(in srgb, var(--ll-primary) 9%, transparent);
             transform: translateX(2px);
         }
 
         .ll-nav-link.active,
         .ll-nav-link.bg-soft-primary {
             color: #fff;
-            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
-            box-shadow: 0 14px 28px rgba(98, 54, 255, 0.28);
+            background: linear-gradient(135deg, var(--ll-primary), color-mix(in srgb, var(--ll-primary-2) 86%, var(--ll-primary)));
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 18%, transparent),
+                        0 8px 22px color-mix(in srgb, var(--ll-primary) 34%, transparent);
         }
 
         .ll-nav-badge {
             margin-left: auto;
             padding: 2px 8px;
             border-radius: 999px;
-            background: rgba(98, 54, 255, 0.12);
+            background: color-mix(in srgb, var(--ll-primary) 14%, transparent);
             color: var(--ll-primary);
-            font-size: 0.64rem;
+            font-size: 0.62rem;
             font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         .ll-nav-link.active .ll-nav-badge {
@@ -474,7 +486,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             border: 1px solid var(--ll-border);
             border-radius: 20px;
             padding: 12px;
-            background: rgba(98, 54, 255, 0.06);
+            background: color-mix(in srgb, var(--ll-primary) 6%, transparent);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -554,7 +566,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             color: #fff;
             border-color: transparent;
             background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2));
-            box-shadow: 0 14px 28px rgba(98, 54, 255, 0.24);
+            box-shadow: 0 14px 28px color-mix(in srgb, var(--ll-primary) 24%, transparent);
         }
 
         .ll-journey-link {
@@ -573,7 +585,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             white-space: nowrap;
             transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
         }
-        .ll-journey-link:hover { transform: translateY(-1px); border-color: rgba(98, 54, 255, 0.32); }
+        .ll-journey-link:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ll-primary) 32%, transparent); }
         .ll-journey-link i { font-size: 1rem; color: var(--ll-primary); }
 
         @media (max-width: 991.98px) {
@@ -593,7 +605,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-pill-button:hover,
         .ll-icon-button:hover {
             transform: translateY(-1px);
-            border-color: rgba(98, 54, 255, 0.32);
+            border-color: color-mix(in srgb, var(--ll-primary) 32%, transparent);
         }
 
         .ll-dot {
@@ -1243,12 +1255,12 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-notification-item:hover {
             color: var(--ll-text);
-            background: rgba(98, 54, 255, 0.08);
+            background: color-mix(in srgb, var(--ll-primary) 8%, transparent);
             transform: translateX(2px);
         }
 
         .ll-notification-item.is-unread {
-            background: rgba(98, 54, 255, 0.10);
+            background: color-mix(in srgb, var(--ll-primary) 10%, transparent);
         }
 
         .ll-notification-icon {
@@ -1263,7 +1275,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-notification-icon.info {
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.14);
+            background: color-mix(in srgb, var(--ll-primary) 14%, transparent);
         }
 
         .ll-notification-icon.success {
@@ -1316,7 +1328,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             padding: 2px 8px;
             border-radius: 999px;
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.10);
+            background: color-mix(in srgb, var(--ll-primary) 10%, transparent);
         }
 
         .ll-notification-empty {
@@ -1337,7 +1349,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             display: block;
             padding: 13px 16px;
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.08);
+            background: color-mix(in srgb, var(--ll-primary) 8%, transparent);
             text-align: center;
             text-decoration: none;
             font-size: 0.82rem;
@@ -1346,7 +1358,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-notification-footer:hover {
             color: var(--ll-primary);
-            background: rgba(98, 54, 255, 0.13);
+            background: color-mix(in srgb, var(--ll-primary) 13%, transparent);
         }
 
         .dropdown-item {
@@ -1515,8 +1527,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         #ll-content select:focus,
         #ll-content .form-control:focus,
         #ll-content .form-select:focus {
-            border-color: rgba(98, 54, 255, 0.55) !important;
-            box-shadow: 0 0 0 4px rgba(98, 54, 255, 0.14) !important;
+            border-color: color-mix(in srgb, var(--ll-primary) 55%, transparent) !important;
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--ll-primary) 14%, transparent) !important;
         }
 
         #ll-content input::placeholder,
@@ -1611,7 +1623,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .dropdown-item:hover,
         .dropdown-item:focus {
             color: var(--ll-text) !important;
-            background: rgba(98, 54, 255, 0.10) !important;
+            background: color-mix(in srgb, var(--ll-primary) 10%, transparent) !important;
         }
 
         [data-ll-theme="dark"] {
@@ -1717,8 +1729,9 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         .ll-nav-link.active {
             color: #fff !important;
-            background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-2)) !important;
-            box-shadow: 0 14px 28px rgba(98, 54, 255, 0.28) !important;
+            background: linear-gradient(135deg, var(--ll-primary), color-mix(in srgb, var(--ll-primary-2) 86%, var(--ll-primary))) !important;
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 18%, transparent),
+                        0 8px 22px color-mix(in srgb, var(--ll-primary) 34%, transparent) !important;
         }
 
         .ll-nav-link.active i,
@@ -2414,11 +2427,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <script src="{{ asset('assets/js/jquery-block-ui.js') }}"></script>
     <script src="{{ asset('assets/js/main-dashboard.js') }}"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <!-- Preload extension: prefetches a nav target on hover/press and serves it
-         from cache on the real click, so studio navigation feels instant. Only
-         elements with a `preload` attribute under an `hx-ext="preload"` ancestor
-         are affected (the studio nav rail), so we never eagerly fetch every page. -->
-    <script src="https://unpkg.com/htmx-ext-preload@2.1.1/preload.js"></script>
 
     <script>
         (function () {
@@ -2455,7 +2463,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                 }
             }
 
-            const initialTheme = root.getAttribute('data-ll-theme') || getStoredTheme() || 'light';
+            const initialTheme = root.getAttribute('data-ll-theme') || getStoredTheme() || 'dark';
 
             function clearInlineThemeOverrides(el) {
                 if (!el) {
@@ -2574,7 +2582,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             // chosen light/dark mode authoritative and clears any inline token leaks
             // (e.g. from the Dev Tools live preview) when navigating between screens.
             document.body.addEventListener('htmx:afterSettle', () => {
-                setTheme(getStoredTheme() || 'light');
+                setTheme(getStoredTheme() || 'dark');
             });
 
             document.querySelectorAll('[data-ll-open-sidebar]').forEach(button => {

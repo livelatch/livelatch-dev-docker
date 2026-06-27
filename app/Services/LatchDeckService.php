@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -20,37 +19,15 @@ use Illuminate\Support\Facades\Log;
 class LatchDeckService
 {
     /**
-     * Short-lived read cache. The studio shell renders the same Encore reads
-     * (access status, card list) on every page load, and each is a live HTTP
-     * round-trip to Encore — the main source of slow studio pages. We cache the
-     * read results per user for a few seconds so repeat renders + hover-prefetch
-     * are cheap, and bust the user's cache whenever they mutate (create/update/
-     * publish/unpublish a card, request access, or sync tier). Only *successful*
-     * responses are cached, so a transient Encore failure is never sticky.
-     */
-    private const CACHE_TTL = 45;
-
-    /**
      * Access + entitlement state for a user. Shape:
      *  status: not_applied|pending_review|active|denied_waitlist|restricted|revoked
      *  tier: free|pro|sdk, capabilities: {...}, tutorial_seen, first_card_created, restriction
      */
     public function accessStatus(string $latchIdUserId): ?array
     {
-        $key = $this->cacheKey('access', $latchIdUserId);
-        $cached = Cache::get($key);
-        if ($cached !== null) {
-            return $cached;
-        }
-
         $response = $this->request('get', '/access-status/' . rawurlencode($latchIdUserId));
-        $data = ($response && $response->successful()) ? $response->json() : null;
 
-        if ($data !== null) {
-            Cache::put($key, $data, self::CACHE_TTL);
-        }
-
-        return $data;
+        return ($response && $response->successful()) ? $response->json() : null;
     }
 
     /**
@@ -64,34 +41,19 @@ class LatchDeckService
 
         $response = $this->request('post', '/applications', $body);
 
-        if ($response && $response->successful()) {
-            $this->forgetUser($latchIdUserId);
-
-            return $response->json();
-        }
-
-        return null;
+        return ($response && $response->successful()) ? $response->json() : null;
     }
 
     /** All of a user's cards (drafts + published), newest first. */
     public function listCards(string $latchIdUserId): array
     {
-        $key = $this->cacheKey('cards', $latchIdUserId);
-        $cached = Cache::get($key);
-        if ($cached !== null) {
-            return $cached;
-        }
-
         $response = $this->request('get', '/mvp/cards/' . rawurlencode($latchIdUserId));
 
         if (!$response || !$response->successful()) {
             return [];
         }
 
-        $cards = $response->json()['cards_mvp'] ?? [];
-        Cache::put($key, $cards, self::CACHE_TTL);
-
-        return $cards;
+        return $response->json()['cards_mvp'] ?? [];
     }
 
     /**
@@ -105,13 +67,7 @@ class LatchDeckService
 
         $response = $this->request('post', '/mvp/cards', $body);
 
-        if ($response && $response->successful()) {
-            $this->forgetUser($latchIdUserId);
-
-            return $response->json();
-        }
-
-        return null;
+        return ($response && $response->successful()) ? $response->json() : null;
     }
 
     /** Update an owned card (draft editor). */
@@ -121,13 +77,7 @@ class LatchDeckService
 
         $response = $this->request('patch', '/mvp/cards/' . rawurlencode($cardId), $body);
 
-        if ($response && $response->successful()) {
-            $this->forgetUser($latchIdUserId);
-
-            return $response->json();
-        }
-
-        return null;
+        return ($response && $response->successful()) ? $response->json() : null;
     }
 
     /**
@@ -141,8 +91,6 @@ class LatchDeckService
         ]);
 
         if ($response && $response->successful()) {
-            $this->forgetUser($latchIdUserId);
-
             return [$response->json(), null];
         }
 
@@ -156,13 +104,7 @@ class LatchDeckService
             'latchid_user_id' => $latchIdUserId,
         ]);
 
-        if ($response && $response->successful()) {
-            $this->forgetUser($latchIdUserId);
-
-            return $response->json();
-        }
-
-        return null;
+        return ($response && $response->successful()) ? $response->json() : null;
     }
 
     /** Push the user's entitlement tier (free/pro) into LatchDeck. */
@@ -172,12 +114,7 @@ class LatchDeckService
             'tier' => $tier,
         ]);
 
-        $ok = (bool) ($response && $response->successful());
-        if ($ok) {
-            $this->forgetUser($latchIdUserId);
-        }
-
-        return $ok;
+        return (bool) ($response && $response->successful());
     }
 
     private function errorMessage($response): string
@@ -188,19 +125,6 @@ class LatchDeckService
 
         // Encore returns { code, message, details } on error.
         return $response->json('message') ?: 'Could not complete the request.';
-    }
-
-    /** Cache key for a read bucket ('access'|'cards') scoped to a LatchID user. */
-    private function cacheKey(string $bucket, string $latchIdUserId): string
-    {
-        return 'latchdeck:' . $bucket . ':' . sha1($latchIdUserId);
-    }
-
-    /** Invalidate a user's cached reads after a mutation. */
-    private function forgetUser(string $latchIdUserId): void
-    {
-        Cache::forget($this->cacheKey('access', $latchIdUserId));
-        Cache::forget($this->cacheKey('cards', $latchIdUserId));
     }
 
     /**
