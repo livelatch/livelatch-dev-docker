@@ -51,14 +51,14 @@
 <style data-ll-links-manager-style>
     .ll-links-manager {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
-        gap: 22px;
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(310px, 380px);
+        gap: 18px;
         align-items: start;
     }
 
-    .ll-links-main {
-        display: grid;
-        gap: 22px;
+    .ll-add-panel {
+        position: sticky;
+        top: 98px;
     }
 
     .ll-panel {
@@ -165,11 +165,26 @@
         align-items: center;
     }
 
-    .ll-block-builder {
-        display: grid;
-        grid-template-columns: minmax(240px, 310px) minmax(0, 1fr);
-        gap: 18px;
+    /* Two-step picker: browse the catalogue, then configure the chosen block. */
+    .ll-add-config { display: none; }
+    .ll-add-config.is-active { display: block; }
+    .ll-add-browse.is-hidden { display: none; }
+
+    .ll-add-back {
+        display: inline-flex; align-items: center; gap: 6px; background: transparent;
+        border: 0; color: var(--ll-muted, #6b6885); font-weight: 700; font-size: .82rem;
+        padding: 0; margin-bottom: 14px; cursor: pointer;
     }
+    .ll-add-back:hover { color: var(--ll-text, #120f2d); }
+
+    .ll-add-chosen {
+        display: flex; align-items: center; gap: 11px; padding: 11px 12px; margin-bottom: 16px;
+        border: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10)); border-radius: 13px;
+        background: color-mix(in srgb, var(--ll-primary) 7%, transparent);
+    }
+    .ll-add-chosen .ll-block-icon { width: 34px; height: 34px; }
+    .ll-add-chosen-copy strong { display: block; font-size: .92rem; }
+    .ll-add-chosen-copy span { display: block; margin-top: 2px; color: var(--ll-muted, #6b6885); font-size: .78rem; }
 
     .ll-block-search {
         width: 100%;
@@ -184,8 +199,8 @@
 
     .ll-block-list {
         display: grid;
-        gap: 9px;
-        max-height: 430px;
+        gap: 6px;
+        max-height: 540px;
         overflow: auto;
         padding-right: 4px;
     }
@@ -193,15 +208,24 @@
     .ll-block-option {
         width: 100%;
         border: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10));
-        border-radius: 13px;
-        padding: 12px;
+        border-radius: 11px;
+        padding: 8px 10px;
         background: transparent;
         color: var(--ll-text, #120f2d);
         display: grid;
-        grid-template-columns: 38px minmax(0, 1fr);
+        grid-template-columns: 30px minmax(0, 1fr) 12px;
         gap: 10px;
+        align-items: center;
         text-align: left;
     }
+
+    .ll-block-chev {
+        color: var(--ll-muted, #6b6885);
+        opacity: .45;
+        font-size: .78rem;
+    }
+    .ll-block-option:hover .ll-block-chev,
+    .ll-block-option.is-selected .ll-block-chev { opacity: .8; }
 
     .ll-block-option {
         transition: border-color .14s ease, background .14s ease, transform .12s ease;
@@ -218,25 +242,32 @@
     }
 
     .ll-block-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
         display: grid;
         place-items: center;
         color: #fff;
+        font-size: .9rem;
         background: linear-gradient(135deg, var(--ll-primary, #6236ff), var(--ll-primary-2, #9b5cff));
     }
 
+    .ll-block-copy {
+        min-width: 0;
+    }
     .ll-block-copy strong,
     .ll-block-copy span {
         display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
-
+    .ll-block-copy strong { font-size: .85rem; }
     .ll-block-copy span {
-        margin-top: 3px;
+        margin-top: 1px;
         color: var(--ll-muted, #6b6885);
-        font-size: 0.8rem;
-        line-height: 1.35;
+        font-size: 0.74rem;
+        line-height: 1.3;
     }
 
     /* ---- Merged "Links" form + Simple Icons picker (themes-panel language) ---- */
@@ -315,21 +346,75 @@
         padding: 8px 0;
     }
 
-    @media (max-width: 1199.98px) {
+    /* Edit-block modal */
+    .ll-modal[hidden] { display: none; }
+    .ll-modal {
+        position: fixed; inset: 0; z-index: 1080;
+        display: flex; align-items: flex-start; justify-content: center;
+        padding: 40px 16px; overflow-y: auto;
+    }
+    .ll-modal-backdrop {
+        position: fixed; inset: 0; background: rgba(8, 10, 24, 0.55);
+        backdrop-filter: blur(2px);
+    }
+    .ll-modal-dialog {
+        position: relative; z-index: 1; width: 100%; max-width: 560px;
+        border: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10));
+        border-radius: 18px; background: var(--ll-surface-solid, #fff);
+        box-shadow: 0 30px 80px rgba(8, 12, 30, 0.45);
+        animation: ll-modal-in .16s ease;
+    }
+    @keyframes ll-modal-in {
+        from { opacity: 0; transform: translateY(10px) scale(.985); }
+        to { opacity: 1; transform: none; }
+    }
+    .ll-modal-header {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+        padding: 18px; border-bottom: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10));
+    }
+    .ll-modal-header h3 { margin: 0; font-size: 1.05rem; }
+    .ll-modal-header p {
+        margin: 5px 0 0; color: var(--ll-muted, #6b6885); font-size: 0.88rem;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ll-modal-x {
+        flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px;
+        border: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10)); background: transparent;
+        color: var(--ll-muted, #6b6885); display: grid; place-items: center; cursor: pointer;
+    }
+    .ll-modal-x:hover { color: var(--ll-text, #120f2d); }
+    .ll-modal-body { padding: 18px; }
+    .ll-modal-footer {
+        display: flex; justify-content: flex-end; gap: 10px;
+        padding: 16px 18px; border-top: 1px solid var(--ll-border, rgba(18, 15, 45, 0.10));
+    }
+
+    @media (max-width: 1399.98px) {
         .ll-links-manager {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
         }
 
         .ll-lp-preview {
+            grid-column: 1 / -1;
             position: static;
         }
     }
 
-    @media (max-width: 767.98px) {
-        .ll-block-builder {
+    @media (max-width: 991.98px) {
+        .ll-links-manager {
             grid-template-columns: 1fr;
         }
 
+        .ll-add-panel {
+            position: static;
+        }
+
+        .ll-lp-preview {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 767.98px) {
         .ll-link-row {
             grid-template-columns: 34px minmax(0, 1fr);
         }
@@ -355,88 +440,96 @@
     </div>
 
     <div class="ll-links-manager">
-        <div class="ll-links-main">
-            <section class="ll-panel" id="add-block">
-                <div class="ll-panel-header">
-                    <div>
-                        <h3>Add a block</h3>
-                        <p>Select a block type and fill in its settings. Saving adds it to your list below.</p>
-                    </div>
+        <section class="ll-panel ll-add-panel" id="add-block">
+            <div class="ll-panel-header">
+                <div>
+                    <h3>Add a block</h3>
+                    <p>Pick a block type, set it up, and it joins your list.</p>
                 </div>
+            </div>
 
-                <div class="ll-panel-body">
-                    @if($errors->any())
-                        <div class="alert alert-danger" role="alert">
-                            @foreach($errors->all() as $error)
-                                <div>{{ $error }}</div>
+            <div class="ll-panel-body">
+                @if($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        @foreach($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form action="{{ route('addLink') }}" method="post" id="ll-combined-link-form">
+                    @method('POST')
+                    @csrf
+                    <input type="hidden" name="linkid" value="0">
+                    <input type="hidden" name="typename" id="ll-selected-typename" value="{{ $selectedTypename }}">
+
+                    {{-- Step 1 — browse the block catalogue --}}
+                    <div class="ll-add-browse" id="ll-add-browse">
+                        <input
+                            type="search"
+                            class="ll-block-search"
+                            id="ll-block-search"
+                            placeholder="Search block types"
+                            aria-label="Search block types"
+                        >
+
+                        <div class="ll-block-list" id="ll-block-list">
+                            @foreach($blockCards as $block)
+                                <button
+                                    type="button"
+                                    class="ll-block-option {{ $block['selected'] ? 'is-selected' : '' }}"
+                                    data-block-option
+                                    data-typeid="{{ $block['typename'] }}"
+                                    data-title="{{ $block['title'] }}"
+                                    data-description="{{ $block['description'] }}"
+                                    data-icon="{{ $block['icon'] }}"
+                                    aria-pressed="{{ $block['selected'] ? 'true' : 'false' }}"
+                                >
+                                    <span class="ll-block-icon"><i class="{{ $block['icon'] }}"></i></span>
+                                    <span class="ll-block-copy">
+                                        <strong>{{ $block['title'] }}</strong>
+                                        <span>{{ $block['description'] }}</span>
+                                    </span>
+                                    <i class="bi bi-chevron-right ll-block-chev"></i>
+                                </button>
                             @endforeach
                         </div>
-                    @endif
 
-                    <form action="{{ route('addLink') }}" method="post" id="ll-combined-link-form">
-                        @method('POST')
-                        @csrf
-                        <input type="hidden" name="linkid" value="0">
-                        <input type="hidden" name="typename" id="ll-selected-typename" value="{{ $selectedTypename }}">
+                        <div class="ll-block-empty" id="ll-block-empty">No blocks match that search.</div>
+                    </div>
 
-                        <div class="ll-block-builder">
-                            <div>
-                                <input
-                                    type="search"
-                                    class="ll-block-search"
-                                    id="ll-block-search"
-                                    placeholder="Search block types"
-                                    aria-label="Search block types"
-                                >
+                    {{-- Step 2 — configure the chosen block --}}
+                    <div class="ll-add-config" id="ll-add-config">
+                        <button type="button" class="ll-add-back" id="ll-add-back">
+                            <i class="bi bi-arrow-left"></i> All block types
+                        </button>
 
-                                <div class="ll-block-list" id="ll-block-list">
-                                    @foreach($blockCards as $block)
-                                        <button
-                                            type="button"
-                                            class="ll-block-option {{ $block['selected'] ? 'is-selected' : '' }}"
-                                            data-block-option
-                                            data-typeid="{{ $block['typename'] }}"
-                                            data-title="{{ $block['title'] }}"
-                                            data-description="{{ $block['description'] }}"
-                                            aria-pressed="{{ $block['selected'] ? 'true' : 'false' }}"
-                                        >
-                                            <span class="ll-block-icon"><i class="{{ $block['icon'] }}"></i></span>
-                                            <span class="ll-block-copy">
-                                                <strong>{{ $block['title'] }}</strong>
-                                                <span>{{ $block['description'] }}</span>
-                                            </span>
-                                        </button>
-                                    @endforeach
-                                </div>
+                        <div class="ll-add-chosen">
+                            <span class="ll-block-icon" id="ll-add-chosen-icon"><i class="bi bi-grid-1x2"></i></span>
+                            <span class="ll-add-chosen-copy">
+                                <strong id="ll-block-settings-title">{{ $selectedBlock['title'] ?? 'Block settings' }}</strong>
+                                <span id="ll-block-settings-description">{{ $selectedBlock['description'] ?? 'Fill in the details for this block.' }}</span>
+                            </span>
+                        </div>
 
-                                <div class="ll-block-empty" id="ll-block-empty">No blocks match that search.</div>
-                            </div>
-
-                            <div>
-                                <div class="mb-3">
-                                    <h4 class="mb-1" id="ll-block-settings-title">{{ $selectedBlock['title'] ?? 'Block settings' }}</h4>
-                                    <p class="text-muted mb-0" id="ll-block-settings-description">{{ $selectedBlock['description'] ?? 'Fill in the details for this block.' }}</p>
-                                </div>
-
-                                <div id="link_params">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex flex-wrap gap-2 pt-4">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-plus-lg"></i>
-                                        Add to links
-                                    </button>
-                                </div>
+                        <div id="link_params">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </section>
 
-            <section class="ll-panel">
+                        <div class="d-flex flex-wrap gap-2 pt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i>
+                                Add to links
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="ll-panel ll-links-current">
                 <div class="ll-panel-header">
                     <div>
                         <h3>Current links</h3>
@@ -512,9 +605,17 @@
                                             </span>
                                         @endif
 
-                                        <a href="{{ route('editLink', $link->id) }}" class="btn btn-sm btn-warning" aria-label="Edit">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-warning"
+                                            aria-label="Edit"
+                                            data-edit-link
+                                            data-id="{{ $link->id }}"
+                                            data-typename="{{ $link->type ?: 'predefined' }}"
+                                            data-title="{{ strip_tags($link->title) }}"
+                                        >
                                             <i class="bi bi-pencil-square"></i>
-                                        </a>
+                                        </button>
 
                                         <a
                                             href="{{ route('deleteLink', $link->id) }}"
@@ -540,7 +641,6 @@
                     </script>
                 </div>
             </section>
-        </div>
 
         <aside class="ll-panel ll-lp-preview">
             <div class="ll-panel-header">
@@ -572,6 +672,43 @@
             </div>
         </aside>
     </div>
+
+    {{-- Edit-block modal: loads just the chosen block's settings form (no library). --}}
+    <div class="ll-modal" id="ll-edit-modal" hidden>
+        <div class="ll-modal-backdrop" data-edit-close></div>
+        <div class="ll-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ll-edit-modal-title">
+            <div class="ll-modal-header">
+                <div class="min-width-0">
+                    <h3 id="ll-edit-modal-title"><i class="bi bi-pencil-square"></i> Edit block</h3>
+                    <p id="ll-edit-modal-sub">Update this block's settings.</p>
+                </div>
+                <button type="button" class="ll-modal-x" data-edit-close aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form action="{{ route('addLink') }}" method="post" id="ll-edit-form">
+                @method('POST')
+                @csrf
+                <input type="hidden" name="linkid" id="ll-edit-linkid" value="">
+                <input type="hidden" name="typename" id="ll-edit-typename" value="">
+
+                <div class="ll-modal-body" id="ll-edit-params">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="ll-modal-footer">
+                    <button type="button" class="btn btn-light" data-edit-close>{{ __('messages.Cancel') ?? 'Cancel' }}</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        {{ __('messages.Save') ?? 'Save' }} changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -596,7 +733,69 @@
             const preview = document.getElementById('frPreview1');
             const refreshPreview = document.getElementById('ll-refresh-preview');
             const sortableList = document.getElementById('links-table-body');
+            const addBrowse = document.getElementById('ll-add-browse');
+            const addConfig = document.getElementById('ll-add-config');
+            const addBack = document.getElementById('ll-add-back');
+            const chosenIcon = document.getElementById('ll-add-chosen-icon');
             const baseUrl = @json(url(''));
+
+            // Linktree-style two-step: browse the catalogue, then configure.
+            function showAddView(view) {
+                const config = view === 'config';
+                if (addBrowse) { addBrowse.classList.toggle('is-hidden', config); }
+                if (addConfig) { addConfig.classList.toggle('is-active', config); }
+            }
+
+            // ---- Edit-block modal: load just the chosen block's settings form ----
+            const editModal = document.getElementById('ll-edit-modal');
+            const editLinkId = document.getElementById('ll-edit-linkid');
+            const editTypename = document.getElementById('ll-edit-typename');
+            const editParams = document.getElementById('ll-edit-params');
+            const editSub = document.getElementById('ll-edit-modal-sub');
+            const editSpinner = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+
+            function openEditModal(id, typename, title) {
+                if (!editModal || !id) {
+                    return;
+                }
+
+                editLinkId.value = id;
+                editTypename.value = typename || 'predefined';
+                editParams.innerHTML = editSpinner;
+                if (editSub) {
+                    editSub.textContent = title ? ('Editing “' + title + '”') : "Update this block's settings.";
+                }
+
+                editModal.hidden = false;
+                document.body.style.overflow = 'hidden';
+
+                fetch(baseUrl + '/studio/linkparamform_part/' + encodeURIComponent(editTypename.value) + '/' + encodeURIComponent(id), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Unable to load block settings.');
+                        }
+                        return response.text();
+                    })
+                    .then(function (html) {
+                        editParams.innerHTML = html;
+                        document.dispatchEvent(new Event('contentLoaded'));
+                    })
+                    .catch(function () {
+                        editParams.innerHTML = '<div class="alert alert-danger" role="alert">Block settings could not be loaded.</div>';
+                    });
+            }
+
+            function closeEditModal() {
+                if (!editModal) {
+                    return;
+                }
+                editModal.hidden = true;
+                document.body.style.overflow = '';
+                editParams.innerHTML = editSpinner;
+            }
 
             function refreshPhonePreview() {
                 if (preview) {
@@ -661,11 +860,16 @@
             function llIconCdn(slug, hex) {
                 return 'https://cdn.simpleicons.org/' + encodeURIComponent(slug) + (hex ? '/' + encodeURIComponent(hex) : '');
             }
+            // Wire every unwired link form on the page — there can be two at once
+            // (the add panel and the edit modal), so a single querySelector isn't enough.
             function wireLinkForm() {
-                const lform = document.querySelector('[data-ll-link-form]');
-                if (!lform || lform.dataset.llWired === 'true') {
-                    return;
-                }
+                document.querySelectorAll('[data-ll-link-form]').forEach(function (lform) {
+                    if (lform.dataset.llWired !== 'true') {
+                        wireOneLinkForm(lform);
+                    }
+                });
+            }
+            function wireOneLinkForm(lform) {
                 lform.dataset.llWired = 'true';
 
                 const platform = lform.querySelector('[data-ll-platform]');
@@ -796,6 +1000,10 @@
                 settingsTitle.textContent = option.dataset.title || 'Block settings';
                 settingsDescription.textContent = option.dataset.description || 'Fill in the details for this block.';
 
+                if (chosenIcon && option.dataset.icon) {
+                    chosenIcon.innerHTML = '<i class="' + option.dataset.icon + '"></i>';
+                }
+
                 blockOptions.forEach(function (blockOption) {
                     const isSelected = blockOption === option;
                     blockOption.classList.toggle('is-selected', isSelected);
@@ -831,7 +1039,30 @@
             blockOptions.forEach(function (option) {
                 option.addEventListener('click', function () {
                     selectBlock(option);
+                    showAddView('config');
                 });
+            });
+
+            if (addBack) {
+                addBack.addEventListener('click', function () {
+                    showAddView('browse');
+                });
+            }
+
+            document.querySelectorAll('[data-edit-link]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    openEditModal(btn.dataset.id, btn.dataset.typename, btn.dataset.title);
+                });
+            });
+
+            document.querySelectorAll('[data-edit-close]').forEach(function (el) {
+                el.addEventListener('click', closeEditModal);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && editModal && !editModal.hidden) {
+                    closeEditModal();
+                }
             });
 
             if (searchInput) {
@@ -913,6 +1144,12 @@
             if (initialOption) {
                 selectBlock(initialOption);
             }
+
+            // If the add attempt bounced back with validation errors, reopen the
+            // config step so the user sees them in context instead of the catalogue.
+            @if($errors->any())
+                showAddView('config');
+            @endif
         }
     };
 

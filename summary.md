@@ -8,6 +8,19 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-06-28
+
+- Agent: Claude (Opus)
+- **Edit-block becomes a modal + Stream Schedule "Show ESRB" toggle.**
+  - **Edit modal** (`resources/views/studio/links.blade.php`): the per-row **Edit** action no longer navigates to the full-page `/studio/edit-link/{id}` editor (which re-showed the whole block library). It's now a `[data-edit-link]` button (carries `data-id` / `data-typename` / `data-title`) that opens a lightweight custom modal (`.ll-modal`, `#ll-edit-modal`) containing **only** the chosen block's settings form. The modal fetches the prefilled fields from the existing `GET /studio/linkparamform_part/{typename}/{id}` partial and POSTs to `route('addLink')` (`saveLink`) with the real `linkid` — i.e. the same save path the full-page editor used (`saveLink` updates when `linkid` is non-zero), so `type_params` persist correctly. Close via backdrop, ✕, Cancel, or Esc. The legacy `editLink`/`showLink` route + `studio/edit-link` page are left intact but no longer linked.
+  - **Multi-form wiring fix**: refactored `wireLinkForm()` to wire **every** unwired `[data-ll-link-form]` (was `querySelector` → only the first), since the add panel and the edit modal can both hold a Links/predefined form at once. Body extracted to `wireOneLinkForm(lform)`.
+  - **Stream Schedule ESRB toggle** (block-level, **off by default**): `blocks/streamschedule/handler.php` adds `show_esrb` to rules + linkData (`$request->boolean('show_esrb') ? 1 : 0`, lands in `type_params` like `days`); `form.blade.php` adds a Bootstrap switch "Show ESRB ratings"; `display.blade.php` gates the ESRB suffix on `$ssShowEsrb = !empty($link->show_esrb)`. Old blocks (no key) default to hidden. Validated: blade lint clean, tags balance (48 div / 2 form / 2 section / 1 aside), directives paired.
+- **Blocks page (`/studio/links`) overhaul → 3-column workspace + Linktree-style picker.** Goal: a more professional, compact layout per the owner's request — one column to select a block type, one to rearrange links, one to preview. File: `resources/views/studio/links.blade.php` (markup + CSS + JS, no controller/route changes).
+  - **Layout**: `.ll-links-manager` is now a 3-column grid — `picker (≈300–360px, sticky) | current links (1fr) | live preview (≈310–380px, sticky)`. Removed the old `.ll-links-main` wrapper (add-block + current-links were stacked) so all three panels are direct grid children. Responsive: ≤1399px collapses to 2-col with the preview spanning full width below (`grid-column: 1 / -1`); ≤991px stacks to 1-col and drops the sticky.
+  - **Picker (Linktree-inspired two-step)**: the add-block column now has a *browse* view (search + compact catalogue) and a *config* view (chosen-block header + `#link_params` form + Add button), toggled by a new `showAddView()` JS helper. Clicking a block type slides into config; an "← All block types" back button (`#ll-add-back`) returns. Server-side validation errors reopen the config step (`@if($errors->any()) showAddView('config')`).
+  - **Smaller block buttons**: `.ll-block-option` shrunk (padding 8/10, 30px gradient icon, single-line truncated title+description) with a right-aligned `bi-chevron-right` affordance; list gap tightened, max-height 540px. Added `data-icon` to each option so the config header mirrors the chosen block's icon (`#ll-add-chosen-icon`).
+  - **Preserved all existing JS hooks** (drag-reorder via Sortable, AJAX `linkparamform_part` loader, device preview switcher, search filter). Validated: blade lint clean, div/section/aside tags balance (38/2/1), all `@if/@foreach/@forelse` directives paired.
+
 ### 2026-06-27
 
 - Agent: Claude (Opus)

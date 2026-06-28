@@ -16,3 +16,10 @@
     <option value="30" {{ $ssDays === 30 ? 'selected' : '' }}>Next 30 days</option>
 </select>
 <span class='small text-muted'>How far ahead the schedule shows on your Livelatch page. Set up streams in <a href="{{ url('/studio/stream-schedule') }}">Stream Schedule</a> (Pro).</span>
+
+@php $ssShowEsrb = !empty($show_esrb); @endphp
+<div class="form-check form-switch" style="margin-top:16px;">
+    <input class="form-check-input" type="checkbox" role="switch" id="ss-show-esrb" name="show_esrb" value="1" {{ $ssShowEsrb ? 'checked' : '' }}>
+    <label class="form-check-label" for="ss-show-esrb" style="font-weight:600;">Show ESRB ratings</label>
+</div>
+<span class='small text-muted'>When on, a game's ESRB rating (e.g. &ldquo;Mature 17+&rdquo;) shows next to its title on the game tag. Off by default.</span>

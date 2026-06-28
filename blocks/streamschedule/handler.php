@@ -14,8 +14,9 @@
 function handleLinkType($request, $linkType) {
 
     $rules = [
-        'title' => ['nullable', 'string', 'max:255'],
-        'days'  => ['nullable', 'integer'],
+        'title'     => ['nullable', 'string', 'max:255'],
+        'days'      => ['nullable', 'integer'],
+        'show_esrb' => ['nullable', 'boolean'],
     ];
 
     $days = (int) ($request->days ?? 7);
@@ -23,13 +24,15 @@ function handleLinkType($request, $linkType) {
         $days = 7;
     }
 
-    // `days` isn't a links column, so it lands in type_params and is merged back
-    // onto $link on render (available as $link->days in display.blade.php).
+    // `days` / `show_esrb` aren't links columns, so they land in type_params and
+    // are merged back onto $link on render (as $link->days / $link->show_esrb in
+    // display.blade.php). ESRB ratings are hidden unless explicitly switched on.
     $linkData = [
         'title' => $request->title ?: 'Stream Schedule',
         'button_id' => 1,
         'link' => null,
         'days' => $days,
+        'show_esrb' => $request->boolean('show_esrb') ? 1 : 0,
     ];
 
     return ['rules' => $rules, 'linkData' => $linkData];

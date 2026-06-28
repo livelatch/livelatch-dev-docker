@@ -2,6 +2,7 @@
     $ssOwnerId = (int) ($link->user_id ?? 0);
     $ssDays = (int) ($link->days ?? 7);
     if (!in_array($ssDays, [3, 7, 14, 30], true)) { $ssDays = 7; }
+    $ssShowEsrb = !empty($link->show_esrb);
     $ssHandle = $ssOwnerId ? \App\Models\User::where('id', $ssOwnerId)->value('littlelink_name') : null;
     $ssUpcoming = ($ssOwnerId && $ssHandle) ? \App\Services\StreamScheduleService::upcomingForUser($ssOwnerId, $ssDays) : [];
     $ssIcs = $ssHandle ? url('/@' . $ssHandle . '/schedule.ics') : null;
@@ -79,7 +80,7 @@
                         @if(!empty($ev['is_adult']) || !empty($ev['game_name']) || !empty($ev['tags']))
                             <div class="ll-ssb-tags">
                                 @if(!empty($ev['is_adult']))<span class="ll-ssb-tag adult">18+</span>@endif
-                                @if(!empty($ev['game_name']))<span class="ll-ssb-tag">{{ $ev['game_name'] }}@if(!empty($ev['game_esrb'])) · {{ $ev['game_esrb'] }}@endif</span>@endif
+                                @if(!empty($ev['game_name']))<span class="ll-ssb-tag">{{ $ev['game_name'] }}@if($ssShowEsrb && !empty($ev['game_esrb'])) · {{ $ev['game_esrb'] }}@endif</span>@endif
                                 @foreach(($ev['tags'] ?? []) as $t)<span class="ll-ssb-tag">{{ $t }}</span>@endforeach
                             </div>
                         @endif
