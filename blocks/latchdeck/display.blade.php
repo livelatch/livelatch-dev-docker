@@ -1,46 +1,140 @@
+@php
+    $ldkOwnerId = (int) ($link->user_id ?? 0);
+    $ldkLatchId = $ldkOwnerId ? \App\Models\User::where('id', $ldkOwnerId)->value('supabase_user_id') : null;
+    $ldkCards = $ldkLatchId ? app(\App\Services\LatchDeckService::class)->publishedCards($ldkLatchId) : [];
+    $ldkViewer = rtrim((string) config('services.latchdeck.viewer_url', ''), '/');
+@endphp
+
 @once
 <style>
     .ll-ldk {
         --ll-ldk-line: color-mix(in srgb, currentColor 16%, transparent);
         --ll-ldk-fill: color-mix(in srgb, currentColor 6%, transparent);
-        width: 100%;
-        margin: 6px 0;
-        padding: 18px;
-        border: 1px solid var(--ll-ldk-line);
-        border-radius: 18px;
-        background: var(--ll-ldk-fill);
-        text-align: center;
+        width: 100%; margin: 6px 0; padding: 18px;
+        border: 1px solid var(--ll-ldk-line); border-radius: 18px;
+        background: var(--ll-ldk-fill); text-align: center;
     }
     .ll-ldk-head { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 14px; }
     .ll-ldk-badge {
         font-size: .62rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
-        padding: 4px 10px; border-radius: 999px;
-        background: color-mix(in srgb, currentColor 12%, transparent);
-        opacity: .85;
+        padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, currentColor 12%, transparent); opacity: .85;
     }
     .ll-ldk-title { margin: 0; font-size: 1.15rem; font-weight: 800; }
-    .ll-ldk-grid {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-        margin: 0 auto; max-width: 360px;
+
+    /* Carousel */
+    .ll-ldk-carousel { position: relative; }
+    .ll-ldk-track {
+        display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+        padding: 4px 2px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
     }
-    .ll-ldk-card {
-        position: relative; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden;
-        border: 1px solid var(--ll-ldk-line);
-        background:
-            linear-gradient(150deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 4%, transparent));
+    .ll-ldk-track::-webkit-scrollbar { display: none; }
+    .ll-ldk-nav {
+        position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+        width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--ll-ldk-line);
+        background: color-mix(in srgb, currentColor 10%, transparent); color: inherit;
+        display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(4px);
     }
-    .ll-ldk-card::after {
-        content: ""; position: absolute; inset: 0;
-        background: linear-gradient(115deg, transparent 30%, color-mix(in srgb, currentColor 18%, transparent) 50%, transparent 70%);
-        transform: translateX(-100%);
-        animation: ll-ldk-shine 2.6s ease-in-out infinite;
+    .ll-ldk-nav[hidden] { display: none; }
+    .ll-ldk-nav.prev { left: -6px; } .ll-ldk-nav.next { right: -6px; }
+
+    /* Card (drawn from the creator's card data) */
+    .ll-ldk-card2 {
+        flex: 0 0 auto; width: 150px; scroll-snap-align: center; cursor: pointer;
+        border: 0; padding: 0; background: none; text-align: left;
     }
-    .ll-ldk-card:nth-child(2)::after { animation-delay: .35s; }
-    .ll-ldk-card:nth-child(3)::after { animation-delay: .7s; }
+    .ll-ldk-surface {
+        position: relative; width: 100%; aspect-ratio: 5 / 7; border-radius: 14px; overflow: hidden;
+        background: var(--cbg, #160000); color: var(--ctxt, #fff); padding: 12px;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        box-shadow: 0 10px 26px rgba(0,0,0,.32); transition: transform .15s ease;
+        background-size: cover; background-position: center;
+    }
+    .ll-ldk-card2:hover .ll-ldk-surface, .ll-ldk-card2:focus-visible .ll-ldk-surface { transform: translateY(-3px); }
+    .ll-ldk-surface::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.6)); }
+    .ll-ldk-c-name { position: relative; font-weight: 800; font-size: .9rem; line-height: 1.1; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+    .ll-ldk-c-meta { position: relative; margin-top: 3px; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; opacity: .85; }
+    .ll-ldk-c-rarity { position: absolute; top: 10px; left: 10px; z-index: 2; font-size: .56rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,.45); color: #fff; border: 1px solid rgba(255,255,255,.35); }
+    .ll-ldk-c-fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; background-size: 200% 200%; mix-blend-mode: screen; }
+    .ll-ldk-surface.fx-holo .ll-ldk-c-fx { opacity: .45; mix-blend-mode: color-dodge; filter: blur(2px); background: conic-gradient(from 0deg, #ff0080,#7928ca,#2afadf,#00ff8f,#ffd700,#ff0080); animation: ll-ldk-holo 6s linear infinite; }
+    .ll-ldk-surface.fx-shiny .ll-ldk-c-fx { opacity: .8; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.5) 48%, transparent 62%); animation: ll-ldk-shine2 3.2s ease-in-out infinite; }
+    .ll-ldk-surface.fx-foil .ll-ldk-c-fx { opacity: .4; mix-blend-mode: overlay; background: repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 2px, transparent 2px 7px), linear-gradient(135deg,#c0c0c0,#8a8a8a,#e8e8e8); animation: ll-ldk-holo 5s linear infinite; }
+    @keyframes ll-ldk-holo { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+    @keyframes ll-ldk-shine2 { 0%{background-position:-150% 0} 100%{background-position:150% 0} }
+    .ll-ldk-c-cta { margin-top: 8px; font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .7; text-align: center; }
+
     .ll-ldk-empty { margin: 14px 0 0; font-size: .85rem; opacity: .7; }
-    @keyframes ll-ldk-shine { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
-    @media (prefers-reduced-motion: reduce) { .ll-ldk-card::after { animation: none; } }
+    .ll-ldk-placeholder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 auto; max-width: 360px; }
+    .ll-ldk-ph { aspect-ratio: 5/7; border-radius: 12px; border: 1px solid var(--ll-ldk-line); background: linear-gradient(150deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 4%, transparent)); }
+
+    /* Redeem prompt modal */
+    .ll-ldk-modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .ll-ldk-modal.is-open { display: flex; }
+    .ll-ldk-modal-bd { position: absolute; inset: 0; background: rgba(6,8,18,.6); backdrop-filter: blur(2px); }
+    .ll-ldk-modal-card { position: relative; z-index: 1; width: 100%; max-width: 360px; border-radius: 18px; padding: 24px; text-align: center; background: #14101f; color: #fff; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+    .ll-ldk-modal-card h4 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 800; }
+    .ll-ldk-modal-card p { margin: 0 0 18px; font-size: .88rem; opacity: .8; }
+    .ll-ldk-btn { display: inline-block; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; text-decoration: none; border: 0; cursor: pointer; background: linear-gradient(135deg,#2afadf,#3a7bd5); color: #06121a; }
+    .ll-ldk-btn.is-disabled { background: rgba(255,255,255,.12); color: #fff; cursor: default; }
+    .ll-ldk-modal-close { margin-top: 12px; background: none; border: 0; color: #fff; opacity: .6; cursor: pointer; font-size: .82rem; }
 </style>
+<div class="ll-ldk-modal" id="ll-ldk-modal" aria-hidden="true">
+    <div class="ll-ldk-modal-bd" data-ldk-close></div>
+    <div class="ll-ldk-modal-card" role="dialog" aria-modal="true">
+        <h4 id="ll-ldk-modal-title">Log in to redeem</h4>
+        <p id="ll-ldk-modal-sub">Sign in to LatchDeck to add this card to your collection.</p>
+        <a class="ll-ldk-btn" id="ll-ldk-modal-go" href="#">Log in to redeem</a>
+        <button type="button" class="ll-ldk-modal-close" data-ldk-close>Maybe later</button>
+    </div>
+</div>
+<script>
+(function () {
+    var modal = document.getElementById('ll-ldk-modal');
+    if (!modal) return;
+    var title = document.getElementById('ll-ldk-modal-title');
+    var sub = document.getElementById('ll-ldk-modal-sub');
+    var go = document.getElementById('ll-ldk-modal-go');
+
+    function open(card) {
+        var name = card.getAttribute('data-name') || 'this card';
+        var url = card.getAttribute('data-redeem') || '';
+        title.textContent = 'Redeem ' + name;
+        if (url) {
+            sub.textContent = 'Log in to LatchDeck to add this card to your collection.';
+            go.textContent = 'Log in to redeem';
+            go.setAttribute('href', url);
+            go.classList.remove('is-disabled');
+            go.removeAttribute('aria-disabled');
+        } else {
+            sub.textContent = 'The LatchDeck viewer is coming soon — you’ll be able to redeem this card here.';
+            go.textContent = 'Coming soon';
+            go.setAttribute('href', '#');
+            go.classList.add('is-disabled');
+            go.setAttribute('aria-disabled', 'true');
+        }
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+    function close() { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden', 'true'); }
+
+    document.addEventListener('click', function (e) {
+        var card = e.target.closest('[data-ldk-card]');
+        if (card) { e.preventDefault(); open(card); return; }
+        if (e.target.closest('[data-ldk-close]')) { close(); }
+    });
+    go.addEventListener('click', function (e) { if (go.classList.contains('is-disabled')) e.preventDefault(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+    // Carousel nav arrows
+    document.querySelectorAll('[data-ldk-carousel]').forEach(function (wrap) {
+        var track = wrap.querySelector('[data-ldk-track]');
+        wrap.querySelectorAll('[data-ldk-scroll]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                track.scrollBy({ left: (btn.getAttribute('data-ldk-scroll') === 'next' ? 1 : -1) * 180, behavior: 'smooth' });
+            });
+        });
+    });
+})();
+</script>
 @endonce
 
 <div class="ll-ldk">
@@ -48,10 +142,39 @@
         <span class="ll-ldk-badge">LatchDeck</span>
         <h3 class="ll-ldk-title">{{ $link->title ?: 'My Cards' }}</h3>
     </div>
-    <div class="ll-ldk-grid" aria-hidden="true">
-        <div class="ll-ldk-card"></div>
-        <div class="ll-ldk-card"></div>
-        <div class="ll-ldk-card"></div>
-    </div>
-    <p class="ll-ldk-empty">Collectible cards are on the way — check back soon.</p>
+
+    @if(empty($ldkCards))
+        <div class="ll-ldk-placeholder" aria-hidden="true">
+            <div class="ll-ldk-ph"></div><div class="ll-ldk-ph"></div><div class="ll-ldk-ph"></div>
+        </div>
+        <p class="ll-ldk-empty">Collectible cards are on the way — check back soon.</p>
+    @else
+        <div class="ll-ldk-carousel" data-ldk-carousel>
+            <button type="button" class="ll-ldk-nav prev" data-ldk-scroll="prev" aria-label="Previous" {{ count($ldkCards) <= 2 ? 'hidden' : '' }}><i class="bi bi-chevron-left"></i></button>
+            <div class="ll-ldk-track" data-ldk-track>
+                @foreach($ldkCards as $c)
+                    @php
+                        $cBg = $c['background_color_mvp'] ?? '#160000';
+                        $cTxt = $c['text_color_mvp'] ?? '#ffffff';
+                        $cImg = (!empty($c['image_url_mvp']) && preg_match('#^https://#', (string) $c['image_url_mvp'])) ? $c['image_url_mvp'] : null;
+                        $cEffect = in_array(($c['effect_mvp'] ?? 'none'), ['holo','shiny','foil'], true) ? $c['effect_mvp'] : null;
+                        $cCode = $c['redeem_code_mvp'] ?? null;
+                        $cPath = $cCode ? ('/redeem/' . rawurlencode($cCode)) : ('/card/' . rawurlencode($c['id'] ?? ''));
+                        $cRedeem = $ldkViewer !== '' ? ($ldkViewer . $cPath) : '';
+                        $cSurfaceStyle = "--cbg: {$cBg}; --ctxt: {$cTxt};" . ($cImg ? " background-image: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.35)), url('{$cImg}');" : '');
+                    @endphp
+                    <button type="button" class="ll-ldk-card2" data-ldk-card data-name="{{ strip_tags($c['name_mvp'] ?? 'Card') }}" data-redeem="{{ $cRedeem }}">
+                        <div class="ll-ldk-surface {{ $cEffect ? 'fx-' . $cEffect : '' }}" style="{{ $cSurfaceStyle }}">
+                            <span class="ll-ldk-c-rarity">{{ ucfirst($c['rarity_mvp'] ?? 'Common') }}</span>
+                            <div class="ll-ldk-c-name">{{ $c['name_mvp'] ?? 'Card' }}</div>
+                            <div class="ll-ldk-c-meta">@if(!empty($c['supply_cap_mvp'])) Limited · {{ $c['supply_cap_mvp'] }} @else Collectible @endif</div>
+                            <div class="ll-ldk-c-fx" aria-hidden="true"></div>
+                        </div>
+                        <div class="ll-ldk-c-cta">Tap to redeem</div>
+                    </button>
+                @endforeach
+            </div>
+            <button type="button" class="ll-ldk-nav next" data-ldk-scroll="next" aria-label="Next" {{ count($ldkCards) <= 2 ? 'hidden' : '' }}><i class="bi bi-chevron-right"></i></button>
+        </div>
+    @endif
 </div>

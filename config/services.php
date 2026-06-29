@@ -67,6 +67,9 @@ return [
     'latchdeck' => [
         'api_url' => env('LATCHDECK_API_URL', 'https://staging-latchdeck-7iu2.encr.app'),
         'api_key' => env('LATCHDECK_SERVICE_API_KEY'),
+        // Public LatchDeck viewer app (where fans log in to redeem cards). Not built
+        // yet — when set, the on-profile card carousel deep-links here to redeem.
+        'viewer_url' => env('LATCHDECK_VIEWER_URL'),
     ],
 
     // RAWG video-game database — powers the Stream Schedule "show game" picker

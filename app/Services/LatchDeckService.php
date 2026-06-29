@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -42,6 +43,20 @@ class LatchDeckService
         $response = $this->request('post', '/applications', $body);
 
         return ($response && $response->successful()) ? $response->json() : null;
+    }
+
+    /**
+     * A creator's *published* cards, for public display on their profile.
+     * Cached briefly so the public page doesn't hit Encore on every render.
+     */
+    public function publishedCards(string $latchIdUserId): array
+    {
+        return Cache::remember('latchdeck:published:' . $latchIdUserId, 60, function () use ($latchIdUserId) {
+            return collect($this->listCards($latchIdUserId))
+                ->filter(fn ($c) => ($c['status_mvp'] ?? '') === 'published' && ($c['is_active_mvp'] ?? true))
+                ->values()
+                ->all();
+        });
     }
 
     /** All of a user's cards (drafts + published), newest first. */
