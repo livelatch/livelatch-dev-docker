@@ -63,9 +63,17 @@ Create a **draft** card. Allowed for `pending_review` and `active` creators.
 // request
 { "latchid_user_id": "uuid", "name_mvp": "...", "short_description_mvp": "...",
   "long_description_mvp": "optional", "rarity_mvp": "common",
-  "creator_name_mvp": "...", "image_url_mvp": "optional", "background_color_mvp": "#1b1b29" }
+  "creator_name_mvp": "...", "image_url_mvp": "optional", "background_color_mvp": "#1b1b29",
+  // V1 card-editor fields (all optional):
+  "text_color_mvp": "#5e0808", "effect_mvp": "none|holo|shiny|foil",
+  "redeem_code_mvp": "STREAM-DROP-1", "supply_cap_mvp": 100,
+  "image_source_mvp": "upload|unsplash",
+  "image_credit_mvp": { "source": "unsplash", "photographer": "...",
+                        "photographer_url": "...", "photo_url": "..." } }
 // response: the full card (see card shape below), status_mvp = "draft"
 ```
+Premium effects (`holo`/`shiny`/`foil`) require a tier with `premiumEffects` →
+`403` otherwise. A duplicate `redeem_code_mvp` → `409` (already-exists).
 
 ### `GET /mvp/cards/:latchid_user_id`
 List the creator's cards (drafts + published), newest first.
@@ -103,10 +111,16 @@ Deny: application → `denied`, creator → `denied_waitlist`.
   "name_mvp": "...", "short_description_mvp": "...", "long_description_mvp": null,
   "rarity_mvp": "common", "creator_name_mvp": "...",
   "image_url_mvp": null, "background_color_mvp": "#1b1b29",
+  "text_color_mvp": null, "effect_mvp": "none",
+  "redeem_code_mvp": null, "supply_cap_mvp": null,
+  "image_source_mvp": null, "image_credit_mvp": null,
   "status_mvp": "draft | published", "published_at_mvp": null,
   "is_active_mvp": true, "created_at_mvp": "timestamp"
 }
 ```
+The V1 editor columns (`text_color_mvp` … `image_credit_mvp`) were added in
+`migrations/20260628_card_editor_fields.sql`. `image_credit_mvp` is returned as a
+parsed object (stored as a JSON string).
 
 ## Notes for future SDK clients
 - The auth handler (`latchdeck/auth.ts`) is where per-developer keys will map to a

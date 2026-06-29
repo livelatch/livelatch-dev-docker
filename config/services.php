@@ -75,6 +75,15 @@ return [
         'key' => env('RAWG_API_KEY'),
     ],
 
+    // Unsplash — powers the LatchDeck card editor's "search an image" option.
+    // Use the Unsplash "Access Key" (the API client_id). ToS requires attribution
+    // and a download trigger, both handled in LatchDeckController.
+    'unsplash' => [
+        'access_key' => env('UNSPLASH_ACCESS_KEY'),
+        // utm_source appended to attribution links per Unsplash API guidelines.
+        'utm_source' => env('UNSPLASH_UTM_SOURCE', 'livelatch'),
+    ],
+
     'posthog' => [
         'key' => env('POSTHOG_API_KEY'),
         'host' => env('POSTHOG_HOST', 'https://eu.i.posthog.com'),

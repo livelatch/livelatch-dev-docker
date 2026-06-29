@@ -57,27 +57,40 @@ class LatchDeckService
     }
 
     /**
-     * Create a draft card.
+     * Create a draft card. Returns [card|null, errorMessage|null]; errorMessage
+     * carries Encore's reason (e.g. a taken redeem code) for surfacing in the UI.
      *
-     * @param array{name_mvp:string,short_description_mvp:string,long_description_mvp?:string,rarity_mvp:string,creator_name_mvp:string,image_url_mvp?:string,background_color_mvp?:string} $card
+     * @param array<string,mixed> $card
      */
-    public function createCard(string $latchIdUserId, array $card): ?array
+    public function createCard(string $latchIdUserId, array $card): array
     {
         $body = array_merge($card, ['latchid_user_id' => $latchIdUserId]);
 
         $response = $this->request('post', '/mvp/cards', $body);
 
-        return ($response && $response->successful()) ? $response->json() : null;
+        if ($response && $response->successful()) {
+            return [$response->json(), null];
+        }
+
+        return [null, $this->errorMessage($response)];
     }
 
-    /** Update an owned card (draft editor). */
-    public function updateCard(string $latchIdUserId, string $cardId, array $fields): ?array
+    /**
+     * Update an owned card (draft editor). Returns [card|null, errorMessage|null].
+     *
+     * @param array<string,mixed> $fields
+     */
+    public function updateCard(string $latchIdUserId, string $cardId, array $fields): array
     {
         $body = array_merge($fields, ['latchid_user_id' => $latchIdUserId]);
 
         $response = $this->request('patch', '/mvp/cards/' . rawurlencode($cardId), $body);
 
-        return ($response && $response->successful()) ? $response->json() : null;
+        if ($response && $response->successful()) {
+            return [$response->json(), null];
+        }
+
+        return [null, $this->errorMessage($response)];
     }
 
     /**

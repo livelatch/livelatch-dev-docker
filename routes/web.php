@@ -246,6 +246,8 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::view('/studio/development-journey', 'studio.development-journey')->name('studio.developmentJourney');
             Route::get('/studio/latchdeck', [LatchDeckController::class, 'index'])->name('studio.latchdeck');
             Route::post('/studio/latchdeck/request-access', [LatchDeckController::class, 'requestAccess'])->name('studio.latchdeck.requestAccess');
+            Route::get('/studio/latchdeck/editor/{id?}', [LatchDeckController::class, 'editor'])->name('studio.latchdeck.editor');
+            Route::get('/studio/latchdeck/unsplash', [LatchDeckController::class, 'unsplashSearch'])->name('studio.latchdeck.unsplash');
             Route::post('/studio/latchdeck/cards', [LatchDeckController::class, 'storeCard'])->name('studio.latchdeck.cards.store');
             Route::post('/studio/latchdeck/cards/{id}', [LatchDeckController::class, 'updateCard'])->name('studio.latchdeck.cards.update');
             Route::post('/studio/latchdeck/cards/{id}/publish', [LatchDeckController::class, 'publishCard'])->name('studio.latchdeck.cards.publish');
