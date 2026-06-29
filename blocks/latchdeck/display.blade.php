@@ -3,6 +3,8 @@
     $ldkLatchId = $ldkOwnerId ? \App\Models\User::where('id', $ldkOwnerId)->value('supabase_user_id') : null;
     $ldkCards = $ldkLatchId ? app(\App\Services\LatchDeckService::class)->publishedCards($ldkLatchId) : [];
     $ldkViewer = rtrim((string) config('services.latchdeck.viewer_url', ''), '/');
+    $ldkSpeedKey = in_array(($link->speed ?? 'slow'), ['slow', 'medium', 'fast'], true) ? $link->speed : 'slow';
+    $ldkSpeedPx = ['slow' => 14, 'medium' => 26, 'fast' => 44][$ldkSpeedKey];
 @endphp
 
 @once
@@ -18,15 +20,21 @@
     .ll-ldk-badge { font-size: .62rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, currentColor 12%, transparent); opacity: .85; }
     .ll-ldk-title { margin: 0; font-size: 1.15rem; font-weight: 800; }
 
-    /* Carousel of image-only tiles */
-    .ll-ldk-carousel { position: relative; }
-    .ll-ldk-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-    .ll-ldk-track::-webkit-scrollbar { display: none; }
-    .ll-ldk-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--ll-ldk-line); background: color-mix(in srgb, currentColor 10%, transparent); color: inherit; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(4px); }
-    .ll-ldk-nav[hidden] { display: none; }
-    .ll-ldk-nav.prev { left: -6px; } .ll-ldk-nav.next { right: -6px; }
+    /* Auto-scrolling marquee of image-only tiles. The track is taken OUT OF FLOW
+       (absolute) so it can never widen the theme's column — the marquee viewport
+       is overflow:hidden and clips/loops the cards instead. */
+    .ll-ldk-marquee { position: relative; width: 100%; overflow: hidden; min-height: 236px; }
+    .ll-ldk-track2 { position: absolute; top: 0; left: 0; display: flex; gap: 12px; padding-top: 4px; will-change: transform; }
+    .ll-ldk-track2.is-centered { left: 50%; transform: translateX(-50%); }
+    .ll-ldk-track2.is-scrolling { animation: ll-ldk-marq var(--ldk-dur, 40s) linear infinite; }
+    .ll-ldk-marquee:hover .ll-ldk-track2.is-scrolling,
+    .ll-ldk-marquee:focus-within .ll-ldk-track2.is-scrolling { animation-play-state: paused; }
+    .ll-ldk-marquee.is-manual { overflow-x: auto; scrollbar-width: none; }
+    .ll-ldk-marquee.is-manual::-webkit-scrollbar { display: none; }
+    .ll-ldk-marquee.is-manual .ll-ldk-track2 { position: static; }
+    @keyframes ll-ldk-marq { from { transform: translateX(0); } to { transform: translateX(calc(-1 * var(--ldk-shift, 0px))); } }
 
-    .ll-ldk-card2 { flex: 0 0 auto; width: 150px; scroll-snap-align: center; cursor: pointer; border: 0; padding: 0; background: none; text-align: left; }
+    .ll-ldk-card2 { flex: 0 0 auto; width: 150px; cursor: pointer; border: 0; padding: 0; background: none; text-align: left; }
     .ll-ldk-surface { position: relative; width: 100%; aspect-ratio: 5 / 7; border-radius: 14px; overflow: hidden; background: var(--cbg, #160000); color: var(--ctxt, #fff); padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 10px 26px rgba(0,0,0,.32); transition: transform .15s ease; background-size: cover; background-position: center; }
     .ll-ldk-card2:hover .ll-ldk-surface, .ll-ldk-card2:focus-visible .ll-ldk-surface { transform: translateY(-3px); }
     .ll-ldk-surface::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,.6)); }
@@ -40,9 +48,10 @@
     .ll-ldk-ph { aspect-ratio: 5/7; border-radius: 12px; border: 1px solid var(--ll-ldk-line); background: linear-gradient(150deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 4%, transparent)); }
 
     /* ---- Reveal modal: flip a card back to show the full V1 card ---- */
-    .ll-ldk-modal { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .ll-ldk-modal { position: fixed; inset: 0; z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px; }
     .ll-ldk-modal.is-open { display: flex; }
-    .ll-ldk-modal-bd { position: absolute; inset: 0; background: rgba(6,8,18,.72); backdrop-filter: blur(3px); }
+    .ll-ldk-modal-bd { position: absolute; inset: 0; background: rgba(6,8,18,.8); backdrop-filter: blur(4px); }
+    .ll-ldk-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
     .ll-ldk-reveal { position: relative; z-index: 1; width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 
     .ll-ldk-flip { width: 100%; aspect-ratio: 5 / 7; perspective: 1400px; }
@@ -72,7 +81,7 @@
     .ll-ldk-fc-div { height: 5px; margin: 14px 0 10px; background: currentColor; opacity: .85; border-radius: 2px; }
     .ll-ldk-fc-body { font-size: .94rem; line-height: 1.3; font-weight: 600; flex: 1 1 auto; overflow: hidden; word-break: break-word; }
     .ll-ldk-fc-footer { display: flex; justify-content: space-between; gap: 10px; font-size: .6rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-    .ll-ldk-fc-credit { position: absolute; left: 14px; bottom: 32px; font-size: .5rem; opacity: .85; }
+    .ll-ldk-fc-credit { font-size: .5rem; opacity: .8; margin-bottom: 6px; }
     .ll-ldk-fc-credit a { color: inherit; text-decoration: underline; }
     .ll-ldk-fc-fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; background-size: 200% 200%; }
     .ll-ldk-fc.fx-holo .ll-ldk-fc-fx { opacity: .5; mix-blend-mode: color-dodge; filter: blur(2px); background: conic-gradient(from 0deg,#ff0080,#7928ca,#2afadf,#00ff8f,#ffd700,#ff0080); animation: ll-ldk-holo 6s linear infinite; }
@@ -91,12 +100,13 @@
     @keyframes ll-ldk-reveal-shine { 0%{opacity:0; background-position:-150% 0} 30%{opacity:.9} 100%{opacity:0; background-position:150% 0} }
     @media (prefers-reduced-motion: reduce) {
         .ll-ldk-flip-inner { transition: none; }
-        .ll-ldk-shine, .ll-ldk-back-face::after { animation: none; }
+        .ll-ldk-shine, .ll-ldk-back-face::after, .ll-ldk-track2.is-scrolling { animation: none; }
     }
 </style>
 
 <div class="ll-ldk-modal" id="ll-ldk-modal" aria-hidden="true">
     <div class="ll-ldk-modal-bd" data-ldk-close></div>
+    <canvas class="ll-ldk-confetti" id="ll-ldk-confetti" aria-hidden="true"></canvas>
     <div class="ll-ldk-reveal" id="ll-ldk-reveal">
         <div class="ll-ldk-flip">
             <div class="ll-ldk-flip-inner">
@@ -122,9 +132,54 @@
 (function () {
     var modal = document.getElementById('ll-ldk-modal');
     if (!modal) return;
+    // Portal to <body> so a transformed/filtered theme ancestor can't trap our
+    // position:fixed overlay (otherwise the backdrop won't cover the viewport).
+    if (modal.parentNode !== document.body) document.body.appendChild(modal);
+
     var reveal = document.getElementById('ll-ldk-reveal');
     var front = document.getElementById('ll-ldk-front');
     var go = document.getElementById('ll-ldk-go');
+    var canvas = document.getElementById('ll-ldk-confetti');
+
+    // --- Lightweight confetti burst (no library); fades out then clears. ---
+    var confettiRAF = null;
+    function confetti() {
+        if (!canvas) return;
+        if (confettiRAF) cancelAnimationFrame(confettiRAF);
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width = canvas.clientWidth, H = canvas.height = canvas.clientHeight;
+        var colors = ['#2afadf', '#3a7bd5', '#ffd700', '#ff3b30', '#7928ca', '#00ff8f', '#ffffff'];
+        var parts = [];
+        for (var i = 0; i < 130; i++) {
+            parts.push({
+                x: Math.random() * W, y: -20 - Math.random() * H * 0.4,
+                vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 3.5,
+                size: 5 + Math.random() * 6, color: colors[(Math.random() * colors.length) | 0],
+                rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.35
+            });
+        }
+        var start = performance.now(), DUR = 2800;
+        function frame(now) {
+            var t = now - start;
+            ctx.clearRect(0, 0, W, H);
+            var fade = t > DUR * 0.55 ? Math.max(0, 1 - (t - DUR * 0.55) / (DUR * 0.45)) : 1;
+            var alive = false;
+            for (var j = 0; j < parts.length; j++) {
+                var p = parts[j];
+                p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += p.vr;
+                if (p.y < H + 20 && fade > 0) alive = true;
+                ctx.save();
+                ctx.globalAlpha = fade;
+                ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                ctx.restore();
+            }
+            if (t < DUR && alive) { confettiRAF = requestAnimationFrame(frame); }
+            else { ctx.clearRect(0, 0, W, H); confettiRAF = null; }
+        }
+        confettiRAF = requestAnimationFrame(frame);
+    }
 
     function open(card) {
         var tpl = card.querySelector('.ll-ldk-fulltpl');
@@ -147,13 +202,17 @@
         reveal.classList.remove('is-revealed');
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
-        // Beat on the card back, then flip to reveal the front.
-        requestAnimationFrame(function () { setTimeout(function () { reveal.classList.add('is-revealed'); }, 300); });
+        // Beat on the card back, then flip to reveal the front + celebrate.
+        requestAnimationFrame(function () {
+            setTimeout(function () { reveal.classList.add('is-revealed'); confetti(); }, 300);
+        });
     }
     function close() {
         modal.classList.remove('is-open');
         reveal.classList.remove('is-revealed');
         modal.setAttribute('aria-hidden', 'true');
+        if (confettiRAF) { cancelAnimationFrame(confettiRAF); confettiRAF = null; }
+        if (canvas) { var c = canvas.getContext('2d'); c && c.clearRect(0, 0, canvas.width, canvas.height); }
     }
 
     document.addEventListener('click', function (e) {
@@ -164,14 +223,44 @@
     go.addEventListener('click', function (e) { if (go.classList.contains('is-disabled')) e.preventDefault(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
-    document.querySelectorAll('[data-ldk-carousel]').forEach(function (wrap) {
-        var track = wrap.querySelector('[data-ldk-track]');
-        wrap.querySelectorAll('[data-ldk-scroll]').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                track.scrollBy({ left: (btn.getAttribute('data-ldk-scroll') === 'next' ? 1 : -1) * 180, behavior: 'smooth' });
-            });
+    // Marquee: track is absolute (out of flow) so it never widens the column.
+    // If the cards overflow the available width, duplicate + auto-scroll; else center.
+    function setupMarquee(m) {
+        var track = m.querySelector('[data-ldk-track]');
+        if (!track || !track.children.length) return;
+
+        var viewportW = m.clientWidth;
+        var trackW = track.scrollWidth;             // width of one copy of the cards
+        var firstH = track.children[0].offsetHeight;
+        if (firstH) m.style.height = firstH + 'px';  // fit the row (track is absolute)
+
+        var GAP = 12;
+        if (trackW <= viewportW) {                   // everything fits → center, no scroll
+            track.classList.add('is-centered');
+            return;
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            // Reduced motion: lock width (so it can't widen the page) + manual scroll.
+            m.style.width = viewportW + 'px';
+            m.style.height = '';
+            m.classList.add('is-manual');
+            return;
+        }
+
+        // Overflowing → duplicate the cards once for a seamless loop, then animate.
+        Array.prototype.slice.call(track.children).forEach(function (c) {
+            var clone = c.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
         });
-    });
+        var shift = trackW + GAP;                     // one copy width + the gap before the duplicate
+        var pxPerSec = parseFloat(m.getAttribute('data-speed')) || 14;
+        track.style.setProperty('--ldk-shift', shift + 'px');
+        track.style.setProperty('--ldk-dur', (shift / pxPerSec) + 's');
+        track.classList.add('is-scrolling');
+    }
+    document.querySelectorAll('[data-ldk-marquee]').forEach(setupMarquee);
 })();
 </script>
 @endonce
@@ -188,9 +277,8 @@
         </div>
         <p class="ll-ldk-empty">Collectible cards are on the way — check back soon.</p>
     @else
-        <div class="ll-ldk-carousel" data-ldk-carousel>
-            <button type="button" class="ll-ldk-nav prev" data-ldk-scroll="prev" aria-label="Previous" {{ count($ldkCards) <= 2 ? 'hidden' : '' }}><i class="bi bi-chevron-left"></i></button>
-            <div class="ll-ldk-track" data-ldk-track>
+        <div class="ll-ldk-marquee" data-ldk-marquee data-speed="{{ $ldkSpeedPx }}">
+            <div class="ll-ldk-track2" data-ldk-track>
                 @foreach($ldkCards as $c)
                     @php
                         $cBg = $c['background_color_mvp'] ?? '#160000';
@@ -223,20 +311,19 @@
                                 <span class="ll-ldk-fc-rarity">{{ $cRarity }}</span>
                                 <div class="ll-ldk-fc-div"></div>
                                 <div class="ll-ldk-fc-body">{{ $cBody }}</div>
+                                @if($cCredit && ($cCredit['source'] ?? '') === 'unsplash')
+                                    <div class="ll-ldk-fc-credit">Photo by <a href="{{ $cCredit['photographer_url'] ?? '#' }}" target="_blank" rel="noopener">{{ $cCredit['photographer'] ?? '' }}</a> on <a href="{{ $cCredit['photo_url'] ?? 'https://unsplash.com' }}" target="_blank" rel="noopener">Unsplash</a></div>
+                                @endif
                                 <div class="ll-ldk-fc-footer">
                                     <span>{{ $cCode ? strtoupper($cCode) : 'LatchDeck' }}</span>
                                     <span>#0001{{ $cSupply ? ' / ' . $cSupply : '' }}</span>
                                 </div>
-                                @if($cCredit && ($cCredit['source'] ?? '') === 'unsplash')
-                                    <div class="ll-ldk-fc-credit">Photo by <a href="{{ $cCredit['photographer_url'] ?? '#' }}" target="_blank" rel="noopener">{{ $cCredit['photographer'] ?? '' }}</a> on <a href="{{ $cCredit['photo_url'] ?? 'https://unsplash.com' }}" target="_blank" rel="noopener">Unsplash</a></div>
-                                @endif
                                 <div class="ll-ldk-fc-fx" aria-hidden="true"></div>
                             </div>
                         </template>
                     </button>
                 @endforeach
             </div>
-            <button type="button" class="ll-ldk-nav next" data-ldk-scroll="next" aria-label="Next" {{ count($ldkCards) <= 2 ? 'hidden' : '' }}><i class="bi bi-chevron-right"></i></button>
         </div>
     @endif
 </div>

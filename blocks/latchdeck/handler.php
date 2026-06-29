@@ -15,12 +15,18 @@ function handleLinkType($request, $linkType) {
 
     $rules = [
         'title' => ['nullable', 'string', 'max:255'],
+        'speed' => ['nullable', 'string'],
     ];
+
+    // When there are more cards than fit the theme's width they auto-scroll in a
+    // loop; `speed` controls how fast. Lands in type_params ($link->speed on render).
+    $speed = in_array($request->speed, ['slow', 'medium', 'fast'], true) ? $request->speed : 'slow';
 
     $linkData = [
         'title' => $request->title ?: 'LatchDeck',
         'button_id' => 1,
         'link' => null,
+        'speed' => $speed,
     ];
 
     return ['rules' => $rules, 'linkData' => $linkData];
