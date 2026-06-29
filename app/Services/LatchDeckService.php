@@ -102,6 +102,8 @@ class LatchDeckService
         $response = $this->request('patch', '/mvp/cards/' . rawurlencode($cardId), $body);
 
         if ($response && $response->successful()) {
+            $this->forgetPublishedCache($latchIdUserId);
+
             return [$response->json(), null];
         }
 
@@ -119,6 +121,8 @@ class LatchDeckService
         ]);
 
         if ($response && $response->successful()) {
+            $this->forgetPublishedCache($latchIdUserId);
+
             return [$response->json(), null];
         }
 
@@ -132,7 +136,19 @@ class LatchDeckService
             'latchid_user_id' => $latchIdUserId,
         ]);
 
-        return ($response && $response->successful()) ? $response->json() : null;
+        if ($response && $response->successful()) {
+            $this->forgetPublishedCache($latchIdUserId);
+
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    /** Bust the public published-cards cache so the profile reflects changes at once. */
+    public function forgetPublishedCache(string $latchIdUserId): void
+    {
+        Cache::forget('latchdeck:published:' . $latchIdUserId);
     }
 
     /** Push the user's entitlement tier (free/pro) into LatchDeck. */
