@@ -3,8 +3,8 @@
     $ldkLatchId = $ldkOwnerId ? \App\Models\User::where('id', $ldkOwnerId)->value('supabase_user_id') : null;
     $ldkCards = $ldkLatchId ? app(\App\Services\LatchDeckService::class)->publishedCards($ldkLatchId) : [];
     $ldkViewer = rtrim((string) config('services.latchdeck.viewer_url', ''), '/');
-    $ldkSpeedKey = in_array(($link->speed ?? 'slow'), ['slow', 'medium', 'fast'], true) ? $link->speed : 'slow';
-    $ldkSpeedPx = ['slow' => 14, 'medium' => 26, 'fast' => 44][$ldkSpeedKey];
+    $ldkSpeedKey = in_array(($link->speed ?? ''), ['slow', 'medium', 'fast'], true) ? $link->speed : 'slow';
+    $ldkSpeedPx = ['slow' => 14, 'medium' => 26, 'fast' => 44][$ldkSpeedKey] ?? 14;
 @endphp
 
 @once
@@ -225,17 +225,30 @@
 
     // Marquee: track is absolute (out of flow) so it never widens the column.
     // If the cards overflow the available width, duplicate + auto-scroll; else center.
+    // Idempotent so it can re-run on resize.
     function setupMarquee(m) {
         var track = m.querySelector('[data-ldk-track]');
-        if (!track || !track.children.length) return;
+        if (!track) return;
 
-        var viewportW = m.clientWidth;
-        var trackW = track.scrollWidth;             // width of one copy of the cards
-        var firstH = track.children[0].offsetHeight;
+        // Reset any previous run.
+        track.classList.remove('is-centered', 'is-scrolling');
+        m.classList.remove('is-manual');
+        m.style.height = ''; m.style.width = '';
+        track.style.removeProperty('--ldk-shift');
+        track.style.removeProperty('--ldk-dur');
+        Array.prototype.slice.call(track.querySelectorAll('[data-ldk-clone]')).forEach(function (c) { c.remove(); });
+
+        var originals = track.children;
+        if (!originals.length) return;
+
+        var firstH = originals[0].offsetHeight;
         if (firstH) m.style.height = firstH + 'px';  // fit the row (track is absolute)
 
         var GAP = 12;
-        if (trackW <= viewportW) {                   // everything fits → center, no scroll
+        var viewportW = m.clientWidth;
+        var trackW = track.scrollWidth;              // width of one copy of the cards
+
+        if (trackW <= viewportW + 2) {               // everything fits → center, no scroll
             track.classList.add('is-centered');
             return;
         }
@@ -249,9 +262,10 @@
         }
 
         // Overflowing → duplicate the cards once for a seamless loop, then animate.
-        Array.prototype.slice.call(track.children).forEach(function (c) {
+        Array.prototype.slice.call(originals).forEach(function (c) {
             var clone = c.cloneNode(true);
             clone.setAttribute('aria-hidden', 'true');
+            clone.setAttribute('data-ldk-clone', '');
             track.appendChild(clone);
         });
         var shift = trackW + GAP;                     // one copy width + the gap before the duplicate
@@ -260,7 +274,20 @@
         track.style.setProperty('--ldk-dur', (shift / pxPerSec) + 's');
         track.classList.add('is-scrolling');
     }
-    document.querySelectorAll('[data-ldk-marquee]').forEach(setupMarquee);
+
+    function setupAllMarquees() {
+        document.querySelectorAll('[data-ldk-marquee]').forEach(setupMarquee);
+    }
+
+    // Run after layout settles (the marquee markup is emitted AFTER this
+    // once-block script, and images affect width), then keep it correct on resize.
+    if (document.readyState === 'complete') { setupAllMarquees(); }
+    else { window.addEventListener('load', setupAllMarquees); }
+    var ldkResizeT;
+    window.addEventListener('resize', function () {
+        clearTimeout(ldkResizeT);
+        ldkResizeT = setTimeout(setupAllMarquees, 200);
+    });
 })();
 </script>
 @endonce
