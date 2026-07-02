@@ -74,13 +74,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         <link rel="stylesheet" href="{{ asset('assets/css/customizer.min.css') }}" />
     @endif
 
-    {{-- Voltura design system (experimental, DESIGN.md) — runs adjacent to the
-         current theme; all rules are v-*-prefixed and scoped to .v-app subtrees.
-         Roll back by deleting this block or assets/dashboard-themes/voltura/. --}}
-    @if(file_exists(base_path("assets/dashboard-themes/voltura/system.css")))
-        <link rel="stylesheet" href="{{ asset('assets/dashboard-themes/voltura/system.css') }}" />
-    @endif
-
     <link rel="stylesheet" href="{{ asset('assets/css/rtl.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/linkstack/css/hover-min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/linkstack/css/animate.css') }}">
@@ -411,7 +404,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         }
 
         .ll-nav-group.is-open .ll-nav-panel {
-            max-height: 360px;
+            /* Tall enough for the largest group (Admin, 9-10 items) — the old
+               360px cap clipped the last rows because the panel animates via
+               max-height with overflow hidden. */
+            max-height: 720px;
             opacity: 1;
             padding-bottom: 6px;
             transform: translateY(0);
@@ -1822,14 +1818,6 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             }
         }
     </style>
-
-    {{-- Voltura dashboard reskin (experimental, DESIGN.md) — token remap +
-         chrome overrides only; no markup or behavior changes. Must load AFTER
-         the inline style block above so its overrides win the cascade.
-         Roll back by deleting this block or the adapter.css file. --}}
-    @if(file_exists(base_path("assets/dashboard-themes/voltura/adapter.css")))
-        <link rel="stylesheet" href="{{ asset('assets/dashboard-themes/voltura/adapter.css') }}" />
-    @endif
 </head>
 
 <body>
