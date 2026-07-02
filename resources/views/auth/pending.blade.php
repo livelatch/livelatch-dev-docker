@@ -31,8 +31,8 @@
               <div style="font-size:2.4rem;margin-top:.5rem;">🚧</div>
               <h2 class="mb-2 mt-2">Thanks for your interest!</h2>
               <p class="mb-4" style="line-height:1.6;">
-                  Thanks for showing your interest in becoming an alpha tester.
-                  Please visit the Discord for more information.
+                  Livelatch is currently in closed alpha. Join the Discord and
+                  we'll get you set up as a tester.
               </p>
 
               <a href="https://discord.gg/QCtmW2VNqt" target="_blank" rel="noopener"

@@ -10,7 +10,7 @@
             style="
                 background:
                 radial-gradient(circle at top left, rgba(255,255,255,.15), transparent 35%),
-                linear-gradient(135deg,#6236ff 0%,#8b5cf6 50%,#3b82f6 100%);
+                linear-gradient(135deg, var(--ll-primary, #0092ec) 0%, var(--ll-primary-2, #0ce5de) 100%);
                 min-height:220px;
                 position:relative;
             "

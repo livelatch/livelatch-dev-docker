@@ -98,14 +98,14 @@
 
     .ll-block-option:hover,
     .ll-block-option:focus {
-        border-color: rgba(98, 54, 255, 0.42);
-        background: rgba(98, 54, 255, 0.06);
+        border-color: rgba(0, 146, 236, 0.42);
+        background: rgba(0, 146, 236, 0.06);
         transform: translateY(-1px);
     }
 
     .ll-block-option.is-selected {
-        border-color: rgba(98, 54, 255, 0.72);
-        background: rgba(98, 54, 255, 0.10);
+        border-color: rgba(0, 146, 236, 0.72);
+        background: rgba(0, 146, 236, 0.10);
     }
 
     .ll-block-icon {
@@ -115,7 +115,7 @@
         display: grid;
         place-items: center;
         color: #fff;
-        background: linear-gradient(135deg, var(--ll-primary, #6236ff), var(--ll-primary-2, #9b5cff));
+        background: linear-gradient(135deg, var(--ll-primary, #0092ec), var(--ll-primary-2, #0ce5de));
         font-size: 1.2rem;
     }
 

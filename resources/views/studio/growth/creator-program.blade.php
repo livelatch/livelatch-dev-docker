@@ -10,7 +10,7 @@
             style="
                 background:
                 radial-gradient(circle at top left, rgba(255,255,255,.15), transparent 35%),
-                linear-gradient(135deg,#6236ff 0%,#8b5cf6 50%,#3b82f6 100%);
+                linear-gradient(135deg, var(--ll-primary, #0092ec) 0%, var(--ll-primary-2, #0ce5de) 100%);
                 min-height:220px;
                 position:relative;
             "
@@ -21,14 +21,12 @@
             </span>
 
             <h1 class="fw-bold mb-2">
-                Livelatch Creator Program 
+                Livelatch Creator Program
             </h1>
 
             <p class="mb-4 opacity-75 fs-5">
-                Create themes, addons and integrations and sell the on the livelatch marketplace.
+                Create themes, add-ons and integrations and sell them on the Livelatch marketplace.
             </p>
-
-            </div>
 
         </div>
     </div>
@@ -42,7 +40,7 @@
             </h3>
 
             <p>
-                Are you an artist or programmer? Your skills can enhance user experience within Livelatch. Post launch, the livelatch marketplace will open up, giving you the chance to generate income on this platform.
+                Are you an artist or programmer? Your skills can enhance the experience for everyone on Livelatch. After launch, the Livelatch marketplace will open up, giving you the chance to earn income on the platform.
             </p>
 
             <p>
@@ -51,8 +49,8 @@
 
             <ul>
                 <li>Dynamic themes for online creators</li>
-                <li>Latches like latchdeck</li>
-                <li>integrations with social platforms</li>
+                <li>LatchApps like LatchDeck</li>
+                <li>Integrations with social platforms</li>
             </ul>
 
         </div>

@@ -921,7 +921,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             background: linear-gradient(
                 90deg,
                 transparent,
-                color-mix(in srgb, var(--ll-primary, #8b5cf6) 18%, transparent),
+                color-mix(in srgb, var(--ll-primary, #0092ec) 18%, transparent),
                 transparent
             );
             animation: ll-skeleton-shimmer 1.4s infinite;
@@ -1033,7 +1033,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         }
 
         .ll-skeleton-table-head {
-            background: color-mix(in srgb, var(--ll-primary, #8b5cf6) 8%, transparent);
+            background: color-mix(in srgb, var(--ll-primary, #0092ec) 8%, transparent);
         }
 
         .ll-skeleton-profile {
@@ -2200,8 +2200,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             cursor: pointer;
         }
         .ll-nc-tab.active {
-            color: #7c3aed;
-            border-bottom-color: #7c3aed;
+            color: var(--ll-primary, #0092ec);
+            border-bottom-color: var(--ll-primary, #0092ec);
         }
         .ll-nc-tab .ll-nc-badge {
             display: inline-block;
@@ -2209,8 +2209,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             margin-left: 0.25rem;
             padding: 0 0.35rem;
             border-radius: 999px;
-            background: rgba(124, 58, 237, 0.14);
-            color: #7c3aed;
+            background: rgba(0, 146, 236, 0.14);
+            color: var(--ll-primary, #0092ec);
             font-size: 0.72rem;
             line-height: 1.2rem;
             text-align: center;
@@ -2234,7 +2234,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             flex-shrink: 0;
             border-radius: 14px;
         }
-        .ll-nc-icon.info    { color: #7c3aed; background: rgba(124, 58, 237, 0.14); }
+        .ll-nc-icon.info    { color: var(--ll-primary, #0092ec); background: rgba(0, 146, 236, 0.14); }
         .ll-nc-icon.success { color: #16a34a; background: rgba(34, 197, 94, 0.14); }
         .ll-nc-icon.warning { color: #d97706; background: rgba(245, 158, 11, 0.16); }
         .ll-nc-icon.danger  { color: #dc2626; background: rgba(239, 68, 68, 0.15); }
@@ -2242,8 +2242,8 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         .ll-nc-title { font-weight: 700; font-size: 0.92rem; }
         .ll-nc-message { color: var(--ll-muted, #64748b); font-size: 0.82rem; margin-top: 0.1rem; }
         .ll-nc-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.45rem; font-size: 0.72rem; color: var(--ll-muted, #94a3b8); }
-        .ll-nc-pill { padding: 0.1rem 0.45rem; border-radius: 999px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; font-weight: 700; }
-        .ll-nc-action { border: none; background: transparent; color: #7c3aed; font-weight: 700; font-size: 0.74rem; cursor: pointer; padding: 0; }
+        .ll-nc-pill { padding: 0.1rem 0.45rem; border-radius: 999px; background: rgba(0, 146, 236, 0.1); color: var(--ll-primary, #0092ec); font-weight: 700; }
+        .ll-nc-action { border: none; background: transparent; color: var(--ll-primary, #0092ec); font-weight: 700; font-size: 0.74rem; cursor: pointer; padding: 0; }
         .ll-nc-empty { text-align: center; color: var(--ll-muted, #64748b); padding: 2rem 1rem; }
         .ll-nc-empty i { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
     </style>

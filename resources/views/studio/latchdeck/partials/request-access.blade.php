@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="border rounded-3 p-4 h-100" style="border-color:#7c3aed !important;">
+                <div class="border rounded-3 p-4 h-100" style="border-color:#9322c4 !important;">
                     <h5 class="fw-bold">Pro <span class="badge bg-primary align-middle">Upgrade</span></h5>
                     <p class="text-muted small mb-3">For growing creators.</p>
                     <ul class="small text-muted mb-0 ps-3">

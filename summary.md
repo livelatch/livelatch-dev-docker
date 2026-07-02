@@ -8,6 +8,16 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-07-02
+
+- Agent: Claude (Fable)
+- **Pre-alpha UI cleanup pass: de-purpled the Studio to the brand blue/teal.** The generic violet palette (`#6236ff`/`#8b5cf6`/`#7c3aed` — stock Tailwind/AI-template purple) was replaced with the dashboard's own tokens (`var(--ll-primary)` `#0092ec` → `var(--ll-primary-2)` `#0ce5de`) across: the hero banners on LatchApps, Fax, Creator Program and Subscription pages; the notifications dropdown panel (`layouts/notifications.blade.php`) and the notification-center modal styles in `layouts/sidebar.blade.php`; the docs library accent (`--docs-accent` + hover/active tints in `studio/docs/index.blade.php`); block-picker accents in `studio/links.blade.php` and `studio/edit-link.blade.php`; and stale purple fallbacks inside `color-mix()` in the sidebar skeleton styles. The LatchDeck Pro-card border was aligned to LatchDeck's own product purple `#9322c4` (per the homepage family palette) instead of generic violet. Intentional multi-colour accents (development-journey timeline, Portal theme) were left alone.
+- **Copy fixes.** Creator Program page: fixed "sell the on the livelatch marketplace" and related typos/casing, and removed a stray `</div>` that closed the page container early. Subscription upsell card: Pro feature list now matches the homepage Pro plan instead of promising different features. Auth pending page: removed the duplicated "Thanks… Thanks…" opening. Homepage (`homepage-demo.php`): trimmed template-y phrasing ("three easy steps", "beautifully presented", several em-dash chains, "Get started — it's free" → "Get started free").
+- **Homepage auth fix: Google OAuth `redirectTo` was hardcoded to `https://dev.livelatch.com/callback/google`;** now `window.location.origin + '/callback/google'` so the flow works on the production domain (the prod domain must also be in the Supabase redirect allow-list).
+- **Removed stray dev artifacts** (all unreferenced, verified via grep): `homepage/index.php` (leftover "Livelatch GSAP Demo" Dreamweaver template page + its now-empty `homepage/` folder), `resources/views/layouts/sidebar.blade copy.php`, `composer.lock.bad`, `composer.lock.old`.
+- Known launch issue flagged (not changed): the public homepage's "Docs" nav link and "Documentation" footer button point at `/studio/docs`, which silently redirects guests back to the homepage.
+- Validation: `php -l` clean on `homepage-demo.php` and edited views; `php artisan view:cache` compiles all Blade templates successfully after the edits and deletions.
+
 ### 2026-06-28
 
 - Agent: Claude (Opus)

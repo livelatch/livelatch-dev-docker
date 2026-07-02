@@ -28,8 +28,8 @@
         --docs-shadow: 0 24px 60px rgba(22, 12, 50, 0.10);
         --docs-text: var(--ll-text);
         --docs-muted: var(--ll-muted);
-        --docs-accent: #6236ff;
-        --docs-accent-soft: rgba(98, 54, 255, 0.12);
+        --docs-accent: var(--ll-primary, #0092ec);
+        --docs-accent-soft: rgba(0, 146, 236, 0.12);
         --docs-accent-2: #12d6df;
     }
 
@@ -240,7 +240,7 @@
     .ll-docs-chip:hover {
         color: var(--docs-accent);
         background: var(--docs-accent-soft);
-        border-color: rgba(98, 54, 255, 0.14);
+        border-color: rgba(0, 146, 236, 0.14);
     }
 
     .ll-docs-nav {
@@ -307,13 +307,13 @@
 
     .ll-docs-link:hover {
         transform: translateX(2px);
-        background: rgba(98, 54, 255, 0.05);
-        border-color: rgba(98, 54, 255, 0.10);
+        background: rgba(0, 146, 236, 0.05);
+        border-color: rgba(0, 146, 236, 0.10);
     }
 
     .ll-docs-link.is-current {
-        background: linear-gradient(135deg, rgba(98, 54, 255, 0.16), rgba(18, 214, 223, 0.14));
-        border-color: rgba(98, 54, 255, 0.16);
+        background: linear-gradient(135deg, rgba(0, 146, 236, 0.16), rgba(18, 214, 223, 0.14));
+        border-color: rgba(0, 146, 236, 0.16);
     }
 
     .ll-docs-link {
@@ -531,7 +531,7 @@
 
     .ll-doc-article-prose code {
         border-radius: 10px;
-        background: rgba(98, 54, 255, 0.10);
+        background: rgba(0, 146, 236, 0.10);
         color: var(--docs-accent);
         padding: 0.18rem 0.42rem;
         font-size: 0.92em;
@@ -557,7 +557,7 @@
         padding: 14px 16px;
         border-left: 4px solid var(--docs-accent);
         border-radius: 0 18px 18px 0;
-        background: rgba(98, 54, 255, 0.06);
+        background: rgba(0, 146, 236, 0.06);
         color: var(--docs-muted);
     }
 

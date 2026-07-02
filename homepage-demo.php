@@ -593,11 +593,11 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                     <h1>Everything you share, behind <span class="ll-grad">one simple link</span>.</h1>
                     <p class="ll-lead">
                         Livelatch gives you one friendly page for your links, socials and shops.
-                        Set it up in minutes, make it your own, and share a single link everywhere —
-                        no website to build, no clutter.
+                        Set it up in minutes, make it your own, and share a single link everywhere.
+                        No website to build, no clutter.
                     </p>
                     <div class="ll-hero-actions">
-                        <button class="ll-button ll-button-primary" type="button" data-ll-open-modal>Get started — it's free</button>
+                        <button class="ll-button ll-button-primary" type="button" data-ll-open-modal>Get started free</button>
                         <a class="ll-button ll-button-ghost" href="#demo">See a live page</a>
                     </div>
                     <p class="ll-trust">Free to start · No card needed · Your data stays yours</p>
@@ -617,7 +617,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             <div class="ll-shell">
                 <div class="ll-section-head">
                     <span class="ll-kicker">How it works</span>
-                    <h2>Up and running in three easy steps.</h2>
+                    <h2>Up and running in three steps.</h2>
                     <p>No technical know-how needed. If you can fill in a form, you can build a Livelatch page.</p>
                 </div>
                 <div class="ll-steps">
@@ -651,7 +651,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                     <article class="ll-product" style="--accent: var(--c-livelatch);">
                         <span class="ll-tag">Live</span>
                         <img class="ll-product-logo" src="/logos/livelatch_light.png" alt="Livelatch">
-                        <p>Your public page. One link that holds your content, socials and shops — all beautifully presented and ready to share.</p>
+                        <p>Your public page. One link that holds your content, socials and shops, ready to share.</p>
                     </article>
                     <article class="ll-product" style="--accent: var(--c-latchid);">
                         <span class="ll-tag">Live</span>
@@ -666,7 +666,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
                     <article class="ll-product" style="--accent: var(--c-latchalytics);">
                         <span class="ll-tag">In alpha</span>
                         <img class="ll-product-logo" src="/logos/latchalytics_light.png" alt="Latchalytics">
-                        <p>Know what your audience loves. Clear, friendly numbers showing what people click — no spreadsheets required.</p>
+                        <p>Know what your audience loves. Clear, friendly numbers showing what people click. No spreadsheets required.</p>
                     </article>
                 </div>
             </div>
@@ -792,8 +792,8 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
         <p>
             We use analytics cookies to understand how Livelatch is used. While we're in
             alpha, allowing this genuinely helps us see what's working and build a better
-            product. You can decline and still browse normally. Our cookie use may change —
-            if it does, we'll ask you to choose again.
+            product. You can decline and still browse normally. If our cookie use ever
+            changes, we'll ask you to choose again.
             <a href="/legal/privacy" hx-get="/legal/privacy" hx-target="#ll-legal-panel" hx-swap="innerHTML">Learn more</a>.
         </p>
         <div class="ll-cookie-actions">
@@ -837,7 +837,7 @@ $llSupabaseAnonKey = ll_public_env('SUPABASE_ANON_KEY');
             var latchIdConfig = {
                 supabaseUrl: <?php echo json_encode($llSupabaseUrl); ?>,
                 supabaseAnonKey: <?php echo json_encode($llSupabaseAnonKey); ?>,
-                redirectTo: 'https://dev.livelatch.com/callback/google',
+                redirectTo: window.location.origin + '/callback/google',
                 sessionEndpoint: '/api/latchid/session',
                 dashboardUrl: '/dashboard'
             };

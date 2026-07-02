@@ -43,7 +43,7 @@ function livelatchNotificationSeverityClass($severity)
     color: #ffffff;
     background:
         radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 34%),
-        linear-gradient(135deg, #7c3aed, #9333ea);
+        linear-gradient(135deg, var(--ll-primary, #0092ec), var(--ll-primary-2, #0ce5de));
 }
 
 .livelatch-notification-header h6 {
@@ -76,12 +76,12 @@ function livelatchNotificationSeverityClass($severity)
 }
 
 .livelatch-notification-item:hover {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(0, 146, 236, 0.08);
     transform: translateX(2px);
 }
 
 .livelatch-notification-item.is-unread {
-    background: rgba(124, 58, 237, 0.12);
+    background: rgba(0, 146, 236, 0.12);
 }
 
 .livelatch-notification-icon {
@@ -95,8 +95,8 @@ function livelatchNotificationSeverityClass($severity)
 }
 
 .notification-info {
-    color: #7c3aed;
-    background: rgba(124, 58, 237, 0.14);
+    color: var(--ll-primary, #0092ec);
+    background: rgba(0, 146, 236, 0.14);
 }
 
 .notification-success {
@@ -145,8 +145,8 @@ function livelatchNotificationSeverityClass($severity)
 .livelatch-notification-pill {
     padding: 0.14rem 0.45rem;
     border-radius: 999px;
-    background: rgba(124, 58, 237, 0.1);
-    color: #7c3aed;
+    background: rgba(0, 146, 236, 0.1);
+    color: var(--ll-primary, #0092ec);
     font-weight: 700;
 }
 
@@ -160,8 +160,8 @@ function livelatchNotificationSeverityClass($severity)
 .livelatch-notification-footer {
     display: block;
     padding: 0.85rem 1rem;
-    color: #7c3aed !important;
-    background: rgba(124, 58, 237, 0.08);
+    color: var(--ll-primary, #0092ec) !important;
+    background: rgba(0, 146, 236, 0.08);
     text-align: center;
     text-decoration: none;
     font-size: 0.82rem;
@@ -190,8 +190,8 @@ function livelatchNotificationSeverityClass($severity)
 }
 
 [data-theme="dark"] .livelatch-notification-pill {
-    background: rgba(167, 139, 250, 0.16);
-    color: #c4b5fd;
+    background: rgba(37, 244, 238, 0.14);
+    color: #7ce4ff;
 }
 </style>
 

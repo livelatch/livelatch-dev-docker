@@ -145,8 +145,8 @@
         border-radius: 9px;
         display: grid;
         place-items: center;
-        background: rgba(98, 54, 255, 0.10);
-        color: var(--ll-primary, #6236ff);
+        background: rgba(0, 146, 236, 0.10);
+        color: var(--ll-primary, #0092ec);
         flex: 0 0 auto;
     }
 
@@ -249,7 +249,7 @@
         place-items: center;
         color: #fff;
         font-size: .9rem;
-        background: linear-gradient(135deg, var(--ll-primary, #6236ff), var(--ll-primary-2, #9b5cff));
+        background: linear-gradient(135deg, var(--ll-primary, #0092ec), var(--ll-primary-2, #0ce5de));
     }
 
     .ll-block-copy {

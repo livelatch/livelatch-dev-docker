@@ -21,7 +21,7 @@
             style="
                 background:
                 radial-gradient(circle at top left, rgba(255,255,255,.18), transparent 35%),
-                linear-gradient(135deg,#6236ff 0%,#8b5cf6 50%,#3b82f6 100%);
+                linear-gradient(135deg, var(--ll-primary, #0092ec) 0%, var(--ll-primary-2, #0ce5de) 100%);
                 min-height:220px;
                 position:relative;
             "
@@ -213,10 +213,10 @@
                         </p>
 
                         <ul class="list-unstyled mb-4">
-                            <li class="mb-2">✓ Unlimited latch links</li>
-                            <li class="mb-2">✓ Advanced creator tools</li>
-                            <li class="mb-2">✓ Priority access to LatchDeck features</li>
-                            <li class="mb-2">✓ Early Latchalytics previews</li>
+                            <li class="mb-2">✓ Premium themes and advanced effects</li>
+                            <li class="mb-2">✓ Deeper Latchalytics reports</li>
+                            <li class="mb-2">✓ LatchDeck card campaigns and redemptions</li>
+                            <li class="mb-2">✓ Priority creator support</li>
                         </ul>
 
                         <a href="{{ route('billing.checkout.pro') }}" class="btn btn-primary w-100">
