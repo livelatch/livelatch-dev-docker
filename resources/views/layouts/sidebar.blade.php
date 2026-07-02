@@ -74,6 +74,13 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
         <link rel="stylesheet" href="{{ asset('assets/css/customizer.min.css') }}" />
     @endif
 
+    {{-- Voltura design system (experimental, DESIGN.md) — runs adjacent to the
+         current theme; all rules are v-*-prefixed and scoped to .v-app subtrees.
+         Roll back by deleting this block or assets/dashboard-themes/voltura/. --}}
+    @if(file_exists(base_path("assets/dashboard-themes/voltura/system.css")))
+        <link rel="stylesheet" href="{{ asset('assets/dashboard-themes/voltura/system.css') }}" />
+    @endif
+
     <link rel="stylesheet" href="{{ asset('assets/css/rtl.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/linkstack/css/hover-min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/linkstack/css/animate.css') }}">

@@ -1,8 +1,8 @@
-# Marketing Sending Subdomain (Resend)
+﻿# Marketing Sending Subdomain (Resend)
 
 <!-- todo-check
 created_at: 2026-06-21T12:00:00+08:00
-ask_after: 2026-06-22T12:00:00+08:00
+ask_after: 2026-07-03T22:29:45+08:00
 status: open
 -->
 

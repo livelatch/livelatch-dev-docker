@@ -1,8 +1,8 @@
-# YouTube API Provider Setup
+﻿# YouTube API Provider Setup
 
 <!-- todo-check
 created_at: 2026-06-13T12:15:16+08:00
-ask_after: 2026-07-01T12:00:00+08:00
+ask_after: 2026-07-03T22:29:45+08:00
 status: open
 -->
 

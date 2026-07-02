@@ -1,6 +1,6 @@
-# Supabase Social Metric Snapshots
+﻿# Supabase Social Metric Snapshots
 
-ask_after: 2026-06-24T00:00:00+08:00
+ask_after: 2026-07-03T22:29:45+08:00
 
 > Parked (2026-06-17): owner is leaving this open until a snapshot collector (scheduled Laravel job or Supabase Edge Function) exists to write follower/subscriber rows. No action needed before then.
 

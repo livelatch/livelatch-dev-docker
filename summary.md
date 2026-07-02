@@ -26,6 +26,14 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 - Known launch issue flagged (not changed): the public homepage's "Docs" nav link and "Documentation" footer button point at `/studio/docs`, which silently redirects guests back to the homepage.
 - Validation: `php -l` clean on `homepage-demo.php` and edited views; `php artisan view:cache` compiles all Blade templates successfully after the edits and deletions.
 
+- Agent: Claude (Fable)
+- **Voltura design system wired in adjacent to the existing dashboard theme (experimental).** Owner is evaluating a new UI system ("Voltura", spec in `DESIGN.md` at repo root — dark cockpit on a citrine field, acid-lime single accent, Space Grotesk/Inter/JetBrains Mono) as a possible replacement for the current dashboard theme; requested it be wired up alongside the current styles for easy rollback.
+  - Moved the kit's stylesheet from the repo root to `assets/dashboard-themes/voltura/system.css` (assets serve from the project root, and `assets/dashboard-themes/` is the established theme location).
+  - Scoped the kit's global rules (`body`, universal `box-sizing`, `::selection`, `:focus-visible`) under `.v-app` so nothing outside an opted-in subtree is restyled — the existing Hope UI / `--ll-*` token theme is untouched until a page wraps its content in `.v-app`. All other classes were already `v-*`-prefixed and conflict-free.
+  - `resources/views/layouts/sidebar.blade.php`: added a `file_exists`-guarded `<link>` for the Voltura stylesheet after the existing theme stack (mirroring the `dashboard-themes/dashboard.css` hook's idiom). Rollback = delete the block or the `voltura/` folder.
+  - Not yet applied to any page — this batch is wiring only; refactoring dashboard views onto Voltura components is a separate step.
+  - Validation: `php artisan view:cache` compiles all Blades; compiled `sidebar` view confirmed to contain the guarded Voltura `<link>`. Browser check not possible in this sandbox (auth-gated layout, no local DB driver — same limitation as the earlier 2026-07-02 batch).
+
 ### 2026-06-28
 
 - Agent: Claude (Opus)

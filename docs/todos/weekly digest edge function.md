@@ -1,14 +1,14 @@
-# Weekly Stats Digest (Edge Function → Resend)
+﻿# Weekly Stats Digest (Edge Function â†’ Resend)
 
 <!-- todo-check
 created_at: 2026-06-21T12:00:00+08:00
-ask_after: 2026-06-22T12:00:00+08:00
+ask_after: 2026-07-03T22:29:45+08:00
 status: open
 -->
 
-Build the weekly Latchalytics stats digest as a scheduled **Supabase Edge Function calling the Resend API** — deliberately NOT in Laravel, so it stays portable when Livelatch moves off Laravel (matches the existing TikTok Edge Function pattern).
+Build the weekly Latchalytics stats digest as a scheduled **Supabase Edge Function calling the Resend API** â€” deliberately NOT in Laravel, so it stays portable when Livelatch moves off Laravel (matches the existing TikTok Edge Function pattern).
 
-Treated as **service-class** email (a user's own stats), so it does not require marketing consent — but must include an unsubscribe / frequency control.
+Treated as **service-class** email (a user's own stats), so it does not require marketing consent â€” but must include an unsubscribe / frequency control.
 
 ## Checklist
 
