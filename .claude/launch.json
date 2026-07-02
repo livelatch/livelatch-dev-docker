@@ -4,8 +4,14 @@
     {
       "name": "livelatch",
       "runtimeExecutable": "php",
-      "runtimeArgs": ["artisan", "serve", "--port=8123"],
+      "runtimeArgs": ["-d", "extension=pdo_sqlite", "-d", "extension=sqlite3", "-S", "localhost:8123", "server.php"],
       "port": 8123
+    },
+    {
+      "name": "static-assets",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["-S", "localhost:8317", "-t", "."],
+      "port": 8317
     }
   ]
 }

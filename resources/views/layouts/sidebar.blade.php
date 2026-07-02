@@ -1822,6 +1822,14 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             }
         }
     </style>
+
+    {{-- Voltura dashboard reskin (experimental, DESIGN.md) — token remap +
+         chrome overrides only; no markup or behavior changes. Must load AFTER
+         the inline style block above so its overrides win the cascade.
+         Roll back by deleting this block or the adapter.css file. --}}
+    @if(file_exists(base_path("assets/dashboard-themes/voltura/adapter.css")))
+        <link rel="stylesheet" href="{{ asset('assets/dashboard-themes/voltura/adapter.css') }}" />
+    @endif
 </head>
 
 <body>

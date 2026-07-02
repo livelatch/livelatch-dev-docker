@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tour Builder — driver.js</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.css"/>
+<!-- Voltura reskin (experimental): standalone page, so the adapter is linked
+     directly. Static path (inside @verbatim); 404s harmlessly if the Voltura
+     folder is deleted on rollback. -->
+<link rel="stylesheet" href="/assets/dashboard-themes/voltura/adapter.css"/>
 <style>
     :root{
         --bg:#0e1020; --panel:#171a2e; --panel-2:#1f2238; --line:rgba(255,255,255,.10);
