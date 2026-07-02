@@ -47,4 +47,16 @@ class DocumentationController extends Controller
             'document' => $this->library->renderDocument($document),
         ]);
     }
+
+    public function file(Request $request, string $path)
+    {
+        $document = $this->library->getDocument($path);
+
+        abort_if(!$document || $document['type'] !== 'pdf', 404);
+
+        return response()->file($document['source_path'], [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . basename($document['source_path']) . '"',
+        ]);
+    }
 }

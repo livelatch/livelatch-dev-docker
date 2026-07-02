@@ -14,6 +14,7 @@
             'summary' => $document['summary'],
             'category' => $document['category_name'],
             'category_slug' => $document['category_slug'],
+            'type' => $document['type'],
             'url' => url('/studio/docs/' . $document['path']),
             'article_url' => url('/studio/docs/article/' . $document['path']),
         ];
@@ -40,78 +41,70 @@
         --docs-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
     }
 
-    .ll-docs-hero {
-        position: relative;
-        overflow: hidden;
+    .ll-docs-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
         border: 1px solid var(--docs-border);
-        border-radius: 32px;
-        padding: clamp(28px, 4vw, 42px);
-        background:
-            radial-gradient(circle at 16% 20%, rgba(18, 214, 223, 0.26), transparent 24%),
-            radial-gradient(circle at 84% 12%, rgba(255, 255, 255, 0.18), transparent 18%),
-            linear-gradient(135deg, #08081a 0%, #28106a 55%, #1eb7ff 100%);
+        border-radius: 18px;
+        padding: 16px 20px;
+        background: var(--docs-surface);
         box-shadow: var(--docs-shadow);
-        color: #fff;
     }
 
-    .ll-docs-hero::after {
-        content: "";
-        position: absolute;
-        inset: auto -80px -120px auto;
-        width: 280px;
-        height: 280px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
-        pointer-events: none;
+    .ll-docs-topbar-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
     }
 
-    .ll-docs-kicker,
-    .ll-docs-stat {
+    .ll-docs-topbar-icon {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(255, 255, 255, 0.10);
-        padding: 8px 12px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .ll-docs-hero h1 {
-        margin: 16px 0 12px;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        background: linear-gradient(135deg, var(--docs-accent), var(--docs-accent-2));
         color: #fff;
-        font-size: clamp(2rem, 5vw, 3.6rem);
-        font-weight: 800;
-        letter-spacing: -0.06em;
+        font-size: 1.15rem;
     }
 
-    .ll-docs-hero p {
-        max-width: 760px;
-        color: rgba(255, 255, 255, 0.78);
-        font-size: 1.02rem;
+    .ll-docs-topbar-title h1 {
         margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--docs-text);
     }
 
-    .ll-docs-hero-stats {
+    .ll-docs-topbar-title p {
+        margin: 3px 0 0;
+        color: var(--docs-muted);
+        font-size: 0.84rem;
+    }
+
+    .ll-docs-topbar-stats {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 22px;
+        gap: 8px;
     }
 
     .ll-docs-grid {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-        gap: 22px;
-        margin-top: 22px;
+        gap: 18px;
+        margin-top: 18px;
         align-items: start;
     }
 
     .ll-docs-card {
         border: 1px solid var(--docs-border);
-        border-radius: 28px;
+        border-radius: 20px;
         background: var(--docs-surface);
         box-shadow: var(--docs-shadow);
         backdrop-filter: blur(18px);
@@ -146,8 +139,8 @@
 
     .ll-docs-search input {
         width: 100%;
-        min-height: 52px;
-        border-radius: 18px;
+        min-height: 48px;
+        border-radius: 14px;
         border: 1px solid var(--docs-border);
         background: var(--docs-bg);
         color: var(--docs-text);
@@ -176,7 +169,7 @@
         max-height: 320px;
         overflow: auto;
         border: 1px solid var(--docs-border);
-        border-radius: 18px;
+        border-radius: 14px;
         background: var(--docs-surface);
         box-shadow: 0 18px 48px rgba(22, 12, 50, 0.18);
         padding: 8px;
@@ -252,7 +245,7 @@
     .ll-docs-category {
         margin: 0 0 10px;
         padding: 10px 8px;
-        border-radius: 20px;
+        border-radius: 14px;
     }
 
     .ll-docs-category.is-hidden,
@@ -294,7 +287,7 @@
     .ll-docs-link {
         display: block;
         padding: 12px 12px 12px 14px;
-        border-radius: 18px;
+        border-radius: 12px;
         text-decoration: none;
         color: inherit;
         transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
@@ -369,7 +362,7 @@
         margin: 0 20px;
         padding: 12px 16px;
         border: 1px solid var(--docs-border);
-        border-radius: 18px;
+        border-radius: 14px;
         background: var(--docs-bg);
     }
 
@@ -574,6 +567,42 @@
         margin: 1.8rem 0;
     }
 
+    .ll-docs-pill-link {
+        cursor: pointer;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: border-color 0.18s ease;
+    }
+
+    .ll-docs-pill-link:hover {
+        border-color: rgba(0, 146, 236, 0.3);
+    }
+
+    .ll-doc-pdf-frame {
+        border: 1px solid var(--docs-border);
+        border-radius: 16px;
+        overflow: hidden;
+        background: var(--docs-bg);
+        height: min(82vh, 1100px);
+    }
+
+    .ll-doc-pdf-frame iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .ll-docs-link-icon {
+        display: inline-flex;
+        margin-right: 6px;
+        color: var(--docs-muted);
+    }
+
+    .ll-docs-link.is-current .ll-docs-link-icon {
+        color: var(--docs-accent);
+    }
+
     @media (max-width: 1199.98px) {
         .ll-docs-grid {
             grid-template-columns: 1fr;
@@ -585,36 +614,38 @@
     }
 
     @media (max-width: 767.98px) {
-        .ll-docs-hero,
         .ll-docs-card {
-            border-radius: 24px;
+            border-radius: 18px;
+        }
+
+        .ll-docs-topbar {
+            border-radius: 16px;
         }
 
         .ll-docs-pane-header,
         .ll-doc-article-shell {
             padding: 18px;
         }
+
+        .ll-doc-pdf-frame {
+            height: 70vh;
+        }
     }
 </style>
 
 <div class="container-fluid ll-docs" id="ll-docs-root" data-selected-doc="{{ $selectedPath }}">
-    <section class="ll-docs-hero">
-        <span class="ll-docs-kicker">
-            <i class="bi bi-journal-richtext"></i>
-            Documentation Library
-        </span>
+    <section class="ll-docs-topbar">
+        <div class="ll-docs-topbar-title">
+            <span class="ll-docs-topbar-icon"><i class="bi bi-journal-richtext"></i></span>
+            <div>
+                <h1>Documentation</h1>
+                <p>Markdown &amp; PDF files under <code>docs/</code> — add a file to publish a new page.</p>
+            </div>
+        </div>
 
-        <h1>Welcome to the documentation.</h1>
-
-        <p>
-            This library is built from the Livelatch fork history and organized as Markdown files under
-            <code>docs/</code>. Create a new page by adding a <code>.md</code> file. Create a new category by adding a folder.
-        </p>
-
-        <div class="ll-docs-hero-stats">
-            <span class="ll-docs-stat"><i class="bi bi-folder2-open"></i> {{ count($categories) }} categories</span>
-            <span class="ll-docs-stat"><i class="bi bi-file-earmark-text"></i> {{ count($documents) }} docs</span>
-            <span class="ll-docs-stat"><i class="bi bi-lightning-charge"></i> HTMX article loading</span>
+        <div class="ll-docs-topbar-stats">
+            <span class="ll-docs-pill"><i class="bi bi-folder2-open"></i> {{ count($categories) }} categories</span>
+            <span class="ll-docs-pill"><i class="bi bi-file-earmark-text"></i> {{ count($documents) }} docs</span>
         </div>
     </section>
 
@@ -666,7 +697,7 @@
                                     data-doc-category="{{ $document['category_slug'] }}"
                                     title="{{ $document['summary'] }}"
                                 >
-                                    <strong>{{ $document['title'] }}</strong>
+                                    <strong><i class="bi bi-{{ $document['type'] === 'pdf' ? 'file-earmark-pdf' : 'file-earmark-text' }} ll-docs-link-icon"></i>{{ $document['title'] }}</strong>
                                 </a>
                             @endforeach
                         </div>
@@ -678,10 +709,6 @@
         <section class="ll-docs-card ll-docs-pane">
             <div class="ll-docs-pane-header">
                 <h2>Current article</h2>
-                <div class="ll-docs-pane-meta">
-                    <span class="ll-docs-pill"><i class="bi bi-folder-fill"></i> File system sourced</span>
-                    <span class="ll-docs-pill"><i class="bi bi-code-slash"></i> Markdown rendered</span>
-                </div>
             </div>
 
             <nav class="ll-docs-toc" id="ll-doc-toc" hidden aria-label="On this page">
@@ -696,7 +723,7 @@
                     <div class="ll-doc-article-shell">
                         <div class="ll-doc-article-head">
                             <h1>No documentation found</h1>
-                            <p>Create a category folder under <code>docs/</code> and add your first Markdown file to populate this library.</p>
+                            <p>Create a category folder under <code>docs/</code> and add your first Markdown or PDF file to populate this library.</p>
                         </div>
                     </div>
                 @endif
@@ -857,12 +884,14 @@
 
         function openResults(matches) {
             if (!matches.length) {
-                resultsBox.innerHTML = '<div class="ll-docs-search-empty">No matching docs yet. Add another Markdown file under <code>docs/</code> to grow the library.</div>';
+                resultsBox.innerHTML = '<div class="ll-docs-search-empty">No matching docs yet. Add another Markdown or PDF file under <code>docs/</code> to grow the library.</div>';
                 resultsBox.classList.add('is-open');
                 return;
             }
 
             resultsBox.innerHTML = matches.map(function (doc) {
+                const icon = doc.type === 'pdf' ? 'file-earmark-pdf' : 'file-earmark-text';
+
                 return '' +
                     '<a class="ll-docs-search-result" ' +
                     'href="' + escapeHtml(doc.url) + '" ' +
@@ -871,7 +900,7 @@
                     'hx-swap="innerHTML" ' +
                     'hx-push-url="' + escapeHtml(doc.url) + '" ' +
                     'data-doc-path="' + escapeHtml(doc.path) + '">' +
-                        '<strong>' + escapeHtml(doc.title) + '</strong>' +
+                        '<strong><i class="bi bi-' + icon + ' ll-docs-link-icon"></i>' + escapeHtml(doc.title) + '</strong>' +
                         '<span>' + escapeHtml(doc.category + ' • ' + doc.summary) + '</span>' +
                     '</a>';
             }).join('');

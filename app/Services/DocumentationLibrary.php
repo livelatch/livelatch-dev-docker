@@ -59,6 +59,8 @@ class DocumentationLibrary
         ];
     }
 
+    private const SUPPORTED_EXTENSIONS = ['md', 'pdf'];
+
     public function getDocument(string $path): ?array
     {
         $relativePath = trim(str_replace('\\', '/', $path), '/');
@@ -67,24 +69,37 @@ class DocumentationLibrary
             return null;
         }
 
-        $fullPath = $this->basePath . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath) . '.md';
+        $relativeSystemPath = str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
 
-        if (!File::exists($fullPath)) {
-            return null;
+        foreach (self::SUPPORTED_EXTENSIONS as $extension) {
+            $fullPath = $this->basePath . DIRECTORY_SEPARATOR . $relativeSystemPath . '.' . $extension;
+
+            if (!File::exists($fullPath)) {
+                continue;
+            }
+
+            $realBase = realpath($this->basePath);
+            $realFile = realpath($fullPath);
+
+            if ($realBase === false || $realFile === false || !Str::startsWith($realFile, $realBase)) {
+                return null;
+            }
+
+            return $this->buildDocument($realFile);
         }
 
-        $realBase = realpath($this->basePath);
-        $realFile = realpath($fullPath);
-
-        if ($realBase === false || $realFile === false || !Str::startsWith($realFile, $realBase)) {
-            return null;
-        }
-
-        return $this->buildDocument($realFile);
+        return null;
     }
 
     public function renderDocument(array $document): array
     {
+        if (($document['type'] ?? 'markdown') === 'pdf') {
+            return array_merge($document, [
+                'html' => null,
+                'file_url' => url('/studio/docs/file/' . $document['path']),
+            ]);
+        }
+
         $markdown = File::get($document['source_path']);
 
         return array_merge($document, [
@@ -104,7 +119,7 @@ class DocumentationLibrary
         $documents = [];
 
         foreach (File::allFiles($this->basePath) as $file) {
-            if (Str::lower($file->getExtension()) !== 'md') {
+            if (!in_array(Str::lower($file->getExtension()), self::SUPPORTED_EXTENSIONS, true)) {
                 continue;
             }
 
@@ -121,27 +136,66 @@ class DocumentationLibrary
 
     private function buildDocument(string $fullPath): array
     {
+        $extension = Str::lower(pathinfo($fullPath, PATHINFO_EXTENSION));
         $relativePath = str_replace('\\', '/', Str::after($fullPath, $this->basePath . DIRECTORY_SEPARATOR));
-        $path = Str::beforeLast($relativePath, '.md');
+        $path = Str::beforeLast($relativePath, '.' . $extension);
         $segments = explode('/', $path);
         $categorySlug = $segments[0] ?? 'general';
         $filename = end($segments) ?: 'document';
+        $fileSize = File::size($fullPath);
+
+        $base = [
+            'path' => $path,
+            'slug' => $filename,
+            'type' => $extension === 'pdf' ? 'pdf' : 'markdown',
+            'category_slug' => $categorySlug,
+            'category_name' => $this->humanize($categorySlug),
+            'source_path' => $fullPath,
+            'relative_source_path' => 'docs/' . $relativePath,
+            'updated_at' => Carbon::createFromTimestamp(File::lastModified($fullPath)),
+            'file_size' => $fileSize,
+            'file_size_human' => $this->formatBytes($fileSize),
+        ];
+
+        if ($extension === 'pdf') {
+            $title = $this->humanize($filename);
+
+            return array_merge($base, [
+                'title' => $title,
+                'summary' => 'PDF document · ' . $this->formatBytes($fileSize),
+                'word_count' => null,
+            ]);
+        }
+
         $markdown = File::get($fullPath);
         $title = $this->extractTitle($markdown, $filename);
         $summary = $this->extractSummary($markdown, $title);
 
-        return [
-            'path' => $path,
+        return array_merge($base, [
             'title' => $title,
-            'slug' => $filename,
-            'category_slug' => $categorySlug,
-            'category_name' => $this->humanize($categorySlug),
             'summary' => $summary,
-            'source_path' => $fullPath,
-            'relative_source_path' => 'docs/' . $relativePath,
-            'updated_at' => Carbon::createFromTimestamp(File::lastModified($fullPath)),
             'word_count' => str_word_count(strip_tags($markdown)),
-        ];
+        ]);
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+
+        $value = $bytes / 1024;
+        $units = ['KB', 'MB', 'GB'];
+
+        foreach ($units as $unit) {
+            if ($value < 1024 || $unit === end($units)) {
+                return round($value, 1) . ' ' . $unit;
+            }
+
+            $value /= 1024;
+        }
+
+        return $bytes . ' B';
     }
 
     private function extractTitle(string $markdown, string $fallback): string

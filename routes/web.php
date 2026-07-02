@@ -302,6 +302,9 @@ if (file_exists(base_path('INSTALLING')) or file_exists(base_path('INSTALLERLOCK
             Route::get('/studio/docs/article/{path}', [DocumentationController::class, 'article'])
                 ->where('path', '.*')
                 ->name('docs.article');
+            Route::get('/studio/docs/file/{path}', [DocumentationController::class, 'file'])
+                ->where('path', '.*')
+                ->name('docs.file');
             Route::get('/studio/docs/{path}', [DocumentationController::class, 'show'])
                 ->where('path', '.*')
                 ->name('docs.show');
