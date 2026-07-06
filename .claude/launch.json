@@ -6,6 +6,12 @@
       "runtimeExecutable": "php",
       "runtimeArgs": ["-d", "extension=pdo_sqlite", "-d", "extension=sqlite3", "-S", "localhost:8123", "server.php"],
       "port": 8123
+    },
+    {
+      "name": "fan-livelatch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "G:\\repos\\fan-livelatch", "run", "dev"],
+      "port": 3000
     }
   ]
 }

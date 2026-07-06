@@ -25,7 +25,7 @@ The section open/close interaction is handled by lightweight client-side JavaScr
 
 The links still use HTMX navigation attributes, so page content continues to load into `#ll-content` without a full browser navigation.
 
-HTMX links also set `hx-indicator` so the persistent layout can show the right skeleton loader while the next screen is loading. See `docs/platform-runtime/htmx-skeleton-loaders.md` for the reusable skeleton partials and indicator conventions.
+Screen swaps animate with a cross-fade transition (View Transitions API with a CSS fallback) and a slim top progress bar for slow responses. See `docs/platform-runtime/htmx-page-transitions.md` for the conventions.
 
 ## Editing Navigation
 
@@ -48,7 +48,6 @@ Each section has:
             'icon' => 'bi bi-link-45deg',
             'url' => url('/studio/links'),
             'active' => request()->segment(2) === 'links',
-            'skeleton' => '#ll-profile-skeleton',
         ],
     ],
 ]

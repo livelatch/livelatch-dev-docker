@@ -66,6 +66,33 @@
             'accent' => '#ec4899',
             'category' => 'studio',
         ],
+        [
+            'year' => 'Platform API',
+            'date' => '2026-06',
+            'title' => 'Encore became the LatchDeck authority',
+            'summary' => 'LatchDeck moved onto its own platform-agnostic API: Encore owns access, tiers, and card publishing, writing to Supabase as the single authority — Livelatch and LatchOps are just keyed clients.',
+            'tags' => ['Encore', 'LatchDeck', 'API'],
+            'accent' => '#6366f1',
+            'category' => 'fanservice',
+        ],
+        [
+            'year' => 'Fan layer',
+            'date' => '2026-07',
+            'title' => 'The fan side of Livelatch took shape',
+            'summary' => 'fan.livelatch.com arrived as a working mockup: redeem a creator drop code, mint a serialised card, and show it off in a public cabinet — with one canonical LatchID sign-in modal shared by every Livelatch property.',
+            'tags' => ['LatchDeck', 'Fans', 'LatchID'],
+            'accent' => '#f97316',
+            'category' => 'fanservice',
+        ],
+        [
+            'year' => 'Studio speed',
+            'date' => '2026-07',
+            'title' => 'Navigation got out of its own way',
+            'summary' => 'The Studio dropped its skeleton loaders for View Transition cross-fades and a quiet top progress bar — fast swaps now show no loading chrome at all.',
+            'tags' => ['HTMX', 'UX', 'Performance'],
+            'accent' => '#22d3ee',
+            'category' => 'studio',
+        ],
     ];
 
     $techStack = [
@@ -76,6 +103,8 @@
         ['name' => 'Livewire', 'detail' => 'Interactive navigation structure and dynamic admin surfaces.', 'icon' => 'bi-broadcast'],
         ['name' => 'Three.js', 'detail' => 'WebGL scenes powering immersive blade themes like Portal and Minecraft.', 'icon' => 'bi-badge-3d-fill'],
         ['name' => 'PostgreSQL', 'detail' => 'Primary source of truth for users, plans, and platform data.', 'icon' => 'bi-hdd-network-fill'],
+        ['name' => 'Encore', 'detail' => 'The LatchDeck API and single authority for cards, tiers, and redemptions.', 'icon' => 'bi-cpu-fill'],
+        ['name' => 'Next.js', 'detail' => 'The fan-facing client for card redemption and public collection cabinets.', 'icon' => 'bi-window-stack'],
     ];
 @endphp
 
@@ -408,6 +437,7 @@
                         <button type="button" class="ll-dev-timeline-chip" data-filter="identity">Identity</button>
                         <button type="button" class="ll-dev-timeline-chip" data-filter="studio">Studio</button>
                         <button type="button" class="ll-dev-timeline-chip" data-filter="revenue">Revenue</button>
+                        <button type="button" class="ll-dev-timeline-chip" data-filter="fanservice">Fan layer</button>
                     </div>
                 </div>
             </div>
@@ -480,7 +510,7 @@
         </section>
 
         <section class="ll-dev-timeline-footer ll-dev-timeline-enter">
-            Livelatch is best explained as a platform stack in motion: Laravel coordinates the app, Supabase handles identity and edge logic, Stripe handles billing, and the Studio shell keeps expanding into product-specific surfaces. This page exists so that story can be shown, not just told.
+            Livelatch is best explained as a platform stack in motion: Laravel coordinates the app, Supabase handles identity and edge logic, Stripe handles billing, Encore serves the LatchDeck API, and the fan layer is growing into its own front door at fan.livelatch.com. This page exists so that story can be shown, not just told.
         </section>
     </div>
 </div>

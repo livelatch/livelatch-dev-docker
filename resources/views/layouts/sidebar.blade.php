@@ -25,8 +25,8 @@ function llActive($segment, $value) {
     return Request::segment($segment) == $value ? 'active' : '';
 }
 
-function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
-    return 'href="' . e($url) . '" hx-get="' . e($url) . '" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="' . e($indicator) . '"';
+function llHtmxAttrs($url) {
+    return 'href="' . e($url) . '" hx-get="' . e($url) . '" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML"';
 }
 @endphp
 <!doctype html>
@@ -886,228 +886,86 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             display: block;
         }
 
-        .ll-content-skeleton {
-            position: absolute;
-            inset: 22px 0 auto;
-            z-index: 20;
+        /* Slim top progress bar — only fades in when a swap takes >~180ms,
+           so fast navigations show no loading chrome at all. */
+        .ll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            z-index: 2000;
             pointer-events: none;
-            padding: 0 clamp(14px, 1.5vw, 22px);
+            opacity: 0;
+            transition: opacity 0.15s ease 0.18s;
         }
 
-        .ll-content-skeleton-shell {
-            width: 100%;
-            padding: clamp(18px, 2vw, 26px);
-            border: 1px solid var(--ll-border);
-            border-radius: var(--ll-button-radius, var(--ll-radius));
-            background:
-                linear-gradient(
-                    180deg,
-                    color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 92%, transparent),
-                    color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 82%, var(--ll-text, #111827))
-                );
-            box-shadow: var(--ll-shadow-soft);
-            backdrop-filter: blur(18px);
+        body.ll-loading .ll-progress {
+            opacity: 1;
         }
 
-        .ll-skeleton {
-            background: color-mix(in srgb, var(--ll-text, #ffffff) 10%, transparent);
-            border-radius: var(--ll-button-radius, 12px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ll-skeleton::after {
+        .ll-progress::before {
             content: "";
             position: absolute;
             inset: 0;
-            transform: translateX(-100%);
+            width: 38%;
+            border-radius: 999px;
             background: linear-gradient(
                 90deg,
                 transparent,
-                color-mix(in srgb, var(--ll-primary, #0092ec) 18%, transparent),
+                var(--ll-primary, #0092ec),
                 transparent
             );
-            animation: ll-skeleton-shimmer 1.4s infinite;
+            animation: ll-progress-slide 1s ease-in-out infinite;
         }
 
-        @keyframes ll-skeleton-shimmer {
-            100% {
-                transform: translateX(100%);
+        @keyframes ll-progress-slide {
+            0% { transform: translateX(-45vw); }
+            100% { transform: translateX(110vw); }
+        }
+
+        /* Page-swap transition. Chromium/Safari get the View Transitions API
+           (htmx globalViewTransitions); the swapping/settling classes below are
+           the fallback for browsers without it. */
+        #ll-content {
+            view-transition-name: ll-content;
+        }
+
+        ::view-transition-old(ll-content) {
+            animation: ll-vt-out 0.16s ease both;
+        }
+
+        ::view-transition-new(ll-content) {
+            animation: ll-vt-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes ll-vt-out {
+            to {
+                opacity: 0;
+                transform: translateY(-6px);
             }
         }
 
-        .ll-skeleton-page,
-        .ll-skeleton-card-grid,
-        .ll-skeleton-table-wrap,
-        .ll-skeleton-profile {
-            display: grid;
-            gap: 16px;
-        }
-
-        .ll-skeleton-kicker {
-            width: 110px;
-            height: 16px;
-        }
-
-        .ll-skeleton-heading {
-            width: min(360px, 70%);
-            height: 34px;
-        }
-
-        .ll-skeleton-line {
-            width: 68%;
-            height: 14px;
-        }
-
-        .ll-skeleton-line-wide {
-            width: 92%;
-        }
-
-        .ll-skeleton-line-mid {
-            width: 48%;
-        }
-
-        .ll-skeleton-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .ll-skeleton-pill {
-            width: 144px;
-            height: 42px;
-            border-radius: 999px;
-        }
-
-        .ll-skeleton-pill-short {
-            width: 96px;
-        }
-
-        .ll-skeleton-layout {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .ll-skeleton-panel,
-        .ll-skeleton-card,
-        .ll-skeleton-table,
-        .ll-skeleton-profile-main,
-        .ll-skeleton-profile-link {
-            border: 1px solid var(--ll-border);
-            border-radius: var(--ll-button-radius, var(--ll-radius));
-            background: color-mix(in srgb, var(--ll-background, var(--ll-bg, #ffffff)) 88%, var(--ll-text, #111827));
-        }
-
-        .ll-skeleton-panel,
-        .ll-skeleton-card,
-        .ll-skeleton-profile-main {
-            display: grid;
-            gap: 14px;
-            padding: 18px;
-        }
-
-        .ll-skeleton-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .ll-skeleton-card-media {
-            width: 100%;
-            aspect-ratio: 16 / 10;
-        }
-
-        .ll-skeleton-table {
-            overflow: hidden;
-        }
-
-        .ll-skeleton-table-row {
-            display: grid;
-            grid-template-columns: 1fr 1.6fr 1fr 110px;
-            gap: 16px;
-            align-items: center;
-            padding: 16px 18px;
-            border-top: 1px solid var(--ll-border);
-        }
-
-        .ll-skeleton-table-row:first-child {
-            border-top: 0;
-        }
-
-        .ll-skeleton-table-head {
-            background: color-mix(in srgb, var(--ll-primary, #0092ec) 8%, transparent);
-        }
-
-        .ll-skeleton-profile {
-            max-width: 430px;
-            margin: 0 auto;
-        }
-
-        .ll-skeleton-profile-main {
-            justify-items: center;
-            text-align: center;
-        }
-
-        .ll-skeleton-avatar {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-        }
-
-        .ll-skeleton-profile-links {
-            display: grid;
-            gap: 12px;
-        }
-
-        .ll-skeleton-profile-link {
-            display: grid;
-            grid-template-columns: 30px 1fr;
-            gap: 12px;
-            align-items: center;
-            padding: 14px 16px;
-        }
-
-        .ll-skeleton-dot {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-        }
-
-        @media (max-width: 767.98px) {
-            .ll-skeleton-layout,
-            .ll-skeleton-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .ll-skeleton-table-row {
-                grid-template-columns: 1fr;
-                gap: 10px;
+        @keyframes ll-vt-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
         }
 
         .ll-content.htmx-swapping {
             opacity: 0;
-            transition: opacity 0.18s ease;
-        }
-
-        .ll-content[aria-busy="true"] {
-            opacity: 0;
-            transform: translateY(6px);
-            pointer-events: none;
-            transition: opacity 0.12s ease;
+            transition: opacity 0.14s ease;
         }
 
         .ll-content.htmx-settling {
-            opacity: 1;
-            transform: translateY(0);
-            animation: ll-content-enter 0.24s ease both;
+            animation: ll-content-enter 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         @keyframes ll-content-enter {
             from {
                 opacity: 0;
-                transform: translateY(8px);
+                transform: translateY(10px);
             }
 
             to {
@@ -1118,11 +976,17 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
         @media (prefers-reduced-motion: reduce) {
             .ll-content,
-            .ll-content[aria-busy="true"],
-            .ll-content.htmx-settling {
+            .ll-content.htmx-swapping,
+            .ll-content.htmx-settling,
+            .ll-progress::before {
                 animation: none;
                 transform: none;
                 transition: none;
+            }
+
+            ::view-transition-old(ll-content),
+            ::view-transition-new(ll-content) {
+                animation: none;
             }
         }
 
@@ -2017,7 +1881,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                     <p>Jump into common Livelatch tasks without digging through the sidebar.</p>
 
                     <div class="ll-hero-actions">
-                        <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                        <a href="{{ url('/studio/links') }}" class="ll-hero-button" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                             <i class="bi bi-link-45deg"></i>
                             <span>
                                 {{ __('messages.Links') }}
@@ -2025,7 +1889,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                             </span>
                         </a>
 
-                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                        <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                             <i class="bi bi-person-badge"></i>
                             <span>
                                 {{ __('messages.Appearance') }}
@@ -2033,7 +1897,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                             </span>
                         </a>
 
-                        <a href="{{ url('/studio/theme') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                        <a href="{{ url('/studio/theme') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                             <i class="bi bi-stars"></i>
                             <span>
                                 {{ __('messages.Themes') }}
@@ -2050,7 +1914,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                         </a>
 
                         @if(!isset($usrhandl))
-                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+                            <a href="{{ url('/studio/page') }}" class="ll-hero-button secondary" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                                 <i class="bi bi-at"></i>
                                 <span>
                                     {{ __('messages.Set a handle') }}
@@ -2064,28 +1928,9 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
             @endif
 
-            <div class="ll-content-stage">
-                <div id="ll-page-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
-                    <div class="ll-content-skeleton-shell">
-                        @include('components.skeleton.page')
-                    </div>
-                </div>
-                <div id="ll-card-grid-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
-                    <div class="ll-content-skeleton-shell">
-                        @include('components.skeleton.card-grid')
-                    </div>
-                </div>
-                <div id="ll-table-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
-                    <div class="ll-content-skeleton-shell">
-                        @include('components.skeleton.table')
-                    </div>
-                </div>
-                <div id="ll-profile-skeleton" class="htmx-indicator ll-content-skeleton" aria-hidden="true">
-                    <div class="ll-content-skeleton-shell">
-                        @include('components.skeleton.profile')
-                    </div>
-                </div>
+            <div class="ll-progress" aria-hidden="true"></div>
 
+            <div class="ll-content-stage">
                 <section id="ll-content" class="ll-content" aria-live="polite" aria-busy="false">
                     @yield('content')
                 </section>
@@ -2143,11 +1988,11 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
             <hr class="my-4">
 
             <h5 class="mb-3">{{ __('messages.Profile') }}</h5>
-            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+            <a href="{{ url('/studio/page') }}" class="ll-pill-button w-100 justify-content-center mb-2" hx-get="{{ url('/studio/page') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-person-fill"></i>
                 {{ __('messages.Profile') }}
             </a>
-            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center" hx-get="{{ url('/studio/profile') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+            <a href="{{ url('/studio/profile') }}" class="ll-pill-button w-100 justify-content-center" hx-get="{{ url('/studio/profile') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-gear-fill"></i>
                 {{ __('messages.Settings') }}
             </a>
@@ -2436,6 +2281,13 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
     <script>
+        // Cross-fade page swaps via the View Transitions API where available
+        // (Chromium/Safari); browsers without it fall back to the
+        // htmx-swapping/htmx-settling CSS classes.
+        if (window.htmx) {
+            window.htmx.config.globalViewTransitions = true;
+        }
+
         (function () {
             const body = document.body;
             const root = document.documentElement;
@@ -2604,9 +2456,28 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                 link.addEventListener('click', closeMobileSidebar);
             });
 
+            // Slim top progress bar: added on request start, but the CSS
+            // transition-delay means it only becomes visible when a response
+            // is actually slow. Fast swaps show no loading chrome at all.
+            let llProgressPending = 0;
+
+            function llProgressStart() {
+                llProgressPending++;
+                body.classList.add('ll-loading');
+            }
+
+            function llProgressStop() {
+                llProgressPending = Math.max(0, llProgressPending - 1);
+                if (llProgressPending === 0) {
+                    body.classList.remove('ll-loading');
+                }
+            }
+
             document.body.addEventListener('htmx:beforeRequest', function (event) {
                 const clickedLink = event.detail.elt;
                 const content = document.getElementById('ll-content');
+
+                llProgressStart();
 
                 if (clickedLink && clickedLink.getAttribute('hx-target') === '#ll-content' && content) {
                     content.setAttribute('aria-busy', 'true');
@@ -2620,6 +2491,10 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
                     clickedLink.classList.add('active', 'is-loading');
                 }
             });
+
+            document.body.addEventListener('htmx:afterRequest', llProgressStop);
+            document.body.addEventListener('htmx:sendAbort', llProgressStop);
+            document.body.addEventListener('htmx:timeout', llProgressStop);
 
             document.body.addEventListener('htmx:beforeSwap', function (event) {
                 if (event.detail.target && event.detail.target.id === 'll-content') {
@@ -2635,7 +2510,7 @@ function llHtmxAttrs($url, $indicator = '#ll-page-skeleton') {
 
                     setTimeout(() => {
                         event.detail.target.classList.remove('htmx-settling');
-                    }, 220);
+                    }, 280);
 
                     polishInjectedContent();
                     initStudioNavigation();

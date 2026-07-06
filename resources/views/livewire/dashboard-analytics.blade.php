@@ -187,13 +187,13 @@
             <p class="ll-dashboard-hero-msg">{{ $status['message'] ?? 'Live link performance from Supabase, with your creator connections alongside it.' }}</p>
         </div>
         <div class="ll-dashboard-actions" data-tour="dashboard-actions">
-            <a href="{{ url('/studio/links') }}" class="ll-dashboard-action ll-dashboard-action-primary" data-tour="add-links" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+            <a href="{{ url('/studio/links') }}" class="ll-dashboard-action ll-dashboard-action-primary" data-tour="add-links" hx-get="{{ url('/studio/links') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-plus-circle"></i> Add links
             </a>
-            <a href="{{ url('/studio/theme') }}" class="ll-dashboard-action" data-tour="tune-profile" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+            <a href="{{ url('/studio/theme') }}" class="ll-dashboard-action" data-tour="tune-profile" hx-get="{{ url('/studio/theme') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-palette"></i> Tune profile
             </a>
-            <a href="{{ url('/studio/account/latchid') }}" class="ll-dashboard-action" data-tour="connections" hx-get="{{ url('/studio/account/latchid') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML" hx-indicator="#ll-profile-skeleton">
+            <a href="{{ url('/studio/account/latchid') }}" class="ll-dashboard-action" data-tour="connections" hx-get="{{ url('/studio/account/latchid') }}" hx-target="#ll-content" hx-select="#ll-content > *" hx-push-url="true" hx-swap="innerHTML">
                 <i class="bi bi-person-badge"></i> Connections
             </a>
             @if(!empty($previewUrl))

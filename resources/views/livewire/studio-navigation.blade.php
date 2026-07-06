@@ -18,7 +18,6 @@
                 hx-select="#ll-content > *"
                 hx-push-url="true"
                 hx-swap="innerHTML"
-                hx-indicator="{{ $section['skeleton'] ?? '#ll-page-skeleton' }}"
             >
                 <i class="{{ $section['icon'] }}"></i>
                 <span>{{ $section['label'] }}</span>
@@ -61,7 +60,6 @@
                             hx-select="#ll-content > *"
                             hx-push-url="true"
                             hx-swap="innerHTML"
-                            hx-indicator="{{ $item['skeleton'] ?? '#ll-page-skeleton' }}"
                         >
                         @endif
                             <i class="{{ $item['icon'] }}"></i>
