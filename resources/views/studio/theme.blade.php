@@ -273,6 +273,7 @@
         color: var(--ll-text);
         font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
         font-weight: 800;
+        grid-column: 1 / -1;
     }
 
     .ll-theme-range {

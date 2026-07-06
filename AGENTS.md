@@ -84,6 +84,21 @@ If the owner says yes, delete the completed todo file or the whole `docs/todos/`
 
 When new owner follow-up work is discovered, create a new Markdown file in `docs/todos/` with a clear title, concrete checklist, and a `todo-check` block using the current environment time plus a 24-hour `ask_after`.
 
+## Source Credits
+
+Whenever the repo owner links a source for work being implemented (a
+uiverse.io snippet, a CodePen, a design kit, a library demo, any external
+reference used as the basis for code or design), add an entry to
+`docs/credits.md` in the same change:
+
+- link to the source (and author when known)
+- a brief description of what it was used for and how it was adapted
+- where it landed (file paths, or the repo if outside this one)
+- the date it was added
+
+Create `docs/credits.md` if it does not exist. Keep the existing table
+format.
+
 ## Open Graph Images
 
 When implementing generated Open Graph preview cards from the internal editor output, assume the production output should be PNG unless explicitly instructed otherwise.

@@ -201,7 +201,7 @@
     .ll-bt-colour-row input[type="color"] { appearance: none; -webkit-appearance: none; border: 1px solid var(--ll-border); width: 34px; height: 34px; border-radius: 9px; padding: 0; cursor: pointer; background: none; }
     .ll-bt-colour-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     .ll-bt-colour-row input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 8px; }
-    .ll-bt-hex { border: 1px solid var(--ll-border); border-radius: 9px; background: var(--ll-bg-soft); color: var(--ll-text); font-family: ui-monospace, Consolas, monospace; font-size: .76rem; font-weight: 700; padding: 8px; width: 100%; text-transform: uppercase; }
+    .ll-bt-hex { border: 1px solid var(--ll-border); border-radius: 9px; background: var(--ll-bg-soft); color: var(--ll-text); font-family: ui-monospace, Consolas, monospace; font-size: .76rem; font-weight: 700; padding: 8px; width: 100%; text-transform: uppercase; grid-column: 1 / -1; }
 
     /* Typography — selects beside a live preview */
     .ll-bt-typo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }

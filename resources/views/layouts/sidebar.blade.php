@@ -2561,6 +2561,7 @@ function llHtmxAttrs($url) {
 
     @stack('sidebar-scripts')
     @livewireScripts
+    @include('partials.comic-color-picker')
     @include('partials.studio-tour')
 </body>
 </html>
