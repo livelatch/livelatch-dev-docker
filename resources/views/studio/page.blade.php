@@ -358,10 +358,17 @@
     @endforeach
 
     @if(env('ALLOW_USER_HTML') === true)
-    <script src="{{ asset('assets/external-dependencies/ckeditor.js') }}"></script>
     <script>
-      ClassicEditor
-          .create(document.querySelector('.ckeditor'), {
+    // Swapped in via HTMX: an innerHTML-inserted <script src> does not block the
+    // following inline script, so ClassicEditor could be undefined. Load the
+    // editor dynamically (onload fires reliably for created scripts), init once.
+    (function () {
+      function initCkeditor() {
+        var el = document.querySelector('.ckeditor');
+        if (!el || el.dataset.ckReady === '1' || typeof ClassicEditor === 'undefined') return;
+        el.dataset.ckReady = '1';
+        ClassicEditor
+          .create(el, {
               toolbar: {
                   items: [
                       'exportPDF', 'exportWord', '|',
@@ -412,9 +419,18 @@
                   }
               }
           })
-          .catch(error => {
-              console.error(error);
-          });
+          .catch(function (error) { console.error(error); });
+      }
+      if (typeof ClassicEditor !== 'undefined') {
+        initCkeditor();
+      } else {
+        var s = document.createElement('script');
+        s.src = '{{ asset('assets/external-dependencies/ckeditor.js') }}';
+        s.onload = initCkeditor;
+        s.onerror = function () { console.error('CKEditor failed to load.'); };
+        document.head.appendChild(s);
+      }
+    })();
     </script>
     @endif
 </div>

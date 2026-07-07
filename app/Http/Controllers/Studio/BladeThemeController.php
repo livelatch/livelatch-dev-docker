@@ -185,6 +185,18 @@ class BladeThemeController extends Controller
             $out[$key] = max($min, min($max, (int) $input[$key]));
         }
 
+        // Text controls — plain text, angle brackets stripped, clamped to the
+        // manifest maxlength (hard cap 4000). Themes must still escape on
+        // render ({{ }}); this only guarantees the stored value is inert.
+        foreach ($controls['texts'] ?? [] as $key => $cfg) {
+            if (!is_string($key) || !isset($input[$key])) {
+                continue;
+            }
+            $max = max(1, min(4000, (int) (($cfg['maxlength'] ?? null) ?: 200)));
+            $value = str_replace(['<', '>'], '', (string) $input[$key]);
+            $out[$key] = mb_substr($value, 0, $max);
+        }
+
         // Custom CSS — Pro-gated; angle brackets stripped (defence in depth,
         // the theme also strips them at render time).
         if (!empty($controls['customCss']['pro']) && isset($input['customCss']) && $this->isPro($user)) {

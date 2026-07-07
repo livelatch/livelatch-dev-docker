@@ -20,6 +20,45 @@
     var llConsent = window.llReadCookieConsent();
     var llAllow = llConsent === 'all';
 
+    // Drop exception events that are third-party noise, not app bugs, so real
+    // errors stay visible in PostHog error tracking. Everything non-matching is
+    // passed through untouched.
+    window.llFilterPosthogEvent = function (event) {
+        if (!event || event.event !== '$exception') {
+            return event;
+        }
+        try {
+            var first = (event.properties && event.properties.$exception_list &&
+                event.properties.$exception_list[0]) || {};
+            var msg = String(first.value || '');
+            var stack = (first.stacktrace && JSON.stringify(first.stacktrace)) || '';
+
+            // Cross-origin "Script error." — CORS-masked, no actionable stack.
+            // Genuine errors in our own CDN scripts are un-masked separately by
+            // the crossorigin="anonymous" attribute on those <script> tags.
+            if (msg === 'Script error.' || msg === 'Script error') {
+                return null;
+            }
+
+            // Injected scripts (browser extensions / social in-app browsers)
+            // that read our OG/meta tags and hit null. Our pages DO include the
+            // tags — these throws originate outside our code.
+            if (/meta\[property=.?og:/.test(msg) &&
+                /(null is not an object|Cannot read propert|undefined is not an object)/i.test(msg)) {
+                return null;
+            }
+
+            // Common browser-extension scheme noise (errors originating from
+            // chrome-extension:// / moz-extension:// injected code).
+            if (/(chrome-extension|moz-extension|safari-web-extension):\/\//.test(stack)) {
+                return null;
+            }
+        } catch (e) {
+            // Never let the filter itself swallow a real event.
+        }
+        return event;
+    };
+
     posthog.init('{{ config('services.posthog.key') }}', {
         api_host: '{{ config('services.posthog.host') }}',
         defaults: '2026-01-30',
@@ -31,6 +70,7 @@
         person_profiles: 'identified_only',
         persistence: llAllow ? 'localStorage+cookie' : 'memory',
         disable_session_recording: !llAllow,
+        before_send: window.llFilterPosthogEvent,
         loaded: function (posthog) {
             posthog.register({
                 app: 'livelatch',

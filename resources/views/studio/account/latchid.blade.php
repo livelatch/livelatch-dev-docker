@@ -363,7 +363,7 @@
 </div>
 
 @if($latchIdConfigured)
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
     <script>
         (function () {
             'use strict';

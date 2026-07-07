@@ -64,6 +64,10 @@ The manifest tells the Theme Studio what your theme is and which controls to sho
     "sliders": {
       "sunGlow": { "label": "Sun glow", "min": 0, "max": 100, "step": 5, "default": 50 }
     },
+    "texts": {
+      "tagline": { "label": "Tagline", "maxlength": 120, "placeholder": "Welcome to the city" },
+      "story":   { "label": "Your story", "maxlength": 2000, "multiline": true, "rows": 8 }
+    },
     "customCss": { "pro": true }
   }
 }
@@ -80,6 +84,7 @@ The manifest tells the Theme Studio what your theme is and which controls to sho
   - **`colours`** — up to **4** `{ key, label }`; rendered as swatch + hex fields.
   - **`typography`** — `heading` and/or `body` slots `{ key, label, default, options[] }`; rendered as font pickers. Your blade builds a Google Fonts request from the chosen families.
   - **`sliders`** — `{ label, min, max, step, default }`; rendered as range inputs (integers).
+  - **`texts`** — `{ label, maxlength, multiline?, rows?, placeholder? }` keyed by setting; rendered as a text input (or textarea when `multiline`) with a live character counter. `maxlength` is capped at **4000**. Use for creator-written copy — taglines, headings, whole stories (see the Twin Suns opening crawl).
   - **`customCss`** — `{ "pro": true }` to offer a Pro-gated custom-CSS box.
 
 ### How values are sanitised (important)
@@ -89,6 +94,7 @@ Whatever the user enters is validated **against your manifest** before it reache
 - colours must match `#[0-9a-fA-F]{3,8}`,
 - typography must be one of your `options` (or alphanumeric/space if you list none),
 - sliders are clamped to your `min`/`max` and cast to integers,
+- texts have `<`/`>` stripped and are clamped to your `maxlength` (hard cap 4000) — still escape them with `{{ }}` when rendering,
 - custom CSS is only kept for Pro users and has `<`/`>` stripped.
 
 Anything not declared is dropped. **Always re-validate in the blade too** (defence in depth — see below).
