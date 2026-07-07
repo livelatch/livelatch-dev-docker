@@ -711,6 +711,14 @@
     </div>
 </div>
 
+@if(env('ALLOW_USER_HTML') === true)
+{{-- Rich-text (CKEditor) init for Text blocks. Block config forms are injected
+     via innerHTML, so their inline scripts never run — the shared bootstrap is
+     driven by window.llInitCkeditors() on the `contentLoaded` event below. --}}
+<script>window.llCkeditorSrc = @json(asset('assets/external-dependencies/ckeditor.js'));</script>
+<script src="{{ asset('assets/js/ll-ckeditor-init.js') }}"></script>
+@endif
+
 <script>
     window.LivelatchLinksManager = window.LivelatchLinksManager || {
         init: function () {
@@ -967,6 +975,16 @@
 
             document.addEventListener('contentLoaded', wireLinkForm);
             wireLinkForm();
+
+            // Injected block forms (e.g. the Text block) carry a `.ckeditor`
+            // textarea but their inline init script can't run after innerHTML;
+            // mount the rich-text editor here instead. Idempotent per field.
+            function initInjectedCkeditors() {
+                if (typeof window.llInitCkeditors === 'function') {
+                    window.llInitCkeditors();
+                }
+            }
+            document.addEventListener('contentLoaded', initInjectedCkeditors);
 
             function loadBlockParams(typeId) {
                 if (!paramsContainer) {
