@@ -16,3 +16,4 @@ _ide_*
 /docs/.obsidian
 /.obsidian
 database/database.sqlite
+database/database.sqlite
