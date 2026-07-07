@@ -2278,7 +2278,9 @@ function llHtmxAttrs($url) {
     <script src="{{ asset('assets/js/Sortable.min.js') }}"></script>
     <script src="{{ asset('assets/js/jquery-block-ui.js') }}"></script>
     <script src="{{ asset('assets/js/main-dashboard.js') }}"></script>
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    {{-- crossorigin so genuine htmx errors surface with a real stack instead of
+         being masked by the browser as a cross-origin "Script error." --}}
+    <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
 
     <script>
         // Cross-fade page swaps via the View Transitions API where available

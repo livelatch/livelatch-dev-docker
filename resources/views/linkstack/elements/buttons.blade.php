@@ -77,12 +77,18 @@
                     var id = event.target.id;
                     if (!sessionStorage.getItem('clicked-' + id)) {
                         var url = '{{ route("clickNumber") }}/' + id;
+                        // Fire-and-forget click beacon. keepalive lets it survive
+                        // the navigation the click triggers (otherwise the browser
+                        // aborts it as "Failed to fetch"); catch swallows any
+                        // residual network failure so it never becomes an
+                        // unhandled rejection.
                         fetch(url, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                        });
+                            keepalive: true,
+                        }).catch(function () { /* click tracking is best-effort */ });
                         sessionStorage.setItem('clicked-' + id, 'true');
                     }
                 }

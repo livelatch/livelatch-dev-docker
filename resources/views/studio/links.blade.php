@@ -1106,7 +1106,17 @@
                 refreshPreview.addEventListener('click', refreshPhonePreview);
             }
 
-            if (sortableList && window.Sortable) {
+            function initLinkSortable() {
+                if (!sortableList) return;
+                // Sortable.min.js is loaded at the end of the layout body, i.e.
+                // AFTER this content script on a full page load. When it isn't
+                // ready yet, wait for the window 'load' event and retry. On an
+                // HTMX swap Sortable is already present, so this runs inline.
+                if (!window.Sortable) {
+                    window.addEventListener('load', initLinkSortable, { once: true });
+                    return;
+                }
+                if (Sortable.get(sortableList)) return; // guard against double-init on HTMX re-runs
                 Sortable.create(sortableList, {
                     handle: '.sortable-handle',
                     animation: 150,
@@ -1154,6 +1164,7 @@
                     }
                 });
             }
+            initLinkSortable();
 
             const initialOption = blockOptions.find(function (option) {
                 return option.dataset.typeid === selectedTypeInput.value;

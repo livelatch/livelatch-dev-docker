@@ -23,7 +23,10 @@ class Ai
         $ai = is_array($ai) ? $ai : [];
 
         $categories = config('ai.categories', ['none', 'assisted', 'generated']);
-        $category = in_array($ai['category'] ?? 'none', $categories, true) ? $ai['category'] : 'none';
+        $category = $ai['category'] ?? 'none';
+        if (!in_array($category, $categories, true)) {
+            $category = 'none';
+        }
 
         $tools = array_values(array_filter(
             array_map(fn ($t) => trim((string) $t), (array) ($ai['tools'] ?? [])),

@@ -203,6 +203,14 @@
     .ll-bt-colour-row input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 8px; }
     .ll-bt-hex { border: 1px solid var(--ll-border); border-radius: 9px; background: var(--ll-bg-soft); color: var(--ll-text); font-family: ui-monospace, Consolas, monospace; font-size: .76rem; font-weight: 700; padding: 8px; width: 100%; text-transform: uppercase; grid-column: 1 / -1; }
 
+    /* Text controls (manifest `controls.texts`) */
+    .ll-bt-text-field { margin-bottom: 12px; }
+    .ll-bt-text-field:last-child { margin-bottom: 0; }
+    .ll-bt-text-field label { display: block; color: var(--ll-muted); font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .ll-bt-textin, .ll-bt-textarea { width: 100%; border: 1px solid var(--ll-border); border-radius: 10px; background: var(--ll-bg-soft); color: var(--ll-text); font-weight: 500; font-size: .85rem; padding: 9px 10px; }
+    .ll-bt-textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+    .ll-bt-text-count { display: block; text-align: right; color: var(--ll-muted); font-size: .65rem; font-weight: 700; margin-top: 4px; }
+
     /* Typography — selects beside a live preview */
     .ll-bt-typo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
     .ll-bt-type-field { margin-bottom: 12px; }
@@ -323,6 +331,11 @@
                 <div class="ll-bt-sec" id="ll-bt-effects-panel">
                     <div class="ll-bt-sec-title"><i class="bi bi-sliders"></i> Effects</div>
                     <div id="ll-bt-sliders"></div>
+                </div>
+
+                <div class="ll-bt-sec" id="ll-bt-texts-panel" hidden>
+                    <div class="ll-bt-sec-title"><i class="bi bi-card-text"></i> Text &amp; story</div>
+                    <div id="ll-bt-texts"></div>
                 </div>
 
                 <div class="ll-bt-sec" id="ll-bt-icons-panel">
@@ -555,6 +568,7 @@
         renderColours();
         renderTypography();
         renderSliders();
+        renderTexts();
         renderCustomCss();
         syncIconControls();
         updateApplyLock();
@@ -576,6 +590,7 @@
                 renderColours();
                 renderTypography();
                 renderSliders();
+                renderTexts();
                 markActivePreset(pill);
                 schedulePreview();
             });
@@ -673,6 +688,50 @@
             range.addEventListener('input', () => { out.textContent = range.value; state.settings[key] = Number(range.value); });
             range.addEventListener('change', () => { state.settings[key] = Number(range.value); schedulePreview(); });
             wrap.appendChild(row);
+        });
+    }
+
+    // ---- Text controls ----
+    function renderTexts() {
+        const panel = $('#ll-bt-texts-panel');
+        const wrap = $('#ll-bt-texts');
+        const texts = controls().texts || {};
+        wrap.innerHTML = '';
+        if (!Object.keys(texts).length) { panel.hidden = true; return; }
+        panel.hidden = false;
+
+        Object.keys(texts).forEach(key => {
+            const cfg = texts[key] || {};
+            const max = Math.max(1, Math.min(4000, parseInt(cfg.maxlength, 10) || 200));
+            const val = (state.settings[key] != null) ? String(state.settings[key]) : String(defaultsFor(state.slug)[key] || '');
+            state.settings[key] = val;
+
+            const field = document.createElement('div');
+            field.className = 'll-bt-text-field';
+            field.innerHTML = '<label>' + escapeHtml(cfg.label || key) + '</label>';
+
+            const input = document.createElement(cfg.multiline ? 'textarea' : 'input');
+            input.className = cfg.multiline ? 'll-bt-textarea' : 'll-bt-textin';
+            if (!cfg.multiline) input.type = 'text';
+            if (cfg.multiline && cfg.rows) input.rows = parseInt(cfg.rows, 10) || 6;
+            input.maxLength = max;
+            input.placeholder = cfg.placeholder || '';
+            input.value = val;
+
+            const count = document.createElement('span');
+            count.className = 'll-bt-text-count';
+            count.textContent = val.length + ' / ' + max;
+
+            let t;
+            input.addEventListener('input', () => {
+                state.settings[key] = input.value;
+                count.textContent = input.value.length + ' / ' + max;
+                clearTimeout(t); t = setTimeout(schedulePreview, 600);
+            });
+
+            field.appendChild(input);
+            field.appendChild(count);
+            wrap.appendChild(field);
         });
     }
 
@@ -871,6 +930,7 @@
     renderColours();
     renderTypography();
     renderSliders();
+    renderTexts();
     renderCustomCss();
     renderDevices();
     bindBrowser();

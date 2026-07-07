@@ -142,7 +142,7 @@
 
     <div id="tb-toast" class="tb-toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.js.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.6/dist/driver.js.iife.js" crossorigin="anonymous"></script>
 <script>
 (function(){
     "use strict";
