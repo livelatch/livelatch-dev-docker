@@ -9,15 +9,6 @@
 <label for='link' class='form-label'>{{__('messages.Telephone number')}}</label>
 <input type='tel' name='link' value='{{str_replace("tel:", "", $link)}}' class='form-control' required />
 <span class='small text-muted'>{{__('messages.Enter your telephone number')}}</span>
-
-<script>
-$(document).ready(function() {
-    $('form').on('submit', function(e) {
-        var linkInput = $(this).find('input[name="link"]');
-        var linkValue = linkInput.val();
-        if (!linkValue.toLowerCase().startsWith('tel:')) {
-            linkInput.val('tel:' + linkValue);
-        }
-    });
-});
-</script>
+{{-- The "tel:" prefix is applied by LivelatchLinksManager on form submit
+     (resources/views/studio/links.blade.php); an inline script here would never
+     run — this form is injected via innerHTML. --}}

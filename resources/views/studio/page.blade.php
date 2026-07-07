@@ -358,6 +358,9 @@
     @endforeach
 
     @if(env('ALLOW_USER_HTML') === true)
+    <script>window.llCkeditorSrc = @json(asset('assets/external-dependencies/ckeditor.js'));</script>
+    <script src="{{ asset('assets/js/ll-ckeditor-init.js') }}"></script>
+    <script>window.llInitCkeditors();</script>
     <script>
     // Swapped in via HTMX: an innerHTML-inserted <script src> does not block the
     // following inline script, so ClassicEditor could be undefined. Load the
