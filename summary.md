@@ -8,6 +8,21 @@ Current coverage: 71 fork commits from `8e19376` on 2026-05-12 through `da2fde9`
 
 ## Recent Changes
 
+### 2026-07-17
+
+- Agent: Copilot
+- **Migrated `docs/todos/` to GitHub Issues for proper issue tracking.** All tracked todos from the Markdown files have been converted into GitHub issues with full context, checklists, and labels:
+  - **Issue #15**: Fan Service Layer — Grow the Idea (product enhancement)
+  - **Issue #16**: Marketing Sending Subdomain (Resend) (email operations)
+  - **Issue #17**: YouTube API Provider Setup (integrations, currently blocked)
+  - **Issue #18**: Switch plan resolution from price ID to product ID (billing/stripe)
+  - **Issue #19**: Data Collection Logic & Compliance Confirmation (compliance, privacy)
+  - **Issue #20**: Create Supabase Social Metric Snapshots Table (analytics, dashboard)
+  - **Issue #21**: Weekly Stats Digest Edge Function → Resend (email, analytics)
+  - **Issue #14**: Attack Protection via Supabase (new security feature request)
+- Deleted all `docs/todos/*.md` files; proper issue tracking now centralized in GitHub.
+- **Issue #22**: Establish DevOps Flow & Jira Integration — covers moving from Markdown tracking to a structured Jira + GitHub workflow with automation rules, issue templates, and CI/CD integration.
+
 ### 2026-07-07
 
 - Agent: Claude (Opus)
